@@ -1,7 +1,7 @@
 /*
     1. Template Strings (`)
     2. Optional Parameters
-    3. let , const
+    3. let, const
     4. for-of loop
     5. destructuring
     6. Spread Operator
