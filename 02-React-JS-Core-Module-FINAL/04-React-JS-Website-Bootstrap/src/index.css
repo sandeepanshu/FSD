@@ -1,4 +1,10 @@
 body {
-  margin: 0px;
   font-family: "Ubuntu", sans-serif;
+  margin: 0px;
+}
+.bg-teal {
+  background-color: #205e5e;
+}
+.table tbody tr td {
+  font-weight: bold;
 }

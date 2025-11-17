@@ -1,7 +1,7 @@
 const Intro = () => {
   return (
     <>
-      <section className="bg-info text-white p-5">
+      <section className="bg-teal text-white p-5">
         <div className="container">
           <div className="row">
             <div className="col text-center">
