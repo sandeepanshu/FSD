@@ -19,7 +19,7 @@ const ParentCard: React.FC = () => {
         <div className="row">
           <div className="col-md-8">
             <div className="card">
-              <div className="card-body rgba-blue-light text-white">
+              <div className="card-body bg-primary text-white">
                 <div className="row">
                   <div className="col-md-4">
                     <form>
@@ -37,7 +37,7 @@ const ParentCard: React.FC = () => {
                 </div>
 
                 {/* Show Child Input Message */}
-                <small className="text-dark font-weight-bold">{cText}</small>
+                <small className="text-white fw-bold">{cText}</small>
 
                 {/* Send Parent text + callback to child */}
                 <ChildCard pText={pText} sendData={receiveData} />

@@ -20,7 +20,7 @@ const ChildCard: React.FC<IProps> = ({ pText, sendData }) => {
         <div className="row">
           <div className="col">
             <div className="card">
-              <div className="card-body rgba-red-light text-white">
+              <div className="card-body bg-danger text-white">
                 <div className="row">
                   <div className="col-md-4">
                     <form>
@@ -38,7 +38,7 @@ const ChildCard: React.FC<IProps> = ({ pText, sendData }) => {
                 </div>
 
                 {/* Show Parent Text */}
-                <small className="text-dark font-weight-bold">{pText}</small>
+                <small className="text-white fw-bold">{pText}</small>
               </div>
             </div>
           </div>
