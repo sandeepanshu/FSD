@@ -1,17 +1,15 @@
 import "./App.css";
-import CardSection from "./components/CardSection";
 import Footer from "./components/Footer";
-import Intro from "./components/Intro";
-import LandingPage from "./components/LandingPage";
 import NavBar from "./components/NavBar";
+import ProductItem from "./components/ProductItem";
 
 function App() {
   return (
     <>
       <NavBar />
-      <LandingPage />
-      <Intro />
-      <CardSection />
+      {/* <Welcome /> */}
+      {/* <WishMessage /> */}
+      <ProductItem />
       <Footer />
     </>
   );
