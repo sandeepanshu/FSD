@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Environment variables (IMPORTANT: keep secrets out of GitHub)
+.env
+.env.local
+.env.development
+.env.production
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
