@@ -1,58 +1,29 @@
-import http from "http";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import http from 'http'; // load modules
+import * as str from "./util/strOperations.ts";
 
-// Fix __dirname for ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const hostName:string = '127.0.0.1';
+const port:number = 5000;
+let output : string = '';
 
-const hostName = "127.0.0.1";
-const port = 5000;
+const server:http.Server = http.createServer((request:http.IncomingMessage , response:http.ServerResponse) => {
+    response.statusCode = 200;
+    response.setHeader('Content-Type' , 'text/html');
 
-const server = http.createServer(async (req, res) => {
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/html");
+    // custom Modules
+    let message:string = 'Good Morning';
+    let rev:string = str.reverseStr(message);
+    print(rev);
 
-  let output = "";
+    let sum = str.add(10,200);
+    print(sum.toString());
 
-  const print = (msg: string) => (output += msg + "\n");
-
-  // PROMISE #1 → Copy message.txt → data.txt
-  const p1 = new Promise<void>((resolve, reject) => {
-    fs.readFile(path.join(__dirname, "data", "message.txt"), "utf-8", (err, data) => {
-      if (err) return reject(err);
-
-      fs.writeFile(path.join(__dirname, "data", "data.txt"), data, "utf-8", (err) => {
-        if (err) return reject(err);
-
-        print("✔ Data written to data.txt");
-        resolve();
-      });
-    });
-  });
-
-  // PROMISE #2 → Copy server.ts → program/app.ts
-  const p2 = new Promise<void>((resolve, reject) => {
-    fs.readFile(path.join(__dirname, "server.ts"), "utf-8", (err, data) => {
-      if (err) return reject(err);
-
-      fs.writeFile(path.join(__dirname, "program", "app.ts"), data, "utf-8", (err) => {
-        if (err) return reject(err);
-
-        print("✔ server.ts copied to program/app.ts");
-        resolve();
-      });
-    });
-  });
-
-  // Wait for both operations
-  await Promise.all([p1, p2]);
-
-  // NOW send response
-  res.end(`<pre style="color: orangered">${output}</pre>`);
+    response.end(`<pre style="color: orangered">${output}</pre>`);
 });
 
-server.listen(port, hostName, () => {
-  console.log(`Server running at http://${hostName}:${port}`);
+let print = (str:string) => {
+    output += `${str} \n`;
+};
+
+server.listen(port , hostName , () => {
+    console.log(`Node JS Server is Started at http://${hostName}:${port}`);
 });
