@@ -4,17 +4,17 @@ const NavBar: React.FC = () => {
   return (
     <nav className="navbar navbar-dark bg-primary navbar-expand-sm">
       <div className="container">
-
         <NavLink to="/" className="navbar-brand">
-          <i className="fa fa-snowflake" /> React Routing
+          <i className="fa fa-shopping-cart" />
+          BigBasket
         </NavLink>
 
         <div className="collapse navbar-collapse">
           {/* Left Menu */}
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <NavLink to="/employees/list" className="nav-link">
-                Employees
+              <NavLink to="/products/list" className="nav-link">
+                Products
               </NavLink>
             </li>
 
@@ -33,6 +33,11 @@ const NavBar: React.FC = () => {
 
           {/* Right Menu */}
           <ul className="navbar-nav ms-auto flex-row gap-2">
+            <li className="nav-item">
+              <NavLink to="/products/admin" className="nav-link">
+                Admin
+              </NavLink>
+            </li>
             <li className="nav-item">
               <NavLink to="/users/register" className="nav-link">
                 Register

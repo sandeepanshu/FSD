@@ -1,0 +1,82 @@
+// https://mongoosejs.com/docs/queries.html
+
+
+Mongo DB
+--------
+BigBasket Application -> CRUD -> Full Stack -> MERN
+
+
+Server Setup (MEN)
+------------
+npm init --yes
+tsc --init
+npm install @types/node express @types/express dotenv @types/dotenv mongoose @types/mongoose cors @types/cors express-validator @types/express-validator
+
+
+REST API Setup
+---------------
+1. INFO : READ all the Products Info
+   URL : http://127.0.0.1:5000/api/products/
+   METHOD : GET
+   FIELDS : no-fields
+
+2. INFO : READ a single Product Info
+   URL : http://127.0.0.1:5000/api/products/:productId
+   METHOD : GET
+   FIELDS : no-fields
+
+3. INFO : CREATE a Product
+   URL : http://127.0.0.1:5000/api/products/
+   METHOD : POST
+   FIELDS : name , image , price , qty , info
+
+4. INFO : UPDATE a Product
+   URL : http://127.0.0.1:5000/api/products/:productId
+   METHOD : PUT
+   FIELDS : name , image , price , qty , info
+
+5. INFO : DELETE a Product
+   URL : http://127.0.0.1:5000/api/products/:productId
+   METHOD : DELETE
+   FIELDS : no-fields
+
+
+DataBase Setup (MongoDB)
+---------------
+DataBase Name : React-BigBasket
+Table NAME : product
+Fields : id , name , image , price , qty , info , created_at , updated_at
+
+
+
+Operation - CMD -    Program
+--------------------------
+READ  ->    find()  -> find()
+READ Single -> findOne() -> findOne()
+CREATE -> insertOne() -> save()
+UPDATE -> updateOne() -> findByIdAndUpdate() / findOneAndUpdate()
+DELETE -> deleteOne() -> findByIdAndDelete() / findOneAndUpdate()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
