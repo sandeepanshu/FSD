@@ -1,6 +1,6 @@
 import express from "express";
 import type { IProduct } from "../models/IProduct.ts";
-import ProductTable from "../models/Product.js";
+import ProductTable from "../models/Product.ts";
 
 const productRouter: express.Router = express.Router();
 
