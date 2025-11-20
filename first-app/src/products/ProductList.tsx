@@ -11,7 +11,7 @@ const ProductList: React.FC = () => {
 
     axios
       .get(dataURL)
-      .then((response) => setProducts(response.data))
+      .then((response) => setProducts(response.data.products))
       .catch((error) => console.error(error));
   }, []);
 

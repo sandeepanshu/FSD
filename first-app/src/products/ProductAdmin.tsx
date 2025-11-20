@@ -12,13 +12,14 @@ const ProductAdmin: React.FC = () => {
 
     axios
       .get(dataURL)
-      .then((response) => setProducts(response.data))
+      .then((response) => setProducts(response.data.products))
       .catch((error) => console.error(error));
   };
 
   
   // Fetch products on load
   useEffect(() => {
+    console.log("Hello Products")
     getAllProducts();
   }, []);
 
