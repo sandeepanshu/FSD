@@ -1,0 +1,28 @@
+.product-row {
+  transition: 0.2s ease;
+}
+.product-row:hover {
+  background: #f8f9fa;
+  transform: scale(1.01);
+}
+
+.btn-group .btn {
+  transition: 0.2s;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-danger:hover {
+  transform: translateY(-2px);
+}
+
+.badge {
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+}
+
+.bg-success-subtle {
+  background: #d1e7dd;
+}
+.bg-info-subtle {
+  background: #cff4fc;
+}
