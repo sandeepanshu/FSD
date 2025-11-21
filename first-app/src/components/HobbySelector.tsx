@@ -123,7 +123,6 @@ const HobbySelector: React.FC = () => {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
