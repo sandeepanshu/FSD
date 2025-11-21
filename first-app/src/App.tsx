@@ -1,15 +1,13 @@
 import { BrowserRouter as Router, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import UserList from "./components/UserList";
- 
-function App() {
-  
 
+function App() {
   return (
     <>
       <Router>
         <NavBar />
-           <UserList/>
+        <UserList />
 
         <Routes></Routes>
       </Router>
