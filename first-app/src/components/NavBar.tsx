@@ -4,7 +4,7 @@ function NavBar() {
       <nav className="navbar navbar-expand-sm navbar-dark bg-dark shadow-sm">
         <div className="container">
           <a href="/" className="navbar-brand fw-bold">
-            React Redux
+            React Redux - Events Bindings
           </a>
 
           <button
