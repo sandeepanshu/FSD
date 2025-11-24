@@ -8,7 +8,7 @@ const productRouter: express.Router = express.Router();
     1. INFO : READ all the Products Info
        URL : http://127.0.0.1:5000/api/products
        METHOD : GET
-       FIELDS : no-fields
+       FIELDS : no-fields 
  */
 productRouter.get(
   "/products",
