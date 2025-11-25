@@ -1,12 +1,16 @@
-import React from "react";
-import spinnerImage from "../../assets/img/spinner.gif";
+import React from 'react';
+import spinnerImage from '../../assets/img/spinner.gif';
 
-const Spinner: React.FC = () => {
-  return (
-    <div className="text-center">
-      <img src={spinnerImage} alt="Loading..." className="d-block m-auto" />
-    </div>
-  );
-};
+interface IProps {}
+
+let Spinner:React.FC<IProps> = () => {
+    return (
+        <React.Fragment>
+            <div>
+                <img src={spinnerImage} alt="" className="d-block m-auto"/>
+            </div>
+        </React.Fragment>
+    )
+}
 
 export default Spinner;

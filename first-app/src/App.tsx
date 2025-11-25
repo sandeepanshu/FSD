@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar";
-import UserList from "./components/UserList";
+import ContactApp from "./components/ContactApp";
 
 
 function App() {
   return (
     <BrowserRouter>
       <NavBar />
-      <UserList />
+      <ContactApp />
       <Routes></Routes>
     </BrowserRouter>
   );

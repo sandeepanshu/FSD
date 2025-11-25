@@ -4,7 +4,7 @@ function NavBar() {
       <nav className="navbar navbar-expand-sm navbar-dark bg-dark shadow-sm">
         <div className="container">
           <a href="/" className="navbar-brand fw-bold">
-            React Redux - Server - HTTP Calls
+            React Redux - Contact App
           </a>
           <button
             className="navbar-toggler"

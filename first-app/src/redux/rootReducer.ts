@@ -7,6 +7,7 @@ import authReducer from "./auth-user/auth-user.slice";
 import employeeReducer from "./employee/employee.slice";
 import hobbyReducer from "./hobby-selector/hobby-selector.slice";
 import userReducer from "./user/user.slice";
+import contactReducer from "./contact-app/contact-app.slice";
 
 export const rootReducer = combineReducers({
   msg: messageReducer,
@@ -17,6 +18,7 @@ export const rootReducer = combineReducers({
   employee: employeeReducer,
   hobby: hobbyReducer,
   user: userReducer,
+  contact: contactReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
