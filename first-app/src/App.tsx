@@ -1,12 +1,17 @@
 import { BrowserRouter, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar";
-import Registration from "./components/register/Registration";
+import AuthUser from "./components/AuthUser";
+import EmployeeCards from "./components/EmployeeCards";
+import HobbySelector from "./components/HobbySelector";
+
 
 function App() {
   return (
     <BrowserRouter>
       <NavBar />
-      <Registration />
+      <AuthUser/>
+      <EmployeeCards/>
+      <HobbySelector/>
       <Routes></Routes>
     </BrowserRouter>
   );
