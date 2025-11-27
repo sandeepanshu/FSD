@@ -32,31 +32,38 @@ const UPIPaymentForm: React.FC<Props> = ({
     setErrorMsg("");
 
     if (!validateUPI(upiId)) {
-      setErrorMsg("Invalid UPI ID format. Use format: username@bankname");
+      setErrorMsg("Invalid UPI ID format. Use: username@bankname");
       return;
     }
 
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY);
+
+      // FIX: user with correct typing
       const user = localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")!)
+        ? (JSON.parse(localStorage.getItem("user")!) as any)
         : {};
 
-      const response = await fetch("http://localhost:5000/api/payments/upi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": token || "",
-        },
-        body: JSON.stringify({
-          upiId,
-          amount: totalAmount,
-          email: user.email,
-          userName: user.name,
-        }),
-      });
+      // FIX: Use Render backend URL
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/payments/upi`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": token || "",
+          },
+          body: JSON.stringify({
+            upiId,
+            amount: totalAmount,
+            email: user?.email ?? "",
+            userName: user?.name ?? "",
+            mobile: user?.mobile ?? "",
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -68,7 +75,11 @@ const UPIPaymentForm: React.FC<Props> = ({
           qty: c.qty,
         }));
 
+        // FIX: Required fields + placeholder paymentIntentId
         const order = {
+          name: user?.name ?? "",
+          email: user?.email ?? "",
+          mobile: user?.mobile ?? "",
           items,
           tax: CartUtil.calcTax(cartItems),
           total: CartUtil.calcTotal(cartItems),
@@ -76,7 +87,14 @@ const UPIPaymentForm: React.FC<Props> = ({
           paymentStatus: "completed",
         };
 
-        dispatch(makeStripePayment({ order, navigate }));
+        dispatch(
+          makeStripePayment({
+            paymentIntentId: "upi-payment",
+            order,
+          })
+        );
+
+        navigate("/orders/success");
       } else {
         setErrorMsg(data.message || "UPI payment failed");
       }
@@ -90,6 +108,7 @@ const UPIPaymentForm: React.FC<Props> = ({
   return (
     <form className="checkout-form" onSubmit={handleSubmit}>
       <label className="form-label">UPI ID</label>
+
       <input
         type="text"
         className="form-control mb-3"
@@ -101,8 +120,7 @@ const UPIPaymentForm: React.FC<Props> = ({
 
       <div className="info-box mb-2">
         <small>
-          💡 Common UPI providers: @okaxis, @okhdfcbank, @okicici, @oksbi,
-          @okbank
+          💡 Common UPI providers: @okaxis, @okhdfcbank, @okicici, @oksbi, @okbank
         </small>
       </div>
 

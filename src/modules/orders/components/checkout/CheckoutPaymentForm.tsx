@@ -40,17 +40,20 @@ const CheckoutPaymentForm: React.FC<Props> = ({
       setLoading(true);
 
       const token = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY);
-      if (!token) throw new Error("Authentication token not found. Please login again.");
+      if (!token)
+        throw new Error("Authentication token not found. Please login again.");
 
-      // 1️⃣ Create PaymentIntent
-      const res = await fetch("http://localhost:5000/api/payments/create-intent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": token,
-        },
-        body: JSON.stringify({ amount: totalAmount }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/payments/create-intent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": token,
+          },
+          body: JSON.stringify({ amount: totalAmount }),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -66,7 +69,7 @@ const CheckoutPaymentForm: React.FC<Props> = ({
 
       if (confirm.error) throw new Error(confirm.error.message);
 
-      // 3️⃣ On success → verify payment on backend + place order
+      // 3️⃣ On success → verify payment + place order
       if (confirm.paymentIntent?.status === "succeeded") {
         const items = cartItems.map((c) => ({
           name: c.name,
@@ -76,6 +79,9 @@ const CheckoutPaymentForm: React.FC<Props> = ({
         }));
 
         const order = {
+          name: (user as any)?.name ?? "",
+          email: (user as any)?.email ?? "",
+          mobile: (user as any)?.mobile ?? "",
           items,
           tax: CartUtil.calcTax(cartItems),
           total: CartUtil.calcTotal(cartItems),

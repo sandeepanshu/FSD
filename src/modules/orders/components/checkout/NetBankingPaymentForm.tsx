@@ -45,13 +45,15 @@ const NetBankingPaymentForm: React.FC<Props> = ({
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY);
+
       const user = localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")!)
+        ? (JSON.parse(localStorage.getItem("user")!) as any)
         : {};
 
+      // 🔥 FIX: LIVE backend URL (Render)
       const response = await fetch(
-        "http://localhost:5000/api/payments/netbanking",
+        `${import.meta.env.VITE_API_URL}/payments/netbanking`,
         {
           method: "POST",
           headers: {
@@ -61,8 +63,9 @@ const NetBankingPaymentForm: React.FC<Props> = ({
           body: JSON.stringify({
             bankCode,
             amount: totalAmount,
-            email: user.email,
-            userName: user.name,
+            email: user?.email ?? "",
+            userName: user?.name ?? "",
+            mobile: user?.mobile ?? "",
           }),
         }
       );
@@ -77,7 +80,11 @@ const NetBankingPaymentForm: React.FC<Props> = ({
           qty: c.qty,
         }));
 
+        // 🔥 FIX: Add required fields (name, email, mobile)
         const order = {
+          name: user?.name ?? "",
+          email: user?.email ?? "",
+          mobile: user?.mobile ?? "",
           items,
           tax: CartUtil.calcTax(cartItems),
           total: CartUtil.calcTotal(cartItems),
@@ -85,7 +92,14 @@ const NetBankingPaymentForm: React.FC<Props> = ({
           paymentStatus: "completed",
         };
 
-        dispatch(makeStripePayment({ order, navigate }));
+        dispatch(
+          makeStripePayment({
+            paymentIntentId: "netbanking-payment",
+            order,
+          })
+        );
+
+        navigate("/orders/success");
       } else {
         setErrorMsg(data.message || "Net Banking payment failed");
       }
@@ -99,6 +113,7 @@ const NetBankingPaymentForm: React.FC<Props> = ({
   return (
     <form className="checkout-form" onSubmit={handleSubmit}>
       <label className="form-label">Select Your Bank</label>
+
       <select
         className="form-control mb-3"
         value={bankCode}

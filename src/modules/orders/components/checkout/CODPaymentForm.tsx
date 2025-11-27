@@ -14,7 +14,7 @@ interface Props {
 const CODPaymentForm: React.FC<Props> = ({
   cartItems,
   totalAmount,
-  
+  navigate,
 }) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -32,9 +32,11 @@ const CODPaymentForm: React.FC<Props> = ({
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY);
+
+      // 🔥 FIX: user must include name, email, mobile
       const user = localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")!)
+        ? (JSON.parse(localStorage.getItem("user")!) as any)
         : {};
 
       const items = cartItems.map((c) => ({
@@ -44,21 +46,34 @@ const CODPaymentForm: React.FC<Props> = ({
         qty: c.qty,
       }));
 
-      const response = await fetch("http://localhost:5000/api/payments/cod", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": token || "",
-        },
-        body: JSON.stringify({
-          amount: totalAmount,
-          email: user.email,
-          userName: user.name,
-          items: items,
-          tax: CartUtil.calcTax(cartItems),
-          total: CartUtil.calcTotal(cartItems),
-        }),
-      });
+      // 🔥 FIX: Use LIVE backend URL (Render)
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/payments/cod`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": token || "",
+          },
+          body: JSON.stringify({
+            amount: totalAmount,
+            email: user?.email ?? "",
+            userName: user?.name ?? "",
+            mobile: user?.mobile ?? "",
+            items: items,
+            tax: CartUtil.calcTax(cartItems),
+            total: CartUtil.calcTotal(cartItems),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "COD order creation failed");
+      }
+
+      // On success → redirect
+      navigate("/orders/success");
     } catch (err: any) {
       setErrorMsg(err.message || "Order creation failed");
     } finally {

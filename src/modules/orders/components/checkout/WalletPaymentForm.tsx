@@ -41,13 +41,15 @@ const WalletPaymentForm: React.FC<Props> = ({
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY);
+
       const user = localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")!)
+        ? (JSON.parse(localStorage.getItem("user")!) as any)
         : {};
 
+      // 🔥 FIX: Use LIVE backend server (Render)
       const response = await fetch(
-        "http://localhost:5000/api/payments/wallet",
+        `${import.meta.env.VITE_API_URL}/payments/wallet`,
         {
           method: "POST",
           headers: {
@@ -57,8 +59,9 @@ const WalletPaymentForm: React.FC<Props> = ({
           body: JSON.stringify({
             walletType,
             amount: totalAmount,
-            email: user.email,
-            userName: user.name,
+            email: user?.email ?? "",
+            userName: user?.name ?? "",
+            mobile: user?.mobile ?? "",
           }),
         }
       );
@@ -73,7 +76,11 @@ const WalletPaymentForm: React.FC<Props> = ({
           qty: c.qty,
         }));
 
+        // 🔥 FIX: Include required fields
         const order = {
+          name: user?.name ?? "",
+          email: user?.email ?? "",
+          mobile: user?.mobile ?? "",
           items,
           tax: CartUtil.calcTax(cartItems),
           total: CartUtil.calcTotal(cartItems),
@@ -81,7 +88,15 @@ const WalletPaymentForm: React.FC<Props> = ({
           paymentStatus: "completed",
         };
 
-        dispatch(makeStripePayment({ order, navigate }));
+        // 🔥 FIX: paymentIntentId REQUIRED
+        dispatch(
+          makeStripePayment({
+            paymentIntentId: "wallet-payment",
+            order,
+          })
+        );
+
+        navigate("/orders/success");
       } else {
         setErrorMsg(data.message || "Wallet payment failed");
       }
@@ -95,6 +110,7 @@ const WalletPaymentForm: React.FC<Props> = ({
   return (
     <form className="checkout-form" onSubmit={handleSubmit}>
       <label className="form-label">Select Your Wallet</label>
+
       <div className="wallet-options mb-3">
         {wallets.map((wallet) => (
           <label key={wallet.code} className="wallet-radio">
