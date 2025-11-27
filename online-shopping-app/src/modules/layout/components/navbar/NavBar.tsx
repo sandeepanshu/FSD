@@ -165,13 +165,13 @@ const NavBar: React.FC = () => {
                 <>
                   {isAuthenticated && user && user._id && (
                     <li className="nav-item dropdown">
-                      <a
-                        className="nav-link dropdown-toggle d-flex align-items-center px-3"
-                        href="#"
+                      <button
+                        className="nav-link dropdown-toggle d-flex align-items-center px-3 bg-transparent border-0 text-white"
                         id="userDropdown"
                         role="button"
                         data-mdb-toggle="dropdown"
                         aria-expanded="false"
+                        style={{ cursor: "pointer" }}
                       >
                         <img
                           src={
@@ -186,7 +186,7 @@ const NavBar: React.FC = () => {
                         />
 
                         <span className="d-none d-md-inline">{user.name}</span>
-                      </a>
+                      </button>
 
                       <ul
                         className="dropdown-menu dropdown-menu-end shadow-4-strong"

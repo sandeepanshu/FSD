@@ -5,10 +5,8 @@ import { type AppDispatch, type RootState } from "../../../../redux/store";
 import Spinner from "../../../layout/components/spinner/Spinner";
 import { type IAddress } from "../../models/IUser";
 import "./UserProfile.css";
-
 const UserProfile: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-
   const [enableState, setEnableState] = useState(false);
   const [editedAddress, setEditedAddress] = useState<IAddress | null>(null);
 
@@ -45,9 +43,27 @@ const UserProfile: React.FC = () => {
   const addressState =
     enableState && editedAddress ? editedAddress : userAddress;
 
+  const submitUpdateAddress = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    if (!editedAddress) return;
+
+    try {
+      await dispatch(updateAddress(editedAddress)).unwrap();
+      setEnableState(false);
+      setEditedAddress(null);
+    } catch (error) {
+      console.error("Failed to update address:", error);
+    }
+  };
+
+  // HEre If I enable useEffect then The Whole componenet disappear
   useEffect(() => {
-    dispatch(getUserInfo());
-  }, [dispatch]);
+    if (!user || !user._id) {
+      dispatch(getUserInfo());
+    }
+  }, [dispatch, user]);
 
   const changeAddressInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedAddress({
@@ -65,21 +81,6 @@ const UserProfile: React.FC = () => {
       setEditedAddress(null);
     }
     setEnableState(!enableState);
-  };
-
-  const submitUpdateAddress = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
-    if (!editedAddress) return;
-
-    try {
-      await dispatch(updateAddress(editedAddress)).unwrap();
-      setEnableState(false);
-      setEditedAddress(null);
-    } catch (error) {
-      console.error("Failed to update address:", error);
-    }
   };
 
   return (
@@ -120,7 +121,11 @@ const UserProfile: React.FC = () => {
                       <div className="profile-header">
                         <div className="profile-avatar-wrapper">
                           <img
-                            src={user.avatar}
+                            src={
+                              user.avatar?.startsWith("http")
+                                ? user.avatar
+                                : `https:${user.avatar}`
+                            }
                             alt={user.name}
                             className="profile-avatar"
                           />
