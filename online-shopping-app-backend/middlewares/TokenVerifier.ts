@@ -24,7 +24,6 @@ const verifyToken = (
   }
 
   try {
-    console.log("Got a Valid Token");
     const decode = jwt.verify(
       token,
       process.env.JWT_SECRET_KEY as string

@@ -14,9 +14,7 @@ const NavBar: React.FC = () => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.users
   );
-  console.log("Redux user in navbar:", user);
 
-  console.log(isAuthenticated, user, "user in navbar");
   const { cartItems } = useSelector((state: RootState) => state.orders);
 
   const handleLogOut = () => {

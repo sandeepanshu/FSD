@@ -21,12 +21,8 @@ userRouter.post(
     body("password").not().isEmpty().withMessage("Password is Required"),
   ],
   async (request: express.Request, response: express.Response) => {
-    console.log("\n====== REGISTER ROUTE HIT ======");
-    console.log("Request body:", request.body);
-
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
-      console.log("Validation errors:", errors.array());
       return response.status(400).json({ errors: errors.array() });
     }
 
@@ -34,7 +30,6 @@ userRouter.post(
       const { name, email, password } = request.body;
 
       const existingUser = await UserTable.findOne({ email });
-      console.log("Existing user:", existingUser);
 
       if (existingUser) {
         return response
@@ -45,7 +40,6 @@ userRouter.post(
       // encrypt password
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
-      console.log("Password hashed successfully");
 
       const avatar = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
 
@@ -69,13 +63,11 @@ userRouter.post(
       });
 
       await newUser.save();
-      console.log("User registered successfully:", email);
 
       response.status(200).json({
         msg: "Registration is Success",
       });
     } catch (error: any) {
-      console.error("REGISTER ERROR:", error);
       response.status(500).json({ errors: [{ msg: error.message }] });
     }
   }
@@ -93,13 +85,8 @@ userRouter.post(
   ],
 
   async (request: express.Request, response: express.Response) => {
-    console.log("\n====== LOGIN ROUTE HIT ======");
-    console.log("Request body:", request.body);
-    console.log("JWT SECRET:", process.env.JWT_SECRET_KEY);
-
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
-      console.log("Validation errors:", errors.array());
       return response.status(400).json({ errors: errors.array() });
     }
 
@@ -107,7 +94,6 @@ userRouter.post(
       const { email, password } = request.body;
 
       const user = await UserTable.findOne({ email });
-      console.log("User found:", user ? user.email : "NO");
 
       if (!user) {
         return response
@@ -116,7 +102,6 @@ userRouter.post(
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
-      console.log("Password match:", isMatch);
 
       if (!isMatch) {
         return response
@@ -128,15 +113,12 @@ userRouter.post(
         user: { id: user._id.toString(), name: user.name },
       };
 
-      console.log("Creating JWT token with payload:", payload);
-
       jwt.sign(payload, process.env.JWT_SECRET_KEY as string, (err, token) => {
         if (err) {
           console.log("JWT Signing Error:", err);
           throw err;
         }
 
-        console.log("Login Success! Token created.");
         response.status(200).json({
           msg: "Login is Success",
           token,
@@ -158,16 +140,12 @@ userRouter.get(
   "/",
   verifyToken,
   async (request: express.Request, response: express.Response) => {
-    console.log("\n====== GET USER INFO ROUTE HIT ======");
-
     try {
       const requestUserStr: any = request.headers["user"];
-      console.log("Decoded user:", requestUserStr);
 
       const requestUser = JSON.parse(requestUserStr);
 
       const user = await UserTable.findById(requestUser.id).select("-password");
-      console.log("User loaded:", user?.email);
 
       response.status(200).json(user);
     } catch (error: any) {
@@ -195,35 +173,29 @@ userRouter.post(
   ],
   verifyToken,
   async (request: express.Request, response: express.Response) => {
-    console.log("\n====== UPDATE ADDRESS ROUTE HIT ======");
-    console.log("Body:", request.body);
-
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
-      console.log("Validation errors:", errors.array());
       return response.status(400).json({ errors: errors.array() });
     }
 
     try {
       const requestUserStr: any = request.headers["user"];
-      console.log("Decoded user:", requestUserStr);
 
       const requestUser = JSON.parse(requestUserStr);
 
       const user = await UserTable.findById(requestUser.id);
-      console.log("User found for update:", user?.email);
 
       if (!user) {
-        return response.status(404).json({ errors: [{ msg: "User not found" }] });
+        return response
+          .status(404)
+          .json({ errors: [{ msg: "User not found" }] });
       }
 
       user.address = request.body;
       await user.save();
 
-      console.log("Address updated");
       response.status(200).json({ msg: "Address is updated" });
     } catch (error: any) {
-      console.error("UPDATE ADDRESS ERROR:", error);
       response.status(500).json({ errors: [{ msg: error.message }] });
     }
   }

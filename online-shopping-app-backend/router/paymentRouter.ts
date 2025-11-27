@@ -66,8 +66,6 @@ paymentRouter.post(
   verifyToken,
   cors(),
   async (request, response) => {
-    console.log("---- Stripe Card Checkout Route ----");
-
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
       apiVersion: "2023-10-16",
     });
@@ -96,15 +94,18 @@ paymentRouter.post(
           { idempotencyKey }
         );
 
-        console.log("Charge:", charge);
-        response.status(200).json({ 
+        response.status(200).json({
           msg: "payment is success",
           chargeId: charge.id,
-          status: charge.status
+          status: charge.status,
         });
       } else {
-        response.status(400).json({ 
-          errors: [{ msg: `Invalid Stripe token type: ${paymentBody.stripeTokenType}` }] 
+        response.status(400).json({
+          errors: [
+            {
+              msg: `Invalid Stripe token type: ${paymentBody.stripeTokenType}`,
+            },
+          ],
         });
       }
     } catch (error: any) {
@@ -122,8 +123,6 @@ paymentRouter.post(
   verifyToken,
   cors(),
   async (request, response) => {
-    console.log("---- Create Payment Intent ----");
-
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
       apiVersion: "2023-10-16",
     });
@@ -132,8 +131,8 @@ paymentRouter.post(
       const { amount } = request.body;
 
       if (!amount || amount <= 0) {
-        return response.status(400).json({ 
-          error: "Invalid amount" 
+        return response.status(400).json({
+          error: "Invalid amount",
         });
       }
 
@@ -141,18 +140,18 @@ paymentRouter.post(
         amount: Math.round(amount),
         currency: "inr",
         payment_method_types: ["card"],
-        metadata: { orderId: v4() }
+        metadata: { orderId: v4() },
       });
 
       response.status(200).json({
         clientSecret: paymentIntent.client_secret,
         success: true,
-        paymentIntentId: paymentIntent.id
+        paymentIntentId: paymentIntent.id,
       });
     } catch (error: any) {
       console.error("Payment intent error:", error);
-      response.status(500).json({ 
-        error: error.message || "Failed to create payment intent" 
+      response.status(500).json({
+        error: error.message || "Failed to create payment intent",
       });
     }
   }
@@ -161,72 +160,65 @@ paymentRouter.post(
 // ========================================
 // UPI PAYMENT
 // ========================================
-paymentRouter.post(
-  "/upi",
-  verifyToken,
-  cors(),
-  async (request, response) => {
-    console.log("---- UPI Payment ----");
+paymentRouter.post("/upi", verifyToken, cors(), async (request, response) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: "2023-10-16",
+  });
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-      apiVersion: "2023-10-16",
-    });
+  try {
+    const { upiId, amount, email, userName }: UPIPaymentBody = request.body;
 
-    try {
-      const { upiId, amount, email, userName }: UPIPaymentBody = request.body;
-
-      if (!upiId || !amount) {
-        return response.status(400).json({
-          success: false,
-          message: "UPI ID and amount are required"
-        });
-      }
-
-      // Validate UPI format
-      const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/;
-      if (!upiRegex.test(upiId)) {
-        return response.status(400).json({
-          success: false,
-          message: "Invalid UPI ID format"
-        });
-      }
-
-      // Create customer
-      const customer = await stripe.customers.create({
-        name: userName,
-        email: email,
-        description: `UPI Payment - ${upiId}`
-      });
-
-      // Create payment intent with UPI
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount),
-        currency: "inr",
-        payment_method_types: ["upi"],
-        customer: customer.id,
-        metadata: { 
-          paymentMethod: "upi",
-          upiId: upiId,
-          orderId: v4()
-        }
-      });
-
-      response.status(200).json({
-        success: true,
-        message: "UPI payment initiated",
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
-        upiId: upiId
-      });
-    } catch (error: any) {
-      console.error("UPI payment error:", error);
-      response.status(500).json({
+    if (!upiId || !amount) {
+      return response.status(400).json({
         success: false,
-        message: error.message || "UPI payment failed"
+        message: "UPI ID and amount are required",
       });
     }
+
+    // Validate UPI format
+    const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/;
+    if (!upiRegex.test(upiId)) {
+      return response.status(400).json({
+        success: false,
+        message: "Invalid UPI ID format",
+      });
+    }
+
+    // Create customer
+    const customer = await stripe.customers.create({
+      name: userName,
+      email: email,
+      description: `UPI Payment - ${upiId}`,
+    });
+
+    // Create payment intent with UPI
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount),
+      currency: "inr",
+      payment_method_types: ["upi"],
+      customer: customer.id,
+      metadata: {
+        paymentMethod: "upi",
+        upiId: upiId,
+        orderId: v4(),
+      },
+    });
+
+    response.status(200).json({
+      success: true,
+      message: "UPI payment initiated",
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+      upiId: upiId,
+    });
+  } catch (error: any) {
+    console.error("UPI payment error:", error);
+    response.status(500).json({
+      success: false,
+      message: error.message || "UPI payment failed",
+    });
   }
-);
+});
 
 // ========================================
 // NET BANKING PAYMENT
@@ -236,27 +228,35 @@ paymentRouter.post(
   verifyToken,
   cors(),
   async (request, response) => {
-    console.log("---- Net Banking Payment ----");
-
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
       apiVersion: "2023-10-16",
     });
 
     try {
-      const { bankCode, amount, email, userName }: NetBankingPaymentBody = request.body;
+      const { bankCode, amount, email, userName }: NetBankingPaymentBody =
+        request.body;
 
       if (!bankCode || !amount) {
         return response.status(400).json({
           success: false,
-          message: "Bank code and amount are required"
+          message: "Bank code and amount are required",
         });
       }
 
-      const validBanks = ["HDFC", "ICIC", "SBI", "AXIS", "KUVS", "INDB", "UTIB", "UBIN"];
+      const validBanks = [
+        "HDFC",
+        "ICIC",
+        "SBI",
+        "AXIS",
+        "KUVS",
+        "INDB",
+        "UTIB",
+        "UBIN",
+      ];
       if (!validBanks.includes(bankCode)) {
         return response.status(400).json({
           success: false,
-          message: "Invalid bank code"
+          message: "Invalid bank code",
         });
       }
 
@@ -264,7 +264,7 @@ paymentRouter.post(
       const customer = await stripe.customers.create({
         name: userName,
         email: email,
-        description: `Net Banking - ${bankCode}`
+        description: `Net Banking - ${bankCode}`,
       });
 
       // Create payment intent
@@ -276,8 +276,8 @@ paymentRouter.post(
         metadata: {
           paymentMethod: "netbanking",
           bankCode: bankCode,
-          orderId: v4()
-        }
+          orderId: v4(),
+        },
       });
 
       response.status(200).json({
@@ -285,13 +285,13 @@ paymentRouter.post(
         message: "Net Banking payment initiated",
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
-        bankCode: bankCode
+        bankCode: bankCode,
       });
     } catch (error: any) {
       console.error("Net banking error:", error);
       response.status(500).json({
         success: false,
-        message: error.message || "Net banking payment failed"
+        message: error.message || "Net banking payment failed",
       });
     }
   }
@@ -305,19 +305,18 @@ paymentRouter.post(
   verifyToken,
   cors(),
   async (request, response) => {
-    console.log("---- Wallet Payment ----");
-
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
       apiVersion: "2023-10-16",
     });
 
     try {
-      const { walletType, amount, email, userName }: WalletPaymentBody = request.body;
+      const { walletType, amount, email, userName }: WalletPaymentBody =
+        request.body;
 
       if (!walletType || !amount) {
         return response.status(400).json({
           success: false,
-          message: "Wallet type and amount are required"
+          message: "Wallet type and amount are required",
         });
       }
 
@@ -325,7 +324,7 @@ paymentRouter.post(
       if (!validWallets.includes(walletType)) {
         return response.status(400).json({
           success: false,
-          message: "Invalid wallet type"
+          message: "Invalid wallet type",
         });
       }
 
@@ -333,7 +332,7 @@ paymentRouter.post(
       const customer = await stripe.customers.create({
         name: userName,
         email: email,
-        description: `Wallet - ${walletType}`
+        description: `Wallet - ${walletType}`,
       });
 
       // Create payment intent
@@ -345,8 +344,8 @@ paymentRouter.post(
         metadata: {
           paymentMethod: "wallet",
           walletType: walletType,
-          orderId: v4()
-        }
+          orderId: v4(),
+        },
       });
 
       response.status(200).json({
@@ -354,13 +353,13 @@ paymentRouter.post(
         message: `${walletType} payment initiated`,
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
-        walletType: walletType
+        walletType: walletType,
       });
     } catch (error: any) {
       console.error("Wallet payment error:", error);
       response.status(500).json({
         success: false,
-        message: error.message || "Wallet payment failed"
+        message: error.message || "Wallet payment failed",
       });
     }
   }
@@ -369,88 +368,76 @@ paymentRouter.post(
 // ========================================
 // CASH ON DELIVERY (COD)
 // ========================================
-paymentRouter.post(
-  "/cod",
-  verifyToken,
-  cors(),
-  async (request, response) => {
-    console.log("---- Cash on Delivery ----");
+paymentRouter.post("/cod", verifyToken, cors(), async (request, response) => {
+  try {
+    const { amount, email, userName, items, tax, total }: CODPaymentBody =
+      request.body;
 
-    try {
-      const { amount, email, userName, items, tax, total }: CODPaymentBody = request.body;
-
-      if (!amount || !email) {
-        return response.status(400).json({
-          success: false,
-          message: "Amount and email are required"
-        });
-      }
-
-      // For COD, just acknowledge the order
-      // Payment will be collected at delivery
-      const orderId = v4();
-
-      response.status(200).json({
-        success: true,
-        message: "COD order created successfully",
-        paymentMethod: "cod",
-        paymentStatus: "pending",
-        amount: amount,
-        orderId: orderId,
-        items: items,
-        tax: tax,
-        total: total,
-        customerEmail: email,
-        customerName: userName
-      });
-    } catch (error: any) {
-      console.error("COD order error:", error);
-      response.status(500).json({
+    if (!amount || !email) {
+      return response.status(400).json({
         success: false,
-        message: error.message || "COD order creation failed"
+        message: "Amount and email are required",
       });
     }
+
+    // For COD, just acknowledge the order
+    // Payment will be collected at delivery
+    const orderId = v4();
+
+    response.status(200).json({
+      success: true,
+      message: "COD order created successfully",
+      paymentMethod: "cod",
+      paymentStatus: "pending",
+      amount: amount,
+      orderId: orderId,
+      items: items,
+      tax: tax,
+      total: total,
+      customerEmail: email,
+      customerName: userName,
+    });
+  } catch (error: any) {
+    console.error("COD order error:", error);
+    response.status(500).json({
+      success: false,
+      message: error.message || "COD order creation failed",
+    });
   }
-);
+});
 
 // ========================================
 // VERIFY PAYMENT
 // ========================================
-paymentRouter.post(
-  "/verify-payment",
-  verifyToken,
-  cors(),
-  async (req, res) => {
-    try {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: "2023-10-16",
-      });
+paymentRouter.post("/verify-payment", verifyToken, cors(), async (req, res) => {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-10-16",
+    });
 
-      const { paymentIntentId } = req.body;
+    const { paymentIntentId } = req.body;
 
-      if (!paymentIntentId) {
-        return res.status(400).json({
-          success: false,
-          message: "Payment Intent ID is required",
-        });
-      }
-
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-      return res.status(200).json({
-        success: paymentIntent.status === "succeeded",
-        status: paymentIntent.status,
-        amount: paymentIntent.amount,
-        paymentIntentId: paymentIntent.id,
-      });
-    } catch (e: any) {
-      return res.status(500).json({
+    if (!paymentIntentId) {
+      return res.status(400).json({
         success: false,
-        message: e.message,
+        message: "Payment Intent ID is required",
       });
     }
-  }
-);
 
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    return res.status(200).json({
+      success: paymentIntent.status === "succeeded",
+      status: paymentIntent.status,
+      amount: paymentIntent.amount,
+      paymentIntentId: paymentIntent.id,
+    });
+  } catch (e: any) {
+    return res.status(500).json({
+      success: false,
+      message: e.message,
+    });
+  }
+});
 
 export default paymentRouter;

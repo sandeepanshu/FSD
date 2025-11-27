@@ -12,24 +12,16 @@ import cors from "cors";
 import mongoose from "mongoose";
 
 // ---------------------------------------------------
-// 3. Import Routers
-// ---------------------------------------------------
-import userRouter from "./router/userRouter.ts";
-import productRouter from "./router/productRouter.ts";
-import orderRouter from "./router/orderRouter.ts";
-import paymentRouter from "./router/paymentRouter.ts";
-
-// ---------------------------------------------------
-// 4. Create Express App
+// 3. Create Express App FIRST
 // ---------------------------------------------------
 const app: express.Application = express();
 
 // ---------------------------------------------------
-// 5. CORS FIX (FOR VITE FRONTEND)
+// 4. APPLY MIDDLEWARE BEFORE ROUTER IMPORTS  << FIXED
 // ---------------------------------------------------
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite Frontend
+    origin: "http://localhost:5173", // Vite frontend
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "x-auth-token"],
     exposedHeaders: ["x-auth-token"],
@@ -37,13 +29,18 @@ app.use(
   })
 );
 
-// ---------------------------------------------------
-// 6. JSON Body Parser
-// ---------------------------------------------------
 app.use(express.json());
 
 // ---------------------------------------------------
-// 7. MongoDB Connection
+// 5. Now Import Routers (AFTER middleware) << FIXED
+// ---------------------------------------------------
+import userRouter from "./router/userRouter.ts";
+import productRouter from "./router/productRouter.ts";
+import orderRouter from "./router/orderRouter.ts";
+import paymentRouter from "./router/paymentRouter.ts";
+
+// ---------------------------------------------------
+// 6. MongoDB Connection
 // ---------------------------------------------------
 const port = process.env.PORT || 5000;
 
@@ -61,14 +58,14 @@ mongoose
   });
 
 // ---------------------------------------------------
-// 8. Root Route
+// 7. Root Route
 // ---------------------------------------------------
 app.get("/", (req, res) => {
   res.send("<h2>Online Shopping Application Backend</h2>");
 });
 
 // ---------------------------------------------------
-// 9. API Routes
+// 8. API Routes
 // ---------------------------------------------------
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
@@ -76,7 +73,7 @@ app.use("/api/orders", orderRouter);
 app.use("/api/payments", paymentRouter);
 
 // ---------------------------------------------------
-// 10. Start Server
+// 9. Start Server
 // ---------------------------------------------------
 app.listen(Number(port), "localhost", () => {
   console.log(`✔ Express Server Started at: http://localhost:${port}`);
