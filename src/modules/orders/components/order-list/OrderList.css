@@ -1,0 +1,120 @@
+/* Header */
+.orders-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.orders-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.orders-title i {
+  margin-right: 0.75rem;
+}
+
+.orders-subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Table Container */
+.orders-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+}
+
+/* Table */
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.orders-table th {
+  background: #667eea;
+  color: white;
+  padding: 0.85rem;
+  text-align: center;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.orders-table td {
+  padding: 0.9rem;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.orders-table tbody tr:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+/* Item List in Orders */
+.item-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.item-list li {
+  background: #f9f9ff;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.45rem;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
+
+.item-list li span {
+  display: block;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 5rem 1rem;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: #ccc;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.7rem;
+  color: #666;
+}
+
+.empty-state p {
+  color: #888;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .orders-title {
+    font-size: 1.8rem;
+  }
+  .orders-subtitle {
+    font-size: 0.9rem;
+  }
+  .item-list li {
+    font-size: 0.85rem;
+  }
+}
