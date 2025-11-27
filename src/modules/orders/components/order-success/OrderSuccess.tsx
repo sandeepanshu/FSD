@@ -108,16 +108,25 @@ const OrderSuccess: React.FC = () => {
                           <table className="table order-items-table">
                             <thead>
                               <tr>
-                                <th width="60">SNO</th>
+                                <th style={{ width: "60px" }}>SNO</th>
                                 <th>Item Name</th>
                                 <th>Brand</th>
-                                <th width="100" className="text-center">
+                                <th
+                                  style={{ width: "100px" }}
+                                  className="text-center"
+                                >
                                   Qty
                                 </th>
-                                <th width="120" className="text-end">
+                                <th
+                                  style={{ width: "120px" }}
+                                  className="text-end"
+                                >
                                   Price
                                 </th>
-                                <th width="120" className="text-end">
+                                <th
+                                  style={{ width: "120px" }}
+                                  className="text-end"
+                                >
                                   Subtotal
                                 </th>
                               </tr>
