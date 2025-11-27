@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
-import {
-  CardElement,
-  useStripe,
-  useElements
-} from "@stripe/react-stripe-js";
+import React, { useState } from "react";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { useSelector } from "react-redux";
 import { CartUtil } from "../../../../util/CartUtil";
 import { makeStripePayment } from "../../../../redux/orders/order.slice";
-import type { AppDispatch } from "../../../../redux/store";
+import type { AppDispatch, RootState } from "../../../../redux/store";
+import "./CheckoutPaymentForm.css";
 
 interface Props {
   cartItems: any[];
@@ -20,55 +18,111 @@ const CheckoutPaymentForm: React.FC<Props> = ({
   cartItems,
   totalAmount,
   navigate,
-  dispatch
+  dispatch,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { user } = useSelector((state: RootState) => state.users);
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
+
     if (!stripe || !elements) return;
 
     const card = elements.getElement(CardElement);
     if (!card) return;
 
-    // Step 1: Create PaymentIntent from backend
-    const response = await fetch("http://localhost:5000/payment/create-intent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: totalAmount })
-    });
+    try {
+      setLoading(true);
 
-    const { clientSecret } = await response.json();
+      const token = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY);
+      if (!token) throw new Error("Authentication token not found. Please login again.");
 
-    // Step 2: Confirm card payment
-    const confirm = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: { card }
-    });
+      // 1️⃣ Create PaymentIntent
+      const res = await fetch("http://localhost:5000/api/payments/create-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": token,
+        },
+        body: JSON.stringify({ amount: totalAmount }),
+      });
 
-    if (confirm.paymentIntent?.status === "succeeded") {
-      const items = cartItems.map(c => ({
-        name: c.name,
-        brand: c.brand,
-        price: c.price,
-        qty: c.qty
-      }));
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to initiate payment");
+      }
 
-      const order = {
-        items,
-        tax: CartUtil.calcTax(cartItems),
-        total: CartUtil.calcTotal(cartItems)
-      };
+      const data = await res.json();
 
-      dispatch(makeStripePayment({ order, navigate }));
+      // 2️⃣ Confirm payment on Stripe
+      const confirm = await stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: { card },
+      });
+
+      if (confirm.error) throw new Error(confirm.error.message);
+
+      // 3️⃣ On success → verify payment on backend + place order
+      if (confirm.paymentIntent?.status === "succeeded") {
+        const items = cartItems.map((c) => ({
+          name: c.name,
+          brand: c.brand,
+          price: c.price,
+          qty: c.qty,
+        }));
+
+        const order = {
+          items,
+          tax: CartUtil.calcTax(cartItems),
+          total: CartUtil.calcTotal(cartItems),
+          paymentMethod: "card",
+          paymentStatus: "completed",
+        };
+
+        dispatch(
+          makeStripePayment({
+            paymentIntentId: confirm.paymentIntent.id,
+            order,
+          })
+        ).then(() => {
+          navigate("/orders/success");
+        });
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Payment failed");
+      console.error("Payment error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <CardElement className="form-control p-3" />
-      <button type="submit" className="btn btn-dark mt-3" disabled={!stripe}>
-        Pay ₹{totalAmount / 100}
+    <form className="checkout-form" onSubmit={handleSubmit}>
+      <label className="form-label">Card Details</label>
+
+      <div className="card-element-box">
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: "16px",
+                color: "#333",
+                "::placeholder": { color: "#999" },
+              },
+              invalid: { color: "#e63946" },
+            },
+          }}
+        />
+      </div>
+
+      {errorMsg && <p className="error-text">{errorMsg}</p>}
+
+      <button type="submit" className="pay-btn" disabled={!stripe || loading}>
+        {loading ? "Processing..." : `Pay ₹${totalAmount / 100}`}
       </button>
     </form>
   );

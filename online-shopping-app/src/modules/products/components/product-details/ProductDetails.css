@@ -43,10 +43,9 @@
 }
 
 .main-img {
-  height: 380px;
-  object-fit: contain; /* For full view instead of crop */
-  background: #fff;
-  padding: 15px;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
 }
 
 /* Info Section */

@@ -31,35 +31,42 @@ const initialState: OrderState = {
 export const makeStripePayment = createAsyncThunk(
   "orders/makeStripePayment",
   async (
-    { body, order }: { body: any; order: IOrder },
+    { paymentIntentId, order }: { paymentIntentId: string; order: IOrder },
     { dispatch, rejectWithValue }
   ) => {
     try {
       if (AuthUtil.isLoggedIn()) {
         const token = AuthUtil.getToken();
         TokenUtil.setTokenHeader(token);
-        TokenUtil.setStripeKey();
-        const dataURL = `${
+
+        const url = `${
           import.meta.env.VITE_SERVER_URL
-        }/api/payments/checkout`;
-        const response = await axios.post(dataURL, body);
-        dispatch(
-          addAlert({ message: "Payment is Success", color: "success", id: "" })
-        );
-        // Payment successful, place the order
-        dispatch(placeOrder(order));
-        return response.data;
+        }/api/payments/verify-payment`;
+        const response = await axios.post(url, { paymentIntentId });
+
+        if (response.data.success) {
+          const finalOrder = {
+            ...order,
+            paymentId: paymentIntentId,
+            paymentStatus: "paid",
+            paymentMethod: "card",
+          };
+
+          dispatch(placeOrder(finalOrder));
+          return response.data;
+        }
+
+        throw new Error("Payment verification failed");
       }
-    } catch (error: any) {
-      console.error(error?.response?.data);
+    } catch (err: any) {
       dispatch(
         addAlert({
-          message: error?.response?.data?.msg || "Payment failed",
+          message: err?.response?.data?.message || "Payment failed",
           color: "danger",
           id: "",
         })
       );
-      return rejectWithValue(error?.response?.data || error.message);
+      return rejectWithValue(err?.response?.data || err.message);
     }
   }
 );

@@ -1,7 +1,7 @@
 // ---------------------------------------------------
 // 1. Load dotenv BEFORE ANY OTHER IMPORTS
 // ---------------------------------------------------
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
 
 // ---------------------------------------------------
