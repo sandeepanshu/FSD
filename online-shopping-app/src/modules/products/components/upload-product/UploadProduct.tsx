@@ -377,9 +377,8 @@ const UploadProduct: React.FC = () => {
               <h3 className="unauthorized-title">Access Restricted</h3>
 
               <p className="unauthorized-message">
-                 
-                Hey <strong>{user?.name ?? "User"}</strong>! You are not
-                authorized to upload products.
+                Hey <strong>{user?.name}</strong>! You are not authorized to
+                upload products.
               </p>
 
               <div className="unauthorized-note">

@@ -26,7 +26,7 @@ const initialState: UserState = {
   errorMessage: "",
 };
 
-// Async thunks
+/* ---------------------- REGISTER ---------------------- */
 export const registerUser = createAsyncThunk(
   "users/register",
   async (
@@ -36,6 +36,7 @@ export const registerUser = createAsyncThunk(
     try {
       const dataURL = `${import.meta.env.VITE_SERVER_URL}/api/users/register`;
       const response = await axios.post(dataURL, userData);
+
       dispatch(
         addAlert({
           message: response.data.msg,
@@ -43,6 +44,7 @@ export const registerUser = createAsyncThunk(
           id: "",
         })
       );
+
       return response.data;
     } catch (error: any) {
       const errorList = error?.response?.data?.errors;
@@ -57,11 +59,13 @@ export const registerUser = createAsyncThunk(
           );
         });
       }
+
       return rejectWithValue(error?.response?.data || error.message);
     }
   }
 );
 
+/* ---------------------- LOGIN ---------------------- */
 export const loginUser = createAsyncThunk(
   "users/login",
   async (
@@ -71,10 +75,13 @@ export const loginUser = createAsyncThunk(
     try {
       const dataURL = `${import.meta.env.VITE_SERVER_URL}/api/users/login`;
       const response = await axios.post(dataURL, userData);
+
+      // store token
       localStorage.setItem(
         import.meta.env.VITE_AUTH_TOKEN_KEY,
         response.data.token
       );
+
       dispatch(
         addAlert({
           message: response.data.msg,
@@ -82,6 +89,7 @@ export const loginUser = createAsyncThunk(
           id: "",
         })
       );
+
       return response.data;
     } catch (error: any) {
       const errorList = error?.response?.data?.errors;
@@ -96,12 +104,14 @@ export const loginUser = createAsyncThunk(
           );
         });
       }
+
       localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_KEY);
       return rejectWithValue(error?.response?.data || error.message);
     }
   }
 );
 
+/* ---------------------- GET USER INFO ---------------------- */
 export const getUserInfo = createAsyncThunk(
   "users/getUserInfo",
   async (_, { dispatch, rejectWithValue }) => {
@@ -109,8 +119,10 @@ export const getUserInfo = createAsyncThunk(
       if (AuthUtil.isLoggedIn()) {
         const token = AuthUtil.getToken();
         TokenUtil.setTokenHeader(token);
+
         const dataURL = `${import.meta.env.VITE_SERVER_URL}/api/users`;
         const response = await axios.get(dataURL);
+
         return response.data;
       }
     } catch (error: any) {
@@ -131,6 +143,7 @@ export const getUserInfo = createAsyncThunk(
   }
 );
 
+/* ---------------------- UPDATE ADDRESS ---------------------- */
 export const updateAddress = createAsyncThunk(
   "users/updateAddress",
   async (address: IAddress, { dispatch, rejectWithValue }) => {
@@ -138,8 +151,10 @@ export const updateAddress = createAsyncThunk(
       if (AuthUtil.isLoggedIn()) {
         const token = AuthUtil.getToken();
         TokenUtil.setTokenHeader(token);
+
         const dataURL = `${import.meta.env.VITE_SERVER_URL}/api/users/address`;
         const response = await axios.post(dataURL, address);
+
         dispatch(
           addAlert({
             message: response.data.msg,
@@ -147,6 +162,7 @@ export const updateAddress = createAsyncThunk(
             id: "",
           })
         );
+
         return response.data;
       }
     } catch (error: any) {
@@ -167,6 +183,7 @@ export const updateAddress = createAsyncThunk(
   }
 );
 
+/* ---------------------- SLICE ---------------------- */
 const userSlice = createSlice({
   name: "users",
   initialState,
@@ -177,10 +194,11 @@ const userSlice = createSlice({
       state.token = "";
       state.isAuthenticated = false;
       state.user = {};
+      state.errorMessage = "";
     },
   },
   extraReducers: (builder) => {
-    // Register
+    /* Register */
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -193,7 +211,7 @@ const userSlice = createSlice({
         state.errorMessage = String(action.payload);
       });
 
-    // Login
+    /* LOGIN */
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -202,6 +220,9 @@ const userSlice = createSlice({
         state.loading = false;
         state.token = action.payload.token;
         state.isAuthenticated = true;
+
+        // ❗ DO NOT SET USER HERE — backend does NOT return user
+        // user will be loaded by getUserInfo()
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -210,7 +231,7 @@ const userSlice = createSlice({
         state.errorMessage = String(action.payload);
       });
 
-    // Get User Info
+    /* GET USER INFO */
     builder
       .addCase(getUserInfo.pending, (state) => {
         state.loading = true;
@@ -225,7 +246,7 @@ const userSlice = createSlice({
         state.errorMessage = String(action.payload);
       });
 
-    // Update Address
+    /* UPDATE ADDRESS */
     builder
       .addCase(updateAddress.pending, (state) => {
         state.loading = true;

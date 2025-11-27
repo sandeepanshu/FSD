@@ -6,12 +6,12 @@ import { addToCart } from "../../../../redux/orders/order.slice";
 import { type AppDispatch, type RootState } from "../../../../redux/store";
 import Spinner from "../../../layout/components/spinner/Spinner";
 import { type IProduct } from "../../models/IProduct";
+import "./WomenCollection.css";
 
 const WomensCollection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  // Get Products info from Redux Store
   const { loading, products, errorMessage } = useSelector(
     (state: RootState) => state.products
   );
@@ -20,48 +20,34 @@ const WomensCollection: React.FC = () => {
     dispatch(getWomenProductsCollection());
   }, [dispatch]);
 
-  // Click Add to Cart
   const clickAddToCart = (product: IProduct) => {
-    const defaultQty: number = 1;
-    dispatch(addToCart({ product, qty: defaultQty }));
+    dispatch(addToCart({ product, qty: 1 }));
     navigate("/orders/cart");
   };
 
   return (
-    <React.Fragment>
-      {/* Header Section */}
-      <section
-        className="text-white py-4 mb-4"
-        style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        }}
-      >
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col">
-              <nav aria-label="breadcrumb">
-                <ol className="breadcrumb mb-2">
-                  <li className="breadcrumb-item">
-                    <Link to="/" className="text-white text-decoration-none">
-                      <i className="fas fa-home me-1"></i>Home
-                    </Link>
-                  </li>
-                  <li
-                    className="breadcrumb-item active text-white-50"
-                    aria-current="page"
-                  >
-                    Women's Collection
-                  </li>
-                </ol>
-              </nav>
-              <h2 className="fw-bold mb-0">
-                <i className="fas fa-female me-2"></i>
-                Women's Collection
-              </h2>
-              <p className="mb-0 text-white-50">
-                Elegant and stylish fashion for women
-              </p>
-            </div>
+    <>
+      <section className="collection-header">
+        <div className="header-content">
+          <div className="breadcrumb-section">
+            <nav aria-label="breadcrumb">
+              <ol className="breadcrumb">
+                <li className="breadcrumb-item">
+                  <Link to="/" className="breadcrumb-link">
+                    <i className="fas fa-home"></i> Home
+                  </Link>
+                </li>
+                <li className="breadcrumb-item active">Women's Collection</li>
+              </ol>
+            </nav>
+          </div>
+          <div className="header-text">
+            <h1 className="collection-title">
+              <i className="fas fa-female"></i> Women's Collection
+            </h1>
+            <p className="collection-subtitle">
+              Elegant and stylish fashion for women
+            </p>
           </div>
         </div>
       </section>
@@ -69,104 +55,74 @@ const WomensCollection: React.FC = () => {
       {loading ? (
         <Spinner />
       ) : (
-        <React.Fragment>
+        <>
           {errorMessage && (
-            <div className="container mb-4">
-              <div className="alert alert-danger" role="alert">
-                <i className="fas fa-exclamation-triangle me-2"></i>
-                {errorMessage}
+            <div className="container py-4">
+              <div className="error-alert">
+                <i className="fas fa-exclamation-circle"></i>
+                <span>{errorMessage}</span>
               </div>
             </div>
           )}
 
-          <section className="py-4">
+          <section className="collection-section">
             <div className="container">
               {products.length === 0 ? (
-                <div className="text-center py-5">
-                  <i className="fas fa-box-open fa-4x text-muted mb-3"></i>
-                  <h4 className="text-muted">No products available</h4>
-                  <p className="text-muted">
-                    Check back soon for new arrivals!
-                  </p>
+                <div className="empty-state">
+                  <i className="fas fa-box-open"></i>
+                  <h3>No products available</h3>
+                  <p>Check back soon for new arrivals!</p>
                 </div>
               ) : (
-                <div className="row g-4">
+                <div className="products-grid">
                   {products.map((product) => (
-                    <div
-                      key={product._id}
-                      className="col-lg-3 col-md-4 col-sm-6"
-                    >
-                      <div className="card h-100 product-card shadow-2-strong border-0">
-                        {/* Product Image */}
+                    <div key={product._id} className="product-item">
+                      <div className="product-card">
                         <Link
                           to={`/products/${product._id}`}
-                          className="product-image-wrapper"
+                          className="image-container"
                         >
-                          <div className="position-relative overflow-hidden">
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="card-img-top product-image"
-                              style={{
-                                height: "350px",
-                                objectFit: "cover",
-                                width: "100%",
-                              }}
-                            />
-                            <div className="product-overlay">
-                              <button className="btn btn-light btn-sm rounded-pill">
-                                <i className="fas fa-eye me-1"></i>
-                                Quick View
-                              </button>
-                            </div>
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="product-img"
+                          />
+                          <div className="image-overlay">
+                            <button className="quick-view-btn">
+                              <i className="fas fa-eye"></i>
+                              <span>Quick View</span>
+                            </button>
                           </div>
                         </Link>
 
-                        {/* Product Details */}
-                        <div className="card-body d-flex flex-column">
-                          <div className="mb-2">
-                            <span className="badge bg-light text-dark mb-2">
-                              {product.brand}
-                            </span>
-                          </div>
+                        <div className="product-info">
+                          <span className="brand-badge">{product.brand}</span>
 
-                          <h5 className="card-title mb-2">
-                            <Link
-                              to={`/products/${product._id}`}
-                              className="text-dark text-decoration-none product-title"
-                            >
+                          <h3 className="product-name">
+                            <Link to={`/products/${product._id}`}>
                               {product.name}
                             </Link>
-                          </h5>
+                          </h3>
 
-                          <div className="mb-2">
-                            <span className="text-warning">
-                              <i className="fas fa-star"></i>
-                              <i className="fas fa-star"></i>
-                              <i className="fas fa-star"></i>
-                              <i className="fas fa-star"></i>
+                          <div className="rating">
+                            <span className="stars">
+                              {[...Array(4)].map((_, i) => (
+                                <i key={i} className="fas fa-star"></i>
+                              ))}
                               <i className="far fa-star"></i>
                             </span>
-                            <span className="text-muted small ms-1">(4.0)</span>
+                            <span className="rating-text">(4.0)</span>
                           </div>
 
-                          <div className="d-flex justify-content-between align-items-center mt-auto">
-                            <h5 className="text-primary fw-bold mb-0">
+                          <div className="product-footer">
+                            <h4 className="price">
                               ₹{product.price.toFixed(2)}
-                            </h5>
+                            </h4>
                             <button
-                              className="btn btn-sm px-3 add-to-cart-btn"
+                              className="add-cart-btn"
                               onClick={() => clickAddToCart(product)}
-                              style={{
-                                background:
-                                  "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "20px",
-                              }}
                             >
-                              <i className="fas fa-shopping-cart me-1"></i>
-                              Add to Cart
+                              <i className="fas fa-shopping-cart"></i>
                             </button>
                           </div>
                         </div>
@@ -177,9 +133,9 @@ const WomensCollection: React.FC = () => {
               )}
             </div>
           </section>
-        </React.Fragment>
+        </>
       )}
-    </React.Fragment>
+    </>
   );
 };
 

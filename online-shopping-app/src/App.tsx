@@ -21,13 +21,16 @@ import Cart from "./modules/orders/components/cart/Cart";
 import OrderList from "./modules/orders/components/order-list/OrderList";
 import CheckOut from "./modules/orders/components/checkout/CheckOut";
 import OrderSuccess from "./modules/orders/components/order-success/OrderSuccess";
+import { AuthUtil } from "./util/AuthUtil";
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    dispatch(getUserInfo());
-  }, [dispatch]);
+    if (AuthUtil.isLoggedIn()) {
+      dispatch(getUserInfo());
+    }
+  }, []);
 
   return (
     <>
@@ -39,15 +42,57 @@ const App: React.FC = () => {
           <Route path="/products/men" element={<MensCollection />} />
           <Route path="/products/kids" element={<KidsCollection />} />
           <Route path="/products/women" element={<WomensCollection />} />
-          <Route path="/products/upload" element={<PrivateRoute><UploadProduct /></PrivateRoute>} />
+          <Route
+            path="/products/upload"
+            element={
+              <PrivateRoute>
+                <UploadProduct />
+              </PrivateRoute>
+            }
+          />
           <Route path="/products/:productId" element={<ProductDetails />} />
-          <Route path="/orders/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
-          <Route path="/orders/list" element={<PrivateRoute><OrderList /></PrivateRoute>} />
-          <Route path="/orders/checkout" element={<PrivateRoute><CheckOut /></PrivateRoute>} />
-          <Route path="/orders/success" element={<PrivateRoute><OrderSuccess /></PrivateRoute>} />
+          <Route
+            path="/orders/cart"
+            element={
+              <PrivateRoute>
+                <Cart />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/orders/list"
+            element={
+              <PrivateRoute>
+                <OrderList />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/orders/checkout"
+            element={
+              <PrivateRoute>
+                <CheckOut />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/orders/success"
+            element={
+              <PrivateRoute>
+                <OrderSuccess />
+              </PrivateRoute>
+            }
+          />
           <Route path="/users/login" element={<UserLogin />} />
           <Route path="/users/register" element={<UserRegister />} />
-          <Route path="/users/profile" element={<PrivateRoute><UserProfile /></PrivateRoute>} />
+          <Route
+            path="/users/profile"
+            element={
+              <PrivateRoute>
+                <UserProfile />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
       <Footer />

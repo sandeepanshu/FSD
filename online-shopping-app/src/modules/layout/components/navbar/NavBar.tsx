@@ -14,10 +14,9 @@ const NavBar: React.FC = () => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.users
   );
+  console.log("Redux user in navbar:", user);
 
-  
-
-  console.log(isAuthenticated, user, "user in navbar")
+  console.log(isAuthenticated, user, "user in navbar");
   const { cartItems } = useSelector((state: RootState) => state.orders);
 
   const handleLogOut = () => {
@@ -166,7 +165,7 @@ const NavBar: React.FC = () => {
                 </>
               ) : (
                 <>
-                  {user && Object.keys(user).length > 0 && (
+                  {isAuthenticated && user && user._id && (
                     <li className="nav-item dropdown">
                       <a
                         className="nav-link dropdown-toggle d-flex align-items-center px-3"
@@ -177,12 +176,17 @@ const NavBar: React.FC = () => {
                         aria-expanded="false"
                       >
                         <img
-                          src={user.avatar || "/default-avatar.png"}
+                          src={
+                            user.avatar?.startsWith("http")
+                              ? user.avatar
+                              : `https:${user.avatar}`
+                          }
                           alt="User Avatar"
                           width="32"
                           height="32"
                           className="rounded-circle me-2 border border-2 border-light"
                         />
+
                         <span className="d-none d-md-inline">{user.name}</span>
                       </a>
 

@@ -5,6 +5,7 @@ import Spinner from "../../../layout/components/spinner/Spinner";
 import { getProduct } from "../../../../redux/products/product.slice";
 import { addToCart } from "../../../../redux/orders/order.slice";
 import type { RootState, AppDispatch } from "../../../../redux/store";
+import "./ProductDetails.css";
 
 type URLParamsType = {
   productId?: string;
@@ -16,7 +17,6 @@ const ProductDetails: React.FC = () => {
   const { productId } = useParams<URLParamsType>();
   const [qty, setQty] = useState<string>("");
 
-  // get the product data from Redux Store
   const { loading, product, errorMessage } = useSelector(
     (state: RootState) => state.products
   );
@@ -32,8 +32,8 @@ const ProductDetails: React.FC = () => {
   const submitAddToCart = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!product) return;
+
     dispatch(addToCart({ product, qty: Number(qty) }));
-    // Optionally navigate somewhere after adding to cart
     navigate("/orders/cart");
   };
 
@@ -41,77 +41,75 @@ const ProductDetails: React.FC = () => {
 
   if (errorMessage) {
     return (
-      <div className="container mt-5">
-        <div className="alert alert-danger">{errorMessage}</div>
+      <div className="page-container">
+        <div className="error-alert">{errorMessage}</div>
       </div>
     );
   }
 
   return (
-    <React.Fragment>
-      <section className="bg-brown text-dark p-2">
-        <div className="container">
-          <div className="row">
-            <div className="col">
-              <p className="h3 font-weight-bold">Selected Product</p>
+    <>
+      {/* Premium Gradient Header */}
+      <section className="product-header">
+        <div className="header-content">
+          <h1 className="product-title">
+            <i className="fas fa-tag"></i> Product Details
+          </h1>
+          <p className="product-subtitle">
+            Explore high-quality fashion with premium details
+          </p>
+        </div>
+      </section>
+
+      {product && (
+        <div className="details-container">
+          <div className="details-wrapper">
+            {/* Left – Image */}
+            <div className="image-section">
+              <img src={product.image} alt={product.name} className="main-img" />
+            </div>
+
+            {/* Right – Info */}
+            <div className="info-section">
+              <h2 className="detail-name">{product.name}</h2>
+
+              <span className="brand-badge">{product.brand}</span>
+
+              <h3 className="detail-price">
+                ₹{product.price.toFixed(2)}
+              </h3>
+
+              <form onSubmit={submitAddToCart} className="qty-form">
+                <label className="qty-label">Select Quantity</label>
+
+                <select
+                  className="qty-select"
+                  value={qty}
+                  onChange={updateQtyInput}
+                  required
+                >
+                  <option value="">-- Select Qty --</option>
+                  {[1, 2, 3, 4, 5].map((x) => (
+                    <option key={x} value={x}>
+                      {x}
+                    </option>
+                  ))}
+                </select>
+
+                <button type="submit" className="cart-btn">
+                  <i className="fas fa-shopping-cart"></i> Add to Cart
+                </button>
+              </form>
+
+              <div className="description-section">
+                {product.usage && <p>{product.usage}</p>}
+                {product.description && <p>{product.description}</p>}
+              </div>
             </div>
           </div>
         </div>
-      </section>
-      {product && (
-        <section>
-          <div className="container mt-3">
-            <div className="row align-items-center">
-              <div className="col-md-5 text-center">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="img-fluid"
-                />
-              </div>
-              <div className="col-md-7 text-left">
-                <p className="h3">
-                  NAME : <b>{product.name}</b>
-                </p>
-                <p className="h3">
-                  Brand : <b>{product.brand}</b>
-                </p>
-                <p className="h5">
-                  Price :{" "}
-                  <b className="text-danger">
-                    &#8377; {product.price.toFixed(2)}
-                  </b>
-                </p>
-                <form onSubmit={submitAddToCart}>
-                  <div className="form-group">
-                    <select
-                      required
-                      value={qty}
-                      onChange={updateQtyInput}
-                      className="form-control"
-                    >
-                      <option value="">Select Qty</option>
-                      {[1, 2, 3, 4, 5].map((x) => (
-                        <option value={x} key={x}>
-                          {x}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      type="submit"
-                      className="btn btn-brown btn-sm text-dark"
-                      value="add to Cart"
-                    />
-                  </div>
-                </form>
-                <p>{product.usage}</p>
-                <p>{product.description}</p>
-              </div>
-            </div>
-          </div>
-        </section>
       )}
-    </React.Fragment>
+    </>
   );
 };
 

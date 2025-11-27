@@ -74,7 +74,11 @@ export const placeOrder = createAsyncThunk(
         const dataURL = `${import.meta.env.VITE_SERVER_URL}/api/orders/place`;
         const response = await axios.post(dataURL, order);
         dispatch(
-          addAlert({ message: "Order placed successfully", color: "success" })
+          addAlert({
+            message: "Order placed successfully",
+            color: "success",
+            id: "",
+          })
         );
         return response.data;
       }
@@ -84,6 +88,7 @@ export const placeOrder = createAsyncThunk(
         addAlert({
           message: error?.response?.data?.msg || "Failed to place order",
           color: "danger",
+          id: "",
         })
       );
       return rejectWithValue(error?.response?.data || error.message);
@@ -108,6 +113,7 @@ export const getAllOrders = createAsyncThunk(
         addAlert({
           message: error?.response?.data?.msg || "Failed to fetch orders",
           color: "danger",
+          id: "",
         })
       );
       return rejectWithValue(error?.response?.data || error.message);
