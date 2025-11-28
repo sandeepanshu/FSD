@@ -8,6 +8,7 @@ import employeeReducer from "./employee/employee.slice";
 import hobbyReducer from "./hobby-selector/hobby-selector.slice";
 import userReducer from "./user/user.slice";
 import contactReducer from "./contact-app/contact-app.slice";
+import bigBasketReducer from "./bigbasket/big-basket.slice";
 
 export const rootReducer = combineReducers({
   msg: messageReducer,
@@ -19,6 +20,7 @@ export const rootReducer = combineReducers({
   hobby: hobbyReducer,
   user: userReducer,
   contact: contactReducer,
+  bigBasket: bigBasketReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
