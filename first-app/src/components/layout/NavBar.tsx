@@ -1,40 +1,18 @@
-import { NavLink } from "react-router-dom";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
 
-const NavBar: React.FC = () => {
+const NavBar = () => {
   return (
-    <nav className="navbar navbar-dark bg-success navbar-expand-sm">
-      <div className="container">
-        <NavLink to="/" className="navbar-brand">
-          <i className="fa fa-shopping-cart" /> BigBasket
-        </NavLink>
-
-        <div className="collapse navbar-collapse">
-          <ul className="navbar-nav">
-            <li className="nav-item">
-              <NavLink
-                to="/products/list"
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? "active fw-bold" : ""}`
-                }
-              >
-                Products
-              </NavLink>
-            </li>
-
-            <li className="nav-item">
-              <NavLink
-                to="/products/admin"
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? "active fw-bold" : ""}`
-                }
-              >
-                Admin
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div">
+            React Material UI
+          </Typography>
+        </Toolbar>
+      </AppBar>
+    </>
   );
 };
 

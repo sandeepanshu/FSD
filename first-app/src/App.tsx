@@ -1,32 +1,34 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes } from "react-router-dom";
 import NavBar from "./components/layout/NavBar";
-import Home from "./components/layout/Home";
-import ProductList from "./components/products/ProductList";
-import ProductAdmin from "./components/products/ProductAdmin";
-import CreateProduct from "./components/products/CreateProduct";
-import UpdateProduct from "./components/products/UpdateProduct";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Counter from "./components/Counter";
+import WishMessage from "./components/WishMessage";
+import DigitalWatch from "./components/DigitalWatch";
+import ProductItem from "./components/ProductItem";
+import ShoppingCart from "./components/ShoppingCart";
+import Registration from "./components/Registration";
 
 function App() {
   return (
     <BrowserRouter>
       <NavBar />
+      <Box sx={{ p: 2 }}>
+        <Button variant="contained" color="primary" sx={{ mr: 2 }}>
+          Hello
+        </Button>
 
-      <Routes>
-        {/* Home Page */}
-        <Route path="/" element={<Home />} />
-
-        {/* Product List */}
-        <Route path="/products/list" element={<ProductList />} />
-
-        {/* Admin page */}
-        <Route path="/products/admin" element={<ProductAdmin />} />
-
-        {/* Create Product */}
-        <Route path="/products/create" element={<CreateProduct />} />
-
-        {/* Update Product */}
-        <Route path="/products/:productId" element={<UpdateProduct />} />
-      </Routes>
+        <Button variant="contained" color="secondary">
+          Hello
+        </Button>
+      </Box>
+      <Counter />
+      <WishMessage />
+      <DigitalWatch />
+      <ProductItem />
+      <ShoppingCart />
+      <Registration />
+      <Routes>{/* your routes */}</Routes>
     </BrowserRouter>
   );
 }
