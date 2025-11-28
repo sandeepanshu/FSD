@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../../../../redux/users/user.slice";
+import { getUserInfo, loginUser } from "../../../../redux/users/user.slice";
 import { type AppDispatch } from "../../../../redux/store";
 import brandImage from "../../../../assets/img/brandImage.png";
 import "./UserLogin.css";
@@ -80,8 +80,12 @@ const UserLogin: React.FC = () => {
     }
 
     try {
-      await dispatch(loginUser(userState)).unwrap();
-      navigate("/");
+      await dispatch(loginUser(userState))
+        .unwrap()
+        .then(() => {
+          dispatch(getUserInfo()); // 🔥 FIX
+          navigate("/"); // or redirect to profile
+        });
     } catch (error) {
       console.error("Login failed:", error);
     }
@@ -94,14 +98,18 @@ const UserLogin: React.FC = () => {
         <div className="login-left-column">
           <div className="login-branding">
             <div className="brand-logo-container">
-              <img src={brandImage} alt="ShopHub" className="brand-logo-large" />
+              <img
+                src={brandImage}
+                alt="ShopHub"
+                className="brand-logo-large"
+              />
             </div>
             <h1 className="brand-title">Welcome to ShopHub</h1>
             <p className="brand-subtitle">
               Discover amazing products at unbeatable prices. Your one-stop
               destination for quality shopping.
             </p>
-            
+
             <div className="features-list">
               <div className="feature-item">
                 <div className="feature-icon">
@@ -112,7 +120,7 @@ const UserLogin: React.FC = () => {
                   <p>On orders over $50</p>
                 </div>
               </div>
-              
+
               <div className="feature-item">
                 <div className="feature-icon">
                   <i className="fas fa-shield-alt"></i>
@@ -122,7 +130,7 @@ const UserLogin: React.FC = () => {
                   <p>100% protected transactions</p>
                 </div>
               </div>
-              
+
               <div className="feature-item">
                 <div className="feature-icon">
                   <i className="fas fa-undo"></i>
