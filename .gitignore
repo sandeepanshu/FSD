@@ -1,57 +1,35 @@
-# ---------------------------------
-# Node Modules
-# ---------------------------------
+# Node modules
 node_modules/
+
+# Build output
+dist/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
+logs/
+*.log
 
-# ---------------------------------
-# Build Output
-# ---------------------------------
-dist/
-dist-ssr/
-build/
-out/
-
-# ---------------------------------
-# Environment Files (VERY IMPORTANT)
-# NEVER PUSH .env FILES TO GITHUB
-# ---------------------------------
+# Environment variables
 .env
-.env.*
 .env.local
 .env.development
 .env.production
 .env.test
 
-# ---------------------------------
-# Logs
-# ---------------------------------
-logs
-*.log
-
-# ---------------------------------
-# Editor / System Files
-# ---------------------------------
-.vscode/*
-!.vscode/extensions.json
-.idea/
+# OS / Editor files
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
 
-# ---------------------------------
-# TypeScript
-# ---------------------------------
-*.tsbuildinfo
+# IDE files
+.vscode/
+.idea/
 
-# ---------------------------------
-# Optional: Local Stores
-# ---------------------------------
-*.local
+# Temp files
+tmp/
+temp/
