@@ -1,15 +1,18 @@
-import {combineReducers} from 'redux';
-import * as developerReducer from './developers/developer.reducer';
-import * as userReducer from './users/user.reducer';
-import * as profileReducer from './profiles/profile.reducer';
-import * as postReducer from './posts/post.reducer';
-import * as alertReducer from './alerts/alert.reducer';
+import { combineReducers } from "redux";
+
+import userReducer from "./users/user.slice";
+// import profileReducer from "./profiles/profile.slice";
+// import postReducer from "./posts/post.slice";
+import developerReducer from "./developers/developer.slice";
+import alertReducer from "./alerts/alert.slice";
 
 const rootReducer = combineReducers({
-    developerKey : developerReducer.reducer,
-    userKey : userReducer.reducer,
-    profileKey : profileReducer.reducer,
-    postKey : postReducer.reducer,
-    alertKey : alertReducer.reducer
+  user: userReducer,
+//   profile: profileReducer,
+//   post: postReducer,
+  developer: developerReducer,
+  alert: alertReducer,
 });
+
+export type RootState = ReturnType<typeof rootReducer>;
 export default rootReducer;

@@ -1,12 +1,12 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../redux/rootReducer"; // adjust path if needed
+import type { RootState } from "../../redux/store"; // <-- Correct import for RootState
 
 const Alert: React.FC = () => {
-  // Get alerts from Redux store
-  const { alerts } = useSelector((state: RootState) => state.alertKey);
+  // Correctly typed selector
+  const alerts = useSelector((state: RootState) => state.alert.alerts);
 
-  if (!alerts || alerts.length === 0) return null;
+  if (alerts.length === 0) return null;
 
   return (
     <div

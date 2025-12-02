@@ -1,88 +1,105 @@
-import React, {useEffect} from 'react';
-import {Link} from "react-router-dom";
-import * as developerActions from '../../../redux/developers/develper.actions';
-import * as developerReducer from '../../../redux/developers/developer.reducer';
-import {useDispatch, useSelector} from "react-redux";
-import Spinner from "../../../layout/util/Spinner";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Card, Row, Col, Tag, Avatar, Typography, Button, Spin } from "antd";
+import { UserOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 
-interface IProps {}
-interface IState{
-    developerKey : developerReducer.DeveloperState
-}
+import type { RootState } from "../../../redux/store";
+import type { IDeveloper } from "../models/IDeveloper";
+import { FETCH_ALL_DEVELOPERS } from "../../../redux/developers/developer.types";
 
-let DeveloperList:React.FC<IProps> = ({}) => {
-    let dispatch = useDispatch();
+const { Title, Text } = Typography;
 
-    // fetch developer Info from REDUX Store
-    let developerState:developerReducer.DeveloperState = useSelector((state : IState) => {
-        return state.developerKey;
-    });
+const DeveloperList: React.FC = () => {
+  const dispatch = useDispatch();
 
-    let {loading , developers , error} = developerState;
+  // FIXED reducer key
+  const { loading, developers } = useSelector(
+    (state: RootState) => state.developer
+  );
 
-    useEffect(() => {
-        dispatch(developerActions.getAllDevelopers());
-    }, []);
+  useEffect(() => {
+    dispatch({ type: FETCH_ALL_DEVELOPERS });
+  }, [dispatch]);
 
-    return (
-        <React.Fragment>
-            <section className="mt-3">
-                <div className="container">
-                    <div className="row animated slideInLeft">
-                        <div className="col">
-                            <p className="h3 text-teal font-weight-bold">
-                                <i className="fa fa-users"/> Developers</p>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores doloremque dolores iste itaque neque odit porro, quis repellat suscipit vel. Deserunt dolor inventore nemo reprehenderit tempora vel voluptas? Eum, perspiciatis!</p>
-                        </div>
-                    </div>
-                    {
-                        loading ? <Spinner/> :
-                            <React.Fragment>
-                                    {
-                                        developers.length > 0 &&
-                                            developers.map(developer => {
-                                                return(
-                                                    <div className="row mt-3" key={developer._id}>
-                                                        <div className="col" >
-                                                            <div className="card">
-                                                                <div className="card-body bg-light-grey">
-                                                                    <div className="row align-items-center">
-                                                                        <div className="col-md-4">
-                                                                            <img src={developer.user.avatar} alt="" className='img-fluid img-thumbnail'/>
-                                                                        </div>
-                                                                        <div className="col-md-4">
-                                                                            <p className="h3">{developer.user.name}</p>
-                                                                            <small>{developer.designation}</small><br/>
-                                                                            <small>{developer.company}</small><br/>
-                                                                            <small>{developer.location}</small><br/>
-                                                                            <Link to={`/developers/${developer._id}`} className="btn btn-teal btn-sm">Profile</Link>
-                                                                        </div>
-                                                                        <div className="col-md-4">
-                                                                            {
-                                                                                developer.skills.map(skill => {
-                                                                                    return (
-                                                                                        <span key={skill}>
-                                                                                        <small className="badge badge-success p-2 m-1">
-                                                                                           <i className="fa fa-check-circle"/> {skill}</small><br/>
-                                                                                    </span>
-                                                                                    )
-                                                                                })
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })
-                                    }
+  return (
+    <div style={{ padding: "32px" }}>
+      <Title level={2} style={{ marginBottom: 8 }}>
+        👨‍💻 Developers
+      </Title>
+      <Text type="secondary" style={{ fontSize: 16 }}>
+        Explore talented developers, view their profiles, and collaborate.
+      </Text>
 
-                            </React.Fragment>
-                    }
+      {loading ? (
+        <div style={{ marginTop: 40, textAlign: "center" }}>
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+          {developers?.map((developer: IDeveloper) => (
+            <Col xs={24} md={12} lg={8} key={developer._id}>
+              <Card
+                hoverable
+                style={{ borderRadius: 12 }}
+                bodyStyle={{ padding: 20 }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                    marginBottom: 12,
+                  }}
+                >
+                  <Avatar
+                    size={64}
+                    src={developer.user?.avatar}
+                    icon={!developer.user?.avatar && <UserOutlined />}
+                  />
+
+                  <div>
+                    <Title level={4} style={{ margin: 0 }}>
+                      {developer.user?.name}
+                    </Title>
+                    <Text type="secondary">{developer.designation}</Text>
+                    <br />
+                    <Text>{developer.company}</Text>
+                    <br />
+                    <Text>{developer.location}</Text>
+                  </div>
                 </div>
-            </section>
-        </React.Fragment>
-    )
+
+                <div style={{ marginTop: 16 }}>
+                  <Title level={5}>Skills</Title>
+                  {developer.skills?.map((skill: string) => (
+                    <Tag
+                      key={skill}
+                      color="success"
+                      style={{ marginBottom: 6 }}
+                      icon={<CheckCircleOutlined />}
+                    >
+                      {skill}
+                    </Tag>
+                  ))}
+                </div>
+
+                <Link to={`/developers/${developer._id}`}>
+                  <Button
+                    type="primary"
+                    block
+                    style={{ marginTop: 16, fontWeight: 600 }}
+                  >
+                    View Profile
+                  </Button>
+                </Link>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
+    </div>
+  );
 };
+
 export default DeveloperList;

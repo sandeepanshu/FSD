@@ -1,98 +1,134 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
+import { Menu, Layout, Button, Avatar } from "antd";
+import {
+  TeamOutlined,
+  CodeOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  ProfileOutlined,
+  ReadOutlined,
+} from "@ant-design/icons";
+
+import type { RootState } from "../../redux/store";
 import * as userActions from "../../redux/users/user.actions";
-import type { RootState } from "../../redux/rootReducer";
+
+const { Header } = Layout;
 
 const NavBar: React.FC = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
 
-  // Select from Redux store
   const { isAuthenticated, user } = useSelector(
-    (state: RootState) => state.userKey
+    (state: RootState) => state.user
   );
 
   const handleLogout = () => {
     dispatch(userActions.logOutUser());
   };
 
+  // -------------------------------
+  // MENU ITEMS (AntD v5 style)
+  // -------------------------------
+  const menuItems = [
+    {
+      key: "developers",
+      icon: <TeamOutlined />,
+      label: <NavLink to="/developers">Developers</NavLink>,
+    },
+    ...(isAuthenticated
+      ? [
+          {
+            key: "posts",
+            icon: <ReadOutlined />,
+            label: <NavLink to="/posts/list">Posts</NavLink>,
+          },
+          {
+            key: "dashboard",
+            icon: <ProfileOutlined />,
+            label: <NavLink to="/profiles/dashboard">Dashboard</NavLink>,
+          },
+        ]
+      : []),
+  ];
+
+  // Derive current selected key from URL
+  const selectedKey = location.pathname.split("/")[1] || "home";
+
   return (
-    <nav className="navbar navbar-dark bg-teal navbar-expand-sm">
-      <div className="container">
-        <NavLink to="/" className="navbar-brand">
-          <i className="fa fa-code" /> React Social
+    <Layout>
+      <Header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          padding: "0 24px",
+          background: "#001529",
+          height: 64,
+        }}
+      >
+        {/* Logo */}
+        <NavLink
+          to="/"
+          style={{
+            color: "#fff",
+            fontSize: 18,
+            fontWeight: 600,
+            marginRight: 32,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <CodeOutlined />
+          React Social
         </NavLink>
 
-        <div className="collapse navbar-collapse">
-          <ul className="navbar-nav me-auto">
-            <li className="nav-item">
-              <NavLink to="/developers" className="nav-link">
-                <i className="fa fa-users" /> Developers
-              </NavLink>
-            </li>
-          </ul>
+        {/* NAV MENU */}
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          selectedKeys={[selectedKey]}
+          items={menuItems}
+          style={{ flex: 1, minWidth: 0 }}
+        />
 
-          <div className="d-flex">
-            <ul className="navbar-nav">
-              {!isAuthenticated ? (
-                <>
-                  <li className="nav-item">
-                    <NavLink to="/users/register" className="nav-link">
-                      Register
-                    </NavLink>
-                  </li>
+        {/* RIGHT SIDE AUTH BUTTONS */}
+        {!isAuthenticated ? (
+          <div style={{ display: "flex", gap: 12 }}>
+            <NavLink to="/users/register">
+              <Button type="default">Register</Button>
+            </NavLink>
 
-                  <li className="nav-item">
-                    <NavLink to="/users/login" className="nav-link">
-                      Login
-                    </NavLink>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li className="nav-item">
-                    <NavLink to="/posts/list" className="nav-link">
-                      <i className="fa fa-list" /> Posts
-                    </NavLink>
-                  </li>
-
-                  <li className="nav-item">
-                    <NavLink to="/profiles/dashboard" className="nav-link">
-                      <i className="fa fa-sitemap" /> Dashboard
-                    </NavLink>
-                  </li>
-
-                  {user && user.avatar && (
-                    <li className="nav-item">
-                      <NavLink to="/" className="nav-link">
-                        <img
-                          src={user.avatar}
-                          alt="avatar"
-                          width={25}
-                          height={25}
-                          className="rounded-circle"
-                        />
-                        {user.name}
-                      </NavLink>
-                    </li>
-                  )}
-
-                  <li className="nav-item">
-                    <button
-                      className="nav-link btn btn-link text-white"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </>
-              )}
-            </ul>
+            <NavLink to="/users/login">
+              <Button type="primary">Login</Button>
+            </NavLink>
           </div>
-        </div>
-      </div>
-    </nav>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            {/* Avatar + Name */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Avatar
+                src={user?.avatar}
+                icon={!user?.avatar ? <UserOutlined /> : undefined}
+              />
+              <span style={{ color: "#fff" }}>{user?.name}</span>
+            </div>
+
+            {/* Logout */}
+            <Button
+              type="primary"
+              danger
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </div>
+        )}
+      </Header>
+    </Layout>
   );
 };
 
