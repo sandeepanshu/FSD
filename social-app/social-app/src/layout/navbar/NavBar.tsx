@@ -72,7 +72,7 @@ const NavBar: React.FC = () => {
                           width={25}
                           height={25}
                           className="rounded-circle"
-                        />{" "}
+                        />
                         {user.name}
                       </NavLink>
                     </li>
