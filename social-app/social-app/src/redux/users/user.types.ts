@@ -1,8 +1,6 @@
 import type { NavigateFunction } from "react-router-dom";
 import type { UserView } from "../../modules/users/models/UserView";
 
- 
-
 export interface UserState {
   loading: boolean;
   user: UserView | null;

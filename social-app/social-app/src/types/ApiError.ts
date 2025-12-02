@@ -1,12 +1,10 @@
-export interface ApiErrorDetail {
-  msg: string;
-}
-
 export interface ApiError {
   response?: {
     data?: {
       message?: string;
-      errors?: ApiErrorDetail[];
+      errors?: Array<{ msg: string }>;
     };
+    status?: number;
   };
+  message?: string;
 }

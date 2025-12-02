@@ -44,7 +44,7 @@ const UserRegister: React.FC = () => {
           padding: "20px 10px",
           boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
         }}
-        bordered={false}
+        variant="borderless"
         hoverable
       >
         <Title level={3} style={{ textAlign: "center", marginBottom: 10 }}>

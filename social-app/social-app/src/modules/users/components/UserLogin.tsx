@@ -37,7 +37,7 @@ const UserLogin: React.FC = () => {
       }}
     >
       <Card
-        variant="borderless"   // 🔥 Updated here (NO deprecated warning)
+        variant="borderless" 
         style={{
           width: 450,
           minHeight: 520,
