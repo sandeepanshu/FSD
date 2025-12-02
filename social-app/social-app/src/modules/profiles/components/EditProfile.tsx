@@ -1,215 +1,221 @@
-import React, {useEffect, useState} from 'react';
-import {useParams, useHistory} from 'react-router-dom';
-import * as profileActions from '../../../redux/profiles/profile.actions';
-import * as profileReducer from '../../../redux/profiles/profile.reducer';
-import {useDispatch, useSelector} from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+import type { RootState } from "../../../redux/store";
+import {
+  FETCH_MY_PROFILE,
+  UPDATE_PROFILE,
+  type SubmitProfilePayload,
+} from "../../../redux/profiles/profile.types";
+
 import Spinner from "../../../layout/util/Spinner";
 
-interface URLParams{
-    profileId : string;
-}
-interface IProps {}
-interface IProfileState{
-    profileKey : profileReducer.ProfileState
-}
+const EditProfile: React.FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-let EditProfile:React.FC<IProps> = ({}) => {
-    let dispatch = useDispatch();
-    let history = useHistory();
+  const { loading, profile } = useSelector((state: RootState) => state.profile);
 
-    let [state , setState] = useState({
-        company : '',
-        website : '',
-        location : '',
-        designation : '',
-        skills : '',
-        bio : '',
-        githubUsername : '',
-        youtube : '',
-        facebook : '',
-        twitter : '',
-        instagram : '',
-        linkedin : ''
-    });
+  type FormFields = {
+    company: string;
+    website: string;
+    location: string;
+    designation: string;
+    skills: string;
+    bio: string;
+    githubUsername: string;
+    youtube: string;
+    facebook: string;
+    twitter: string;
+    instagram: string;
+    linkedin: string;
+  };
 
+  const initialForm: FormFields = React.useMemo(() => ({
+    company: profile?.company ?? "",
+    website: profile?.website ?? "",
+    location: profile?.location ?? "",
+    designation: profile?.designation ?? "",
+    skills: profile?.skills?.join(", ") ?? "",
+    bio: profile?.bio ?? "",
+    githubUsername: profile?.githubUsername ?? "",
+    youtube: profile?.social?.youtube ?? "",
+    facebook: profile?.social?.facebook ?? "",
+    twitter: profile?.social?.twitter ?? "",
+    instagram: profile?.social?.instagram ?? "",
+    linkedin: profile?.social?.linkedin ?? "",
+  }), [profile]);
 
-    let {profileId}  = useParams<URLParams>();
+  const [form, setForm] = useState<FormFields>(initialForm);
 
-    // get the profile info from Redux Store
-    let profileState:profileReducer.ProfileState = useSelector((state : IProfileState) => {
-        return state.profileKey;
-    });
+  useEffect(() => {
+    setForm(initialForm);
+  }, [initialForm]);
 
-    let {loading , profile} = profileState;
+  // --------------------------------------------------------------------
+  // Load profile via Saga
+  // --------------------------------------------------------------------
+  useEffect(() => {
+    dispatch({ type: FETCH_MY_PROFILE });
+  }, [dispatch]);
 
+  // --------------------------------------------------------------------
+  // Update form input
+  // --------------------------------------------------------------------
+  const updateInput = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-    useEffect(() => {
-        dispatch(profileActions.getMyProfile());
-        setState({
-            ...state,
-            company: profile && profile.company ? profile.company : '',
-            website: profile && profile.website ? profile.website : '',
-            location: profile && profile.location ? profile.location : '',
-            designation: profile && profile.designation ? profile.designation : '',
-            skills:  profile && profile.skills ? profile.skills.toString() : '',
-            bio: profile && profile.bio ? profile.bio : '',
-            githubUsername: profile && profile.githubUsername ? profile.githubUsername : '',
-            youtube: profile && profile.social ? profile.social.youtube : '',
-            twitter:  profile && profile.social ? profile.social.twitter : '',
-            facebook:  profile && profile.social ? profile.social.facebook : '',
-            linkedin:  profile && profile.social ? profile.social.linkedin : '',
-            instagram:  profile && profile.social ? profile.social.instagram : '',
-        })
-    }, [profileId]);
+  // --------------------------------------------------------------------
+  // Submit Update Profile
+  // --------------------------------------------------------------------
+  const submitUpdateProfile = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!profile) return;
 
-    let updateInput = (event:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setState({
-            ...state,
-            [event.target.name]: event.target.value
-        });
+    const updatedProfile = {
+      ...profile,
+      company: form.company,
+      website: form.website,
+      location: form.location,
+      designation: form.designation,
+      skills: form.skills.split(",").map((s) => s.trim()),
+      bio: form.bio,
+      githubUsername: form.githubUsername,
+      social: {
+        youtube: form.youtube,
+        facebook: form.facebook,
+        twitter: form.twitter,
+        instagram: form.instagram,
+        linkedin: form.linkedin,
+      },
     };
 
-    let submitUpdateProfile = (event : React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        dispatch(profileActions.updateProfile(state,history));
+    const payload: SubmitProfilePayload = {
+      profile: updatedProfile,
+      navigate,
     };
 
-    return (
-        <React.Fragment>
-           {/* <pre>{JSON.stringify(state)}</pre>*/}
-            {
-                loading ? <Spinner/> :
-                    <React.Fragment>
-                        <section className="mt-3">
-                            <div className="container">
-                                <div className="row">
-                                    <div className="col">
-                                        <p className="h3 text-teal">
-                                            <i className="fa fa-user-edit"/> Edit Profile
-                                        </p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda aut consequatur deserunt dolore dolorum, eius error et eum ipsum nostrum omnis optio praesentium rem repellendus sit suscipit tenetur vitae, voluptates.</p>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-8">
-                                        <form onSubmit={submitUpdateProfile}>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'company'}
-                                                    value={state.company}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Company"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'website'}
-                                                    value={state.website}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Website"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'location'}
-                                                    value={state.location}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Location"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <select
-                                                    required={true}
-                                                    name={'designation'}
-                                                    value={state.designation}
-                                                    onChange={updateInput}
-                                                    className="form-control">
-                                                    <option value="">Select Designation</option>
-                                                    <option value="Junior Developer">Junior Developer</option>
-                                                    <option value="Senior Developer">Senior Developer</option>
-                                                    <option value="Tech Lead">Tech Lead</option>
-                                                    <option value="Junior Manager">Junior Manager</option>
-                                                    <option value="Senior Manager">Senior Manager</option>
-                                                    <option value="Director">Director</option>
-                                                </select>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'skills'}
-                                                    value={state.skills}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Skills"/>
-                                            </div>
-                                            <div className="mb-2">
-                                    <textarea
-                                        required={true}
-                                        name={'bio'}
-                                        value={state.bio}
-                                        onChange={updateInput}
-                                        rows={3} className="form-control" placeholder="Bio"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'githubUsername'}
-                                                    value={state.githubUsername}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Github Username"/>
-                                            </div>
-                                            <hr/>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'youtube'}
-                                                    value={state.youtube}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="YouTube"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'facebook'}
-                                                    value={state.facebook}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Facebook"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'twitter'}
-                                                    value={state.twitter}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Twitter"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'linkedin'}
-                                                    value={state.linkedin}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Linkedin"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input
-                                                    required={true}
-                                                    name={'instagram'}
-                                                    value={state.instagram}
-                                                    onChange={updateInput}
-                                                    type='text' className="form-control" placeholder="Instagram"/>
-                                            </div>
-                                            <div className="mb-2">
-                                                <input type='submit' className="btn btn-light-grey btn-sm text-teal" value="Update"/>
-                                            </div>
+    dispatch({ type: UPDATE_PROFILE, payload });
+  };
 
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </React.Fragment>
-            }
-        </React.Fragment>
-    )
+  // --------------------------------------------------------------------
+  // Loading State
+  // --------------------------------------------------------------------
+  if (loading || !profile) return <Spinner />;
+
+  return (
+    <section className="mt-3">
+      <div className="container">
+        <div className="row">
+          <div className="col">
+            <p className="h3 text-teal">
+              <i className="fa fa-user-edit" /> Edit Profile
+            </p>
+            <p>Modify your professional and social details below.</p>
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-md-8">
+            <form onSubmit={submitUpdateProfile}>
+              {/* FORM FIELDS */}
+              {[
+                "company",
+                "website",
+                "location",
+                "githubUsername",
+                "skills",
+                "bio",
+              ].map((field) =>
+                field === "bio" ? (
+                  <div className="mb-2" key={field}>
+                    <textarea
+                      required
+                      name="bio"
+                      rows={3}
+                      className="form-control"
+                      value={form.bio}
+                      onChange={updateInput}
+                      placeholder="Bio"
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-2" key={field}>
+                    <input
+                      required
+                      name={field}
+                      value={form[field as keyof typeof form]}
+                      onChange={updateInput}
+                      type="text"
+                      className="form-control"
+                      placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                    />
+                  </div>
+                )
+              )}
+
+              {/* Designation */}
+              <div className="mb-2">
+                <select
+                  required
+                  name="designation"
+                  value={form.designation}
+                  onChange={updateInput}
+                  className="form-control"
+                >
+                  <option value="">Select Designation</option>
+                  <option value="Junior Developer">Junior Developer</option>
+                  <option value="Senior Developer">Senior Developer</option>
+                  <option value="Tech Lead">Tech Lead</option>
+                  <option value="Junior Manager">Junior Manager</option>
+                  <option value="Senior Manager">Senior Manager</option>
+                  <option value="Director">Director</option>
+                </select>
+              </div>
+
+              <hr />
+
+              {/* Social Links */}
+              {["youtube", "facebook", "twitter", "linkedin", "instagram"].map(
+                (platform) => (
+                  <div className="mb-2" key={platform}>
+                    <input
+                      required
+                      name={platform}
+                      value={form[platform as keyof FormFields]}
+                      onChange={updateInput}
+                      type="text"
+                      className="form-control"
+                      placeholder={
+                        platform.charAt(0).toUpperCase() + platform.slice(1)
+                      }
+                    />
+                  </div>
+                )
+              )}
+
+              <div className="mb-2">
+                <input
+                  type="submit"
+                  className="btn btn-light-grey btn-sm text-teal"
+                  value="Update"
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
+
 export default EditProfile;

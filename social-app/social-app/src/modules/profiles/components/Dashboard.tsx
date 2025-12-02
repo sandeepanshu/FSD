@@ -1,191 +1,166 @@
-import React, {useEffect} from 'react';
-import * as userReducer from '../../../redux/users/user.reducer';
-import {useSelector, useDispatch} from "react-redux";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Spinner from "../../../layout/util/Spinner";
-import * as profileActions from '../../../redux/profiles/profile.actions';
-import * as profileReducer from '../../../redux/profiles/profile.reducer';
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
-interface IProps {}
-interface IState{
-    userKey : userReducer.UserState
-}
-interface IProfileState{
-    profileKey : profileReducer.ProfileState
-}
-let Dashboard:React.FC<IProps> = ({}) => {
-    let dispatch = useDispatch();
+import type { RootState } from "../../../redux/store";
+import type {
+  IExperience,
+  IEducation,
+} from "../../../modules/developers/models/IDeveloper";
 
-    let userState:userReducer.UserState = useSelector((state : IState) => {
-        return state.userKey;
-    });
+import {
+  FETCH_MY_PROFILE,
+  DELETE_EXPERIENCE,
+  DELETE_EDUCATION,
+} from "../../../redux/profiles/profile.types";
 
-    let profileState:profileReducer.ProfileState = useSelector((state : IProfileState) => {
-        return state.profileKey;
-    });
+const Dashboard: React.FC = () => {
+  const dispatch = useDispatch();
 
-    useEffect(() => {
-        dispatch(profileActions.getMyProfile());
-    }, []);
+  const { loading, user } = useSelector((state: RootState) => state.user);
+  const { profile } = useSelector((state: RootState) => state.profile);
 
+  useEffect(() => {
+    dispatch({ type: FETCH_MY_PROFILE });
+  }, [dispatch]);
 
-    let {loading , user} = userState;
-    let {profile} = profileState;
+  const clickDeleteExperience = (expId?: string) => {
+    if (expId) dispatch({ type: DELETE_EXPERIENCE, payload: { id: expId } });
+  };
 
-    let clickDeleteExperience = (expId:string | undefined) => {
-        if(expId){
-            dispatch(profileActions.deleteExperience(expId));
-        }
-    };
+  const clickDeleteEducation = (eduId?: string) => {
+    if (eduId) dispatch({ type: DELETE_EDUCATION, payload: { id: eduId } });
+  };
 
-    let clickDeleteEducation = (eduId:string| undefined) => {
-        if(eduId){
-            dispatch(profileActions.deleteEducation(eduId));
-        }
-    };
+  if (loading) return <Spinner />;
 
-    // @ts-ignore
-    return (
-        <React.Fragment>
-            {
-                loading ? <Spinner/> :
-                    <section className="mt-3">
-                        <div className="container">
-                            <div className="row">
-                                <div className="col">
-                                    <p className="h3 text-teal">
-                                        <i className="fa fa-sitemap"/> Dashboard</p>
-                                    {
-                                        Object.keys(user).length > 0 &&
-                                            <p className='text-teal'>Welcome {user.name}</p>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        <div className="container ">
-                            <div className="row">
-                                <div className="col">
-                                    {
-                                        Object.keys(profile).length > 0 ?
-                                            <React.Fragment>
-                                                <Link to={`/profiles/edit/${profile._id}`} className="btn btn-light-grey text-teal btn-sm"
-                                                     ><i className="fa fa-user-edit"/>   Edit Profile</Link>
-                                                <Link to={'/profiles/education'} className="btn btn-light-grey text-teal btn-sm">
-                                                    <i className="fa fa-graduation-cap"/>  Add Education</Link>
-                                                <Link to={'/profiles/experience'} className="btn btn-light-grey text-teal btn-sm">
-                                                    <i className="fa fa-user-clock"/>  Add Experience</Link>
-                                            </React.Fragment> :
-                                            <React.Fragment>
-                                                <Link to={'/profiles/create'} className="btn btn-light-grey text-teal btn-sm">
-                                                    <i className="fa fa-user-tie"/>  Create Profile</Link>
-                                            </React.Fragment>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        {/* Experience Details */}
-                        {
-                            Object.keys(profile).length > 0 &&
-                            <section>
-                                {
-                                    profile && profile?.experience.length > 0 &&
-                                    <div className="container">
-                                        <div className="row">
-                                            <div className="col">
-                                                <p className="h3 text-teal">Experience Details</p>
-                                            </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col">
-                                                <table className="table table-hover text-center table-striped">
-                                                    <thead className="bg-teal text-white">
-                                                    <tr>
-                                                        <th>Title</th>
-                                                        <th>Company</th>
-                                                        <th>Location</th>
-                                                        <th>From</th>
-                                                        <th>To</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    {
-                                                        profile.experience.map(exp => {
-                                                            return (
-                                                                <tr key={exp._id}>
-                                                                    <td>{exp.title}</td>
-                                                                    <td>{exp.company}</td>
-                                                                    <td>{exp.location}</td>
-                                                                    <td>{exp.from}</td>
-                                                                    <td>{exp.to}</td>
-                                                                    <td>
-                                                                        <button onClick={clickDeleteExperience.bind(this,exp._id)} className="btn btn-danger btn-sm">Delete</button>
-                                                                    </td>
-                                                                </tr>
-                                                            )
-                                                        })
-                                                    }
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            </section>
+  return (
+    <section className="mt-3">
+      {/* Header */}
+      <div className="container">
+        <p className="h3 text-teal">
+          <i className="fa fa-sitemap" /> Dashboard
+        </p>
+        {user && <p className="text-teal">Welcome {user.name}</p>}
+      </div>
 
-                        }
-                        {
-                            Object.keys(profile).length > 0 &&
-                            <section>
-                            {
-                                profile.education.length > 0 &&
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <p className="h3 text-teal">Education Details</p>
-                                        </div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col">
-                                            <table className="table table-hover text-center table-striped">
-                                                <thead className="bg-teal text-white">
-                                                <tr>
-                                                    <th>School</th>
-                                                    <th>Degree</th>
-                                                    <th>Field Of Study</th>
-                                                    <th>From</th>
-                                                    <th>To</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {
-                                                    profile.education.map(edu => {
-                                                        return (
-                                                            <tr key={edu._id}>
-                                                                <td>{edu.school}</td>
-                                                                <td>{edu.degree}</td>
-                                                                <td>{edu.fieldOfStudy}</td>
-                                                                <td>{edu.from}</td>
-                                                                <td>{edu.to}</td>
-                                                                <td>
-                                                                    <button onClick={clickDeleteEducation.bind(this,edu._id)}  className="btn btn-danger btn-sm">Delete</button>
-                                                                </td>
-                                                            </tr>
-                                                        )
-                                                    })
-                                                }
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                            </section>
-                        }
-                    </section>
-            }
-        </React.Fragment>
-    )
+      {/* Buttons */}
+      <div className="container">
+        {profile ? (
+          <>
+            <Link
+              to={`/profiles/edit/${profile._id}`}
+              className="btn btn-light-grey text-teal btn-sm"
+            >
+              <i className="fa fa-user-edit" /> Edit Profile
+            </Link>
+
+            <Link
+              to="/profiles/education"
+              className="btn btn-light-grey text-teal btn-sm"
+            >
+              <i className="fa fa-graduation-cap" /> Add Education
+            </Link>
+
+            <Link
+              to="/profiles/experience"
+              className="btn btn-light-grey text-teal btn-sm"
+            >
+              <i className="fa fa-user-clock" /> Add Experience
+            </Link>
+          </>
+        ) : (
+          <Link
+            to="/profiles/create"
+            className="btn btn-light-grey text-teal btn-sm"
+          >
+            <i className="fa fa-user-tie" /> Create Profile
+          </Link>
+        )}
+      </div>
+
+      {/* Experience Section */}
+      {profile && profile.experience && profile.experience.length > 0 && (
+        <section className="container mt-3">
+          <p className="h3 text-teal">Experience Details</p>
+
+          <table className="table table-hover text-center table-striped">
+            <thead className="bg-teal text-white">
+              <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {profile.experience.map((exp: IExperience) => (
+                <tr key={exp._id}>
+                  <td>{exp.title}</td>
+                  <td>{exp.company}</td>
+                  <td>{exp.location}</td>
+                  <td>{exp.from}</td>
+                  <td>{exp.to ?? "-"}</td>
+                  <td>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => clickDeleteExperience(exp._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      {/* Education Section */}
+      {profile && profile.education && profile.education.length > 0 && (
+        <section className="container mt-3">
+          <p className="h3 text-teal">Education Details</p>
+
+          <table className="table table-hover text-center table-striped">
+            <thead className="bg-teal text-white">
+              <tr>
+                <th>School</th>
+                <th>Degree</th>
+                <th>Field Of Study</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {profile!.education!.map((edu: IEducation) => (
+                <tr key={edu._id}>
+                  <td>{edu.school}</td>
+                  <td>{edu.degree}</td>
+                  <td>{edu.fieldOfStudy}</td>
+                  <td>{edu.from}</td>
+                  <td>{edu.to ?? "-"}</td>
+                  <td>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => clickDeleteEducation(edu._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+    </section>
+  );
 };
+
 export default Dashboard;
