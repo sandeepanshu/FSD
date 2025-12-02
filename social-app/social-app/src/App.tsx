@@ -16,7 +16,7 @@ import EditProfile from "./modules/profiles/components/EditProfile";
 import AddEducation from "./modules/profiles/components/AddEducation";
 import AddExperience from "./modules/profiles/components/AddExperience";
 import PostList from "./modules/posts/components/PostList";
-// import PostDetails from "./modules/posts/components/PostDetails";
+import PostDetails from "./modules/posts/components/PostDetails";
 
 import Alert from "./layout/util/Alert";
 import PrivateRoute from "./router/PrivateRoute";
@@ -60,7 +60,7 @@ const App: React.FC = () => {
             <Route path="/profiles/experience" element={<AddExperience />} />
 
             <Route path="/posts/list" element={<PostList />} />
-            {/* <Route path="/posts/:postId" element={<PostDetails />} /> */}
+            <Route path="/posts/:postId" element={<PostDetails />} />
           </Route>
         </Routes>
       </Router>

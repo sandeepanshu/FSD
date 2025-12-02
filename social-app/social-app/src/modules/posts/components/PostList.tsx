@@ -1,193 +1,234 @@
-import React, {useEffect, useState} from 'react';
-import * as userReducer from '../../../redux/users/user.reducer';
-import {useDispatch,useSelector} from "react-redux";
-import * as postActions from '../../../redux/posts/post.actions';
-import * as postReducer from '../../../redux/posts/post.reducer';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+
+import type { RootState } from "../../../redux/store";
+
+// Saga trigger actions
+import {
+  CREATE_POST,
+  GET_ALL_POSTS,
+  LIKE_POST,
+  DISLIKE_POST,
+  DELETE_POST,
+} from "../../../redux/posts/post.types";
+
 import Spinner from "../../../layout/util/Spinner";
-import {Link} from "react-router-dom";
 
-interface IProps {}
-interface IUserState{
-    userKey : userReducer.UserState
-}
-interface IPostState{
-    postKey : postReducer.PostState
-}
+const PostList: React.FC = () => {
+  const dispatch = useDispatch();
 
-let PostList:React.FC<IProps> = ({}) => {
-    let dispatch = useDispatch();
+  const [post, setPost] = useState({
+    text: "",
+    image: "",
+  });
 
-    let [post , setPost] = useState({
-        text : '',
-        image : ''
+  // -----------------------------
+  // Load all posts on mount
+  // -----------------------------
+  useEffect(() => {
+    dispatch({ type: GET_ALL_POSTS });
+  }, [dispatch]);
+
+  // -----------------------------
+  // Redux State
+  // -----------------------------
+  const { user } = useSelector((state: RootState) => state.user);
+  const { loading, posts } = useSelector((state: RootState) => state.post);
+
+  // -----------------------------
+  // Handlers
+  // -----------------------------
+  const updateInput = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    setPost({
+      ...post,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const submitCreatePost = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    dispatch({
+      type: CREATE_POST,
+      payload: post,
     });
 
-    useEffect(() => {
-        dispatch(postActions.getAllPosts());
-    }, []);
+    setPost({ text: "", image: "" });
+  };
 
-    let updateInput = (event:React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        setPost({
-            ...post,
-            [event.target.name] : event.target.value
-        });
-    };
-
-
-    let userState:userReducer.UserState = useSelector((state : IUserState) => {
-        return state.userKey;
+  const clickLikePost = (postId: string) => {
+    dispatch({
+      type: LIKE_POST,
+      payload: { postId },
     });
+  };
 
-    let postState:postReducer.PostState = useSelector((state : IPostState) => {
-        return state.postKey;
+  const clickUnLikePost = (postId: string) => {
+    dispatch({
+      type: DISLIKE_POST,
+      payload: { postId },
     });
+  };
 
-    let {user} = userState;
-    let {loading , posts} = postState;
+  const clickDeletePost = (postId: string) => {
+    dispatch({
+      type: DELETE_POST,
+      payload: { postId },
+    });
+  };
 
-    let submitCreatePost = (event : React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        dispatch(postActions.createPost(post));
-        setPost({
-            text : '',
-            image: ''
-        });
-    };
+  // -----------------------------
+  // JSX
+  // -----------------------------
+  return (
+    <>
+      <section className="mt-3">
+        <div className="container">
+          <p className="h3 text-teal">Welcome to React Social Community</p>
+          <p>
+            Share posts, engage, and interact with developers around the world.
+          </p>
+        </div>
+      </section>
 
-    let clickLikePost = (postId:string) => {
-        dispatch(postActions.likePost(postId));
-    };
+      {/* -------- Create Post ---------- */}
+      <section>
+        <div className="container">
+          <div className="card">
+            <div className="card-body bg-light-grey">
+              <div className="row align-items-center">
+                {user && (
+                  <div className="col-md-3">
+                    <img
+                      src={user.avatar}
+                      alt="avatar"
+                      className="img-fluid img-thumbnail"
+                    />
+                  </div>
+                )}
 
-    let clickUnLikePost = (postId:string) => {
-        dispatch(postActions.disLikePost(postId));
-    };
+                <div className="col-md-8">
+                  <form onSubmit={submitCreatePost}>
+                    <textarea
+                      required
+                      name="text"
+                      value={post.text}
+                      onChange={updateInput}
+                      rows={3}
+                      className="form-control mb-2"
+                      placeholder="Your Post Content..."
+                    />
 
-    let clickDeletePost = (postId:string) => {
-        dispatch(postActions.deletePost(postId));
-    };
+                    <input
+                      required
+                      name="image"
+                      value={post.image}
+                      onChange={updateInput}
+                      type="text"
+                      className="form-control mb-2"
+                      placeholder="Image URL"
+                    />
 
-    return (
-        <React.Fragment>
-            <section className="mt-3">
-                <div className="container">
-                    <div className="row">
-                        <div className="col">
-                            <p className="h3 text-teal">Welcome to React Social Community</p>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque beatae esse facere fugiat laudantium maxime minus modi, molestiae nobis perferendis quae quasi ratione reiciendis repellat sed sit soluta totam voluptates.</p>
-                        </div>
-                    </div>
+                    <button className="btn btn-teal btn-sm" type="submit">
+                      Post
+                    </button>
+                  </form>
                 </div>
-            </section>
-            <section>
-                <div className="container">
-                    <div className="row">
-                        <div className="col">
-                            <div className="card">
-                                <div className="card-body bg-light-grey">
-                                    <div className="row no-gutters align-items-center">
-                                        {
-                                            Object.keys(user).length > 0 &&
-                                            <div className="col-md-3">
-                                                <img src={user.avatar} alt='' className="img-fluid img-thumbnail"/>
-                                            </div>
-                                        }
-                                        <div className="col-md-8">
-                                            <form onSubmit={submitCreatePost}>
-                                                <div className="mb-2">
-                                                    <textarea
-                                                        autoFocus={true}
-                                                        required={true}
-                                                        name='text'
-                                                        value={post.text}
-                                                        onChange={updateInput}
-                                                        rows={3} className="form-control" placeholder='Your Post Content here'/>
-                                                </div>
-                                                <div className="mb-2">
-                                                    <input
-                                                        required={true}
-                                                        name='image'
-                                                        value={post.image}
-                                                        onChange={updateInput}
-                                                        type="text" className="form-control" placeholder={'Image URL'}/>
-                                                </div>
-                                                <div className="mb-2">
-                                                    <input type="submit" className="btn btn-teal btn-sm" value="post"/>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* -------- Posts List ---------- */}
+      {loading ? (
+        <Spinner />
+      ) : (
+        <section className="mt-3">
+          <div className="container">
+            <p className="h3 text-teal">All Posts</p>
+            <hr />
+
+            {posts.map((post) => (
+              <div className="card mt-3" key={post._id}>
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-md-2 text-center">
+                      <img
+                        src={post.avatar}
+                        alt="avatar"
+                        className="img-thumbnail img-fluid"
+                      />
+                      <p className="h5 text-teal font-weight-bold">
+                        {post.name}
+                      </p>
                     </div>
+
+                    <div className="col-md-10">
+                      <img
+                        src={post.image}
+                        alt="post-img"
+                        className="img-fluid"
+                      />
+                      <p>{post.text}</p>
+                      <small>
+                        {post.createdAt && new Date(post.createdAt).toLocaleDateString()}
+                        {post.createdAt && new Date(post.createdAt).toLocaleTimeString()}
+                      </small>
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="row mt-3">
+                    <div className="col-md-2"></div>
+                    <div className="col-md-10">
+                      {typeof post._id === "string" && post._id && (
+                        <button
+                          className="btn rgba-green-light btn-sm"
+                          onClick={() => clickLikePost(post._id!)}
+                        >
+                          <i className="fa fa-thumbs-up" /> {post.likes.length}
+                        </button>
+                      )}
+
+                      {typeof post._id === "string" && (
+                        <button
+                          className="btn rgba-red-light btn-sm ml-2"
+                          onClick={() => clickUnLikePost(post._id as string)}
+                        >
+                          <i className="fa fa-thumbs-down" />
+                        </button>
+                      )}
+
+                      <Link
+                        to={`/posts/${post._id}`}
+                        className="btn rgba-blue-light btn-sm ml-2"
+                      >
+                        <i className="fab fa-facebook-messenger" /> Discussions{" "}
+                        {post.comments.length}
+                      </Link>
+
+                      {user?._id === post.user.toString() && typeof post._id === "string" && post._id && (
+                        <button
+                          className="btn btn-danger btn-sm ml-2"
+                          onClick={() => clickDeletePost(post._id as string)}
+                        >
+                          <i className="fa fa-times-circle" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-            </section>
-            {
-                loading ? <Spinner/> :
-                    <React.Fragment>
-                        <section className="mt-3">
-                            <div className="container">
-                                <div className="row">
-                                    <div className="col">
-                                        <p className="h3 text-teal">
-                                            All Posts
-                                        </p>
-                                        <hr/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="container">
-                                {
-                                    posts.length > 0 &&
-                                    posts.map(post => {
-                                        return (
-                                            <div className="row" key={post._id}>
-                                                <div className="col">
-                                                    <div className="card mt-2">
-                                                        <div className="card-body">
-                                                            <div className="row">
-                                                                <div className="col-md-2 text-center">
-                                                                    <img src={post.avatar} alt={''} className="img-thumbnail img-fluid"/>
-                                                                    <p className="h4 text-teal font-weight-bold">{post.name}</p>
-                                                                </div>
-                                                                <div className="col-md-10">
-                                                                    <img src={post.image} alt={''} className="img-fluid"/>
-                                                                    <p>{post.text}</p>
-                                                                    <small>{new Date(post.createdAt).toLocaleDateString()} - {new Date(post.createdAt).toLocaleTimeString()}</small>
-                                                                </div>
-                                                            </div>
-                                                            <div className="row">
-                                                                <div className="col-md-2"/>
-                                                                <div className="col-md-10">
-                                                                    <button className="btn rgba-green-light btn-sm" onClick={clickLikePost.bind(this,post._id)}>
-                                                                        <i className="fa fa-thumbs-up"/> {post.likes.length}
-                                                                    </button>
-                                                                    <button className="btn rgba-red-light btn-sm" onClick={clickUnLikePost.bind(this,post._id)}>
-                                                                        <i className="fa fa-thumbs-down"/>
-                                                                    </button>
-                                                                    <Link to={`/posts/${post._id}`} className="btn rgba-blue-light btn-sm">
-                                                                        <i className="fab fa-facebook-messenger"/> Discussions {post.comments.length}
-                                                                    </Link>
-                                                                    {
-                                                                        user._id === post.user.toString() &&
-                                                                        <button className="btn btn-danger btn-sm" onClick={clickDeletePost.bind(this,post._id)}>
-                                                                            <i className="fa fa-times-circle"/>
-                                                                        </button>
-                                                                    }
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </div>
-                        </section>
-                    </React.Fragment>
-            }
-        </React.Fragment>
-    )
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  );
 };
+
 export default PostList;
