@@ -1,94 +1,126 @@
-import React, {useState} from 'react';
-import {Link, useHistory} from 'react-router-dom';
-import * as userActions from '../../../redux/users/user.actions';
-import {useDispatch} from "react-redux";
+import React from "react";
+import { Form, Input, Button, Card, Typography } from "antd";
+import {
+  LoginOutlined,
+  MailOutlined,
+  LockOutlined,
+} from "@ant-design/icons";
 
-interface IProps {}
+import { useDispatch } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
 
-let UserLogin:React.FC<IProps> = ({}) => {
-    let dispatch = useDispatch();
-    let history = useHistory();
+import type { UserView } from "../../../modules/users/models/UserView";
+import { LOGIN_USER } from "../../../redux/users/user.types";
 
-    let [user , setUser] = useState({
-        email : '',
-        password : ''
+const { Title, Paragraph } = Typography;
+
+const UserLogin: React.FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const onFinish = (values: UserView) => {
+    dispatch({
+      type: LOGIN_USER,
+      payload: { user: values, navigate },
     });
+  };
 
-    let [userError , setUserError] = useState({
-        emailError : '',
-        passwordError : ''
-    });
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f0f2f5",
+        padding: "20px",
+      }}
+    >
+      <Card
+        variant="borderless"   // 🔥 Updated here (NO deprecated warning)
+        style={{
+          width: 450,
+          minHeight: 520,
+          borderRadius: 16,
+          padding: "20px 10px",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+          background: "#fff",
+        }}
+        hoverable
+      >
+        <Title level={3} style={{ textAlign: "center", marginBottom: 10 }}>
+          <LoginOutlined /> Login to Your Account
+        </Title>
 
-    let validateEmail = (event : React.ChangeEvent<HTMLInputElement>) => {
-        setUser({...user , email : event.target.value});
-        let regExp = /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/;
-        !regExp.test(event.target.value) ?
-            setUserError({...userError , emailError: 'Enter a proper Email'})
-            : setUserError({...userError , emailError: ''});
-    };
+        <Paragraph
+          style={{
+            textAlign: "center",
+            marginBottom: 32,
+            color: "#555",
+            fontSize: 15,
+          }}
+        >
+          Welcome back! Enter your login credentials to continue.
+        </Paragraph>
 
-    let validatePassword = (event : React.ChangeEvent<HTMLInputElement>) => {
-        setUser({...user , password : event.target.value});
-        let regExp = /^[A-Za-z0-9]\w{7,14}$/;
-        !regExp.test(event.target.value) ?
-            setUserError({...userError , passwordError: 'Enter a proper Password'})
-            : setUserError({...userError , passwordError: ''});
-    };
+        <Form layout="vertical" onFinish={onFinish} style={{ marginTop: 20 }}>
+          {/* Email */}
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Email is required" },
+              { type: "email", message: "Enter a valid email address" },
+            ]}
+          >
+            <Input
+              size="large"
+              prefix={<MailOutlined />}
+              placeholder="Enter your email"
+            />
+          </Form.Item>
 
-    let submitLogin = (event : React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        dispatch(userActions.loginUser(user, history));
-    };
+          {/* Password */}
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              { required: true, message: "Password is required" },
+              {
+                pattern: /^[A-Za-z0-9]\w{7,14}$/,
+                message: "Password must be 8–15 valid characters",
+              },
+            ]}
+          >
+            <Input.Password
+              size="large"
+              prefix={<LockOutlined />}
+              placeholder="Enter your password"
+            />
+          </Form.Item>
 
+          <Form.Item style={{ marginTop: 30 }}>
+            <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              block
+              icon={<LoginOutlined />}
+            >
+              Login
+            </Button>
+          </Form.Item>
 
-    return (
-        <React.Fragment>
-            <section className="mt-3">
-                <div className="container">
-                    <div className="row animated slideInLeft">
-                        <div className="col">
-                            <p className="h3 text-teal font-weight-bold">
-                                <i className="fa fa-sign-in-alt"/> Login</p>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores doloremque dolores iste itaque neque odit porro, quis repellat suscipit vel. Deserunt dolor inventore nemo reprehenderit tempora vel voluptas? Eum, perspiciatis!</p>
-                        </div>
-                    </div>
-                    <div className="row animated zoomIn">
-                        <div className="col-md-6">
-                            <form onSubmit={submitLogin}>
-                                <div className="mb-2">
-                                    <input
-                                        required
-                                        name={'email'}
-                                        value={user.email}
-                                        onChange={validateEmail}
-                                        type="email" className={`form-control ${userError.emailError.length > 0 ? 'is-invalid' : ''}`} placeholder="Email"/>
-                                    {
-                                        userError.emailError.length > 0 ? <small className="text-danger">{userError.emailError}</small> : null
-                                    }
-                                </div>
-                                <div className="mb-2">
-                                    <input
-                                        required
-                                        name={'password'}
-                                        value={user.password}
-                                        onChange={validatePassword}
-                                        type="password" className={`form-control ${userError.passwordError.length > 0 ? 'is-invalid' : ''}`} placeholder="Password"/>
-                                    {
-                                        userError.passwordError.length > 0 ? <small className="text-danger">{userError.passwordError}</small> : null
-                                    }
-                                </div>
-                                <div className="mb-2">
-                                    <input type="submit" className="btn btn-teal btn-sm" value="Login"/>
-                                </div>
-                            </form>
-                            <small>Don't have an Account ?
-                                <Link to={'/users/register'} className="text-teal"> Register</Link>
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </React.Fragment>
-    )
+          <div style={{ textAlign: "center", marginTop: 15 }}>
+            Don’t have an account?{" "}
+            <Link to="/users/register">
+              <strong>Register</strong>
+            </Link>
+          </div>
+        </Form>
+      </Card>
+    </div>
+  );
 };
+
 export default UserLogin;

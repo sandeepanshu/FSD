@@ -7,9 +7,9 @@ import "./App.css";
 import Home from "./layout/home/Home";
 import NavBar from "./layout/navbar/NavBar";
 import DeveloperList from "./modules/developers/components/DeveloperList";
-// import DeveloperDetails from "./modules/developers/components/DeveloperDetails";
-// import UserRegister from "./modules/users/components/UserRegister";
-// import UserLogin from "./modules/users/components/UserLogin";
+import DeveloperDetails from "./modules/developers/components/DeveloperDetails";
+import UserRegister from "./modules/users/components/UserRegister";
+import UserLogin from "./modules/users/components/UserLogin";
 // import Dashboard from "./modules/profiles/components/Dashboard";
 // import CreateProfile from "./modules/profiles/components/CreateProfile";
 // import EditProfile from "./modules/profiles/components/EditProfile";
@@ -46,18 +46,18 @@ const App: React.FC = () => {
           <Route path="/developers" element={<DeveloperList />} />
           <Route
             path="/developers/:developerId"
-            // element={<DeveloperDetails />}
+            element={<DeveloperDetails />}
           />
-          {/* <Route path="/users/register" element={<UserRegister />} />
-          <Route path="/users/login" element={<UserLogin />} /> */}
+          <Route path="/users/register" element={<UserRegister />} />
+          <Route path="/users/login" element={<UserLogin />} />
 
           {/* Private Routes */}
           <Route element={<PrivateRoute />}>
-            {/* <Route path="/profiles/dashboard" element={<Dashboard />} />
-            <Route path="/profiles/create" element={<CreateProfile />} />
-            <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
-            <Route path="/profiles/education" element={<AddEducation />} />
-            <Route path="/profiles/experience" element={<AddExperience />} /> */}
+            {/* <Route path="/profiles/dashboard" element={<Dashboard />} /> */}
+            {/* <Route path="/profiles/create" element={<CreateProfile />} /> */}
+            {/* <Route path="/profiles/edit/:profileId" element={<EditProfile />} /> */}
+            {/* <Route path="/profiles/education" element={<AddEducation />} /> */}
+            {/* <Route path="/profiles/experience" element={<AddExperience />} /> */}
 
             {/* <Route path="/posts/list" element={<PostList />} /> */}
             {/* <Route path="/posts/:postId" element={<PostDetails />} /> */}

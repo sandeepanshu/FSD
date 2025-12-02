@@ -1,178 +1,165 @@
-import React, {useEffect} from 'react';
-import {useParams, useHistory} from 'react-router-dom';
-import * as developerActions from '../../../redux/developers/develper.actions';
-import * as developerReducer from '../../../redux/developers/developer.reducer';
-import {useDispatch , useSelector} from "react-redux";
-import Spinner from "../../../layout/util/Spinner";
+import React, { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Card, Row, Col, Avatar, Typography, Tag, Divider, Spin } from "antd";
+import { UserOutlined, CheckCircleOutlined } from "@ant-design/icons";
 
-interface URLParams{
-    developerId : string;
-}
-interface IProps {}
-interface IState{
-    developerKey : developerReducer.DeveloperState
-}
+import type { RootState } from "../../../redux/store";
+import type { IDeveloper } from "../models/IDeveloper";
+import { FETCH_DEVELOPER } from "../../../redux/developers/developer.types";
 
-let DeveloperDetails:React.FC<IProps> = ({}) => {
-    let dispatch = useDispatch();
-    let {developerId} = useParams<URLParams>();
+const { Title, Text, Paragraph } = Typography;
 
-    // fetch developer Info from REDUX Store
-    let developerState:developerReducer.DeveloperState = useSelector((state : IState) => {
-        return state.developerKey;
-    });
+const DeveloperDetails: React.FC = () => {
+  const dispatch = useDispatch();
+  const { developerId } = useParams<{ developerId: string }>();
 
-    let {loading , selectedDeveloper , error} = developerState;
+  const { loading, selectedDeveloper } = useSelector(
+    (state: RootState) => state.developer
+  );
 
-    useEffect(() => {
-        dispatch(developerActions.getDeveloper(developerId));
-    }, [developerId]);
+  useEffect(() => {
+    if (developerId) {
+      dispatch({ type: FETCH_DEVELOPER, payload: { profileId: developerId } });
+    }
+  }, [developerId]);
 
+  if (loading || !selectedDeveloper) {
     return (
-        <React.Fragment>
-            {
-                loading ? <Spinner/> :
-                    <React.Fragment>
-                        {
-                            Object.keys(selectedDeveloper).length > 0 &&
-                            <section className="mt-3">
-                                <div className="container">
-                                    <div className="row animated slideInLeft">
-                                        <div className="col">
-                                            <p className="h3 text-teal font-weight-bold">
-                                                <i className="fa fa-user-tie"/> {selectedDeveloper.user.name}'s Profile</p>
-                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores doloremque dolores iste itaque neque odit porro, quis repellat suscipit vel. Deserunt dolor inventore nemo reprehenderit tempora vel voluptas? Eum, perspiciatis!</p>
-                                        </div>
-                                    </div>
-                                    <div className="container bg-teal text-white text-center p-3">
-                                        <div className="row">
-                                            <div className="col">
-                                                <img src={selectedDeveloper.user.avatar} alt="" width="200" height="200" className="rounded-circle profile-img"/>
-                                                <p className="h2">{selectedDeveloper.user.name}</p>
-                                                <p className="h6">{selectedDeveloper.designation}</p>
-                                                <p className="h6">{selectedDeveloper.company}</p>
-                                                <p>{selectedDeveloper.location}</p>
-                                                <div className="d-flex flex-row justify-content-center">
-                                                    <div className="p-2">
-                                                        <i className="fab fa-facebook"/>
-                                                    </div>
-                                                    <div className="p-2">
-                                                        <i className="fab fa-twitter"/>
-                                                    </div>
-                                                    <div className="p-2">
-                                                        <i className="fab fa-linkedin"/>
-                                                    </div>
-                                                    <div className="p-2">
-                                                        <i className="fab fa-youtube"/>
-                                                    </div>
-                                                    <div className="p-2">
-                                                        <i className="fab fa-instagram"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+      <div style={{ textAlign: "center", padding: 40 }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
-                                    <div className="container">
-                                        <div className="row">
-                                            <div className="col text-center">
-                                                <div className="card my-2">
-                                                    <div className="card-body bg-light-grey text-teal">
-                                                        <p className="h3">{selectedDeveloper.user.name}'s Biography</p>
-                                                        <p>{selectedDeveloper.bio}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+  const dev: IDeveloper = selectedDeveloper;
 
-                                    <div className="container">
-                                        <div className="row">
-                                            <div className="col text-center">
-                                                <div className="card my-2">
-                                                    <div className="card-body bg-light-grey text-teal">
-                                                        <p className="h3">{selectedDeveloper.user.name}'s Skills</p>
-                                                        {
-                                                            selectedDeveloper.skills.map(skill => {
-                                                                return (
-                                                                    <small className="badge badge-success p-2 m-1" key={skill}>
-                                                                        <i className="fa fa-check-circle"/> {skill}</small>
-                                                                )
-                                                            })
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+  return (
+    <div style={{ padding: "32px" }}>
+      {/* Header */}
+      <Card
+        style={{ borderRadius: 12, marginBottom: 24 }}
+        bodyStyle={{ padding: 24 }}
+      >
+        <Row gutter={24} align="middle">
+          <Col xs={24} md={6} style={{ textAlign: "center" }}>
+            <Avatar
+              size={150}
+              src={dev.user?.avatar}
+              icon={<UserOutlined />}
+              style={{ border: "4px solid #1890ff" }}
+            />
+            <Title level={3} style={{ marginTop: 16 }}>
+              {dev.user?.name}
+            </Title>
+            <Text strong>{dev.designation}</Text>
+            <br />
+            <Text>{dev.company}</Text>
+            <br />
+            <Text type="secondary">{dev.location}</Text>
+          </Col>
 
-                                    <div className="container">
-                                        <div className="row">
-                                            <div className="col-md-6">
-                                                {
-                                                    selectedDeveloper.experience.length > 0 ?
-                                                        <React.Fragment>
-                                                            <div className="card">
-                                                                <div className="card-body bg-light-grey">
-                                                                    <p className="h3">Experience</p>
-                                                                    <ul className="list-group">
-                                                                        {
-                                                                            selectedDeveloper.experience.map(exp => {
-                                                                                return (
-                                                                                    <li className="list-group-item my-2" key={exp._id}>
-                                                                                        <span>Title : {exp.title}</span><br/>
-                                                                                        <span>Company : {exp.company}</span><br/>
-                                                                                        <span>Location : {exp.location}</span><br/>
-                                                                                        <span>From : {exp.from}</span><br/>
-                                                                                        <span>To : {exp.to}</span><br/>
-                                                                                        <span>Description : {exp.description}</span><br/>
-                                                                                    </li>
-                                                                                )
-                                                                            })
-                                                                        }
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </React.Fragment> : null
-                                                }
-                                            </div>
-                                            <div className="col-md-6">
-                                                {
-                                                    selectedDeveloper.education.length > 0 ?
-                                                        <React.Fragment>
-                                                            <div className="card">
-                                                                <div className="card-body bg-light-grey">
-                                                                    <p className="h3">Education</p>
-                                                                    <ul className="list-group">
-                                                                        {
-                                                                            selectedDeveloper.education.map(edu => {
-                                                                                return (
-                                                                                    <li className="list-group-item my-2" key={edu._id}>
-                                                                                        <span>School : {edu.school}</span><br/>
-                                                                                        <span>Degree : {edu.degree}</span><br/>
-                                                                                        <span>Field of Study : {edu.fieldOfStudy}</span><br/>
-                                                                                        <span>From : {edu.from}</span><br/>
-                                                                                        <span>To : {edu.to}</span><br/>
-                                                                                        <span>Description : {edu.description}</span><br/>
-                                                                                    </li>
-                                                                                )
-                                                                            })
-                                                                        }
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </React.Fragment> : null
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        }
-                        <div style={{marginBottom : '150px'}}/>
-                    </React.Fragment>
-            }
-        </React.Fragment>
-    )
+          <Col xs={24} md={18}>
+            <Title level={4}>About</Title>
+            <Paragraph>{dev.bio || "No biography available."}</Paragraph>
+
+            <Divider />
+
+            <Title level={4}>Social Links</Title>
+            <Row gutter={16}>
+              {Object.entries(dev.social || {}).map(([platform, url]) =>
+                url ? (
+                  <Col key={platform}>
+                    <a href={url} target="_blank">
+                      <Tag color="blue" style={{ padding: "6px 12px" }}>
+                        {platform.toUpperCase()}
+                      </Tag>
+                    </a>
+                  </Col>
+                ) : null
+              )}
+            </Row>
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Skills */}
+      <Card
+        title="Skills"
+        style={{ borderRadius: 12, marginBottom: 24 }}
+        bodyStyle={{ padding: 24 }}
+      >
+        {dev.skills?.map((skill) => (
+          <Tag
+            key={skill}
+            icon={<CheckCircleOutlined />}
+            color="success"
+            style={{ marginBottom: 8 }}
+          >
+            {skill}
+          </Tag>
+        ))}
+      </Card>
+
+      <Row gutter={24}>
+        {/* Experience */}
+        <Col xs={24} md={12}>
+          <Card
+            title="Experience"
+            style={{ borderRadius: 12, marginBottom: 24 }}
+            bodyStyle={{ padding: 24 }}
+          >
+            {dev.experience && dev.experience.length > 0 ? (
+              dev.experience.map((exp) => (
+                <Card key={exp._id} style={{ marginBottom: 12 }}>
+                  <Title level={5}>{exp.title}</Title>
+                  <Text strong>{exp.company}</Text>
+                  <br />
+                  <Text>{exp.location}</Text>
+                  <br />
+                  <Text type="secondary">
+                    {exp.from} - {exp.to || "Current"}
+                  </Text>
+                  <Paragraph>{exp.description}</Paragraph>
+                </Card>
+              ))
+            ) : (
+              <Text>No experience added.</Text>
+            )}
+          </Card>
+        </Col>
+
+        {/* Education */}
+        <Col xs={24} md={12}>
+          <Card
+            title="Education"
+            style={{ borderRadius: 12, marginBottom: 24 }}
+            bodyStyle={{ padding: 24 }}
+          >
+            {dev.education && dev.education.length > 0 ? (
+              dev.education.map((edu) => (
+                <Card key={edu._id} style={{ marginBottom: 12 }}>
+                  <Title level={5}>{edu.degree}</Title>
+                  <Text strong>{edu.school}</Text>
+                  <br />
+                  <Text>{edu.fieldOfStudy}</Text>
+                  <br />
+                  <Text type="secondary">
+                    {edu.from} - {edu.to || "Current"}
+                  </Text>
+                  <Paragraph>{edu.description}</Paragraph>
+                </Card>
+              ))
+            ) : (
+              <Text>No education added.</Text>
+            )}
+          </Card>
+        </Col>
+      </Row>
+
+      <div style={{ height: 80 }} />
+    </div>
+  );
 };
+
 export default DeveloperDetails;

@@ -1,116 +1,144 @@
-import React, {useState} from 'react';
-import {Link, useHistory} from 'react-router-dom';
-import * as userActions from '../../../redux/users/user.actions';
-import {useDispatch} from "react-redux";
+import React from "react";
+import { Form, Input, Button, Card, Typography } from "antd";
+import {
+  UserOutlined,
+  MailOutlined,
+  LockOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
 
-interface IProps {}
+import type { UserView } from "../../../modules/users/models/UserView";
+import { REGISTER_USER } from "../../../redux/users/user.types";
 
-let UserRegister:React.FC<IProps> = ({}) => {
-    let dispatch = useDispatch();
-    let history = useHistory();
+const { Title, Paragraph } = Typography;
 
-    let [user , setUser] = useState({
-        name : '',
-        email : '',
-        password : ''
+const UserRegister: React.FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const onFinish = (values: UserView) => {
+    dispatch({
+      type: REGISTER_USER,
+      payload: { user: values, navigate },
     });
+  };
 
-    let [userError , setUserError] = useState({
-        nameError : '',
-        emailError : '',
-        passwordError : ''
-    });
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f0f2f5",
+        padding: "20px",
+      }}
+    >
+      <Card
+        style={{
+          width: 450,
+          minHeight: 560, // ⬅️ Increased height for premium look
+          borderRadius: 16,
+          padding: "20px 10px",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+        }}
+        bordered={false}
+        hoverable
+      >
+        <Title level={3} style={{ textAlign: "center", marginBottom: 10 }}>
+          <UserAddOutlined /> Create Your Account
+        </Title>
 
-    let validateUserName = (event : React.ChangeEvent<HTMLInputElement>) => {
-        setUser({...user , name : event.target.value});
-        let regExp = /^[a-zA-Z0-9-_]{4,10}$/;
-        !regExp.test(event.target.value) ?
-            setUserError({...userError , nameError: 'Enter a proper Username'})
-            : setUserError({...userError , nameError: ''});
-    };
+        <Paragraph
+          style={{
+            textAlign: "center",
+            marginBottom: 32,
+            color: "#555",
+            fontSize: 15,
+          }}
+        >
+          Join the React Social community and connect with developers worldwide.
+        </Paragraph>
 
-    let validateEmail = (event : React.ChangeEvent<HTMLInputElement>) => {
-        setUser({...user , email : event.target.value});
-        let regExp = /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/;
-        !regExp.test(event.target.value) ?
-            setUserError({...userError , emailError: 'Enter a proper Email'})
-            : setUserError({...userError , emailError: ''});
-    };
+        <Form layout="vertical" onFinish={onFinish} style={{ marginTop: 20 }}>
+          {/* Name */}
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[
+              { required: true, message: "Name is required" },
+              {
+                pattern: /^[a-zA-Z0-9-_]{4,20}$/,
+                message: "4–20 chars (letters, numbers, _ or -)",
+              },
+            ]}
+          >
+            <Input
+              size="large"
+              prefix={<UserOutlined />}
+              placeholder="Enter name"
+            />
+          </Form.Item>
 
-    let validatePassword = (event : React.ChangeEvent<HTMLInputElement>) => {
-        setUser({...user , password : event.target.value});
-        let regExp = /^[A-Za-z0-9]\w{7,14}$/;
-        !regExp.test(event.target.value) ?
-            setUserError({...userError , passwordError: 'Enter a proper Password'})
-            : setUserError({...userError , passwordError: ''});
-    };
+          {/* Email */}
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Email is required" },
+              { type: "email", message: "Enter a valid email" },
+            ]}
+          >
+            <Input
+              size="large"
+              prefix={<MailOutlined />}
+              placeholder="Enter email"
+            />
+          </Form.Item>
 
-    let submitRegister = (event : React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-       dispatch(userActions.registerUser(user, history));
-    };
+          {/* Password */}
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              { required: true, message: "Password is required" },
+              {
+                pattern: /^[A-Za-z0-9]\w{7,14}$/,
+                message: "8–15 characters required",
+              },
+            ]}
+          >
+            <Input.Password
+              size="large"
+              prefix={<LockOutlined />}
+              placeholder="Enter password"
+            />
+          </Form.Item>
 
-    return (
-        <React.Fragment>
-          {/*  <pre>{JSON.stringify(user)}</pre>
-            <pre>{JSON.stringify(userError)}</pre>*/}
-           <section className="mt-3">
-               <div className="container">
-                   <div className="row animated slideInLeft">
-                       <div className="col">
-                           <p className="h3 text-teal font-weight-bold">
-                              <i className="fa fa-user-shield"/> Registration</p>
-                           <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores doloremque dolores iste itaque neque odit porro, quis repellat suscipit vel. Deserunt dolor inventore nemo reprehenderit tempora vel voluptas? Eum, perspiciatis!</p>
-                       </div>
-                   </div>
-                   <div className="row animated zoomIn">
-                       <div className="col-md-6">
-                           <form onSubmit={submitRegister}>
-                               <div className="mb-2">
-                                   <input
-                                       required
-                                       name={'name'}
-                                       value={user.name}
-                                       onChange={validateUserName}
-                                       type="text" className={`form-control ${userError.nameError.length > 0 ? 'is-invalid' : ''}`} placeholder="Name"/>
-                                   {
-                                       userError.nameError.length > 0 ? <small className="text-danger">{userError.nameError}</small> : null
-                                   }
-                               </div>
-                               <div className="mb-2">
-                                   <input
-                                       required
-                                       name={'email'}
-                                       value={user.email}
-                                       onChange={validateEmail}
-                                       type="email" className={`form-control ${userError.emailError.length > 0 ? 'is-invalid' : ''}`} placeholder="Email"/>
-                                   {
-                                       userError.emailError.length > 0 ? <small className="text-danger">{userError.emailError}</small> : null
-                                   }
-                               </div>
-                               <div className="mb-2">
-                                   <input
-                                       required
-                                       name={'password'}
-                                       value={user.password}
-                                       onChange={validatePassword}
-                                       type="password" className={`form-control ${userError.passwordError.length > 0 ? 'is-invalid' : ''}`} placeholder="Password"/>
-                                   {
-                                       userError.passwordError.length > 0 ? <small className="text-danger">{userError.passwordError}</small> : null
-                                   }
-                               </div>
-                               <div className="mb-2">
-                                   <input type="submit" className="btn btn-teal btn-sm" value="Register"/>
-                               </div>
-                           </form>
-                           <small>Already have an Account ?
-                               <Link to={'/users/login'} className="text-teal"> Login</Link>
-                           </small>
-                       </div>
-                   </div>
-               </div>
-           </section>
-        </React.Fragment>
-    )
+          <Form.Item style={{ marginTop: 30 }}>
+            <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              block
+              icon={<UserAddOutlined />}
+            >
+              Register
+            </Button>
+          </Form.Item>
+
+          <div style={{ textAlign: "center", marginTop: 10 }}>
+            Already have an account?{" "}
+            <Link to="/users/login">
+              <strong>Login</strong>
+            </Link>
+          </div>
+        </Form>
+      </Card>
+    </div>
+  );
 };
+
 export default UserRegister;
