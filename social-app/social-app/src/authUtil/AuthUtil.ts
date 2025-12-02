@@ -1,14 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 export class AuthUtil {
-
-    public static setTokenHeader(token:string){
-        if(token){
-            axios.defaults.headers['x-auth-token'] = token;
-        }
-        else {
-            delete axios.defaults.headers['x-auth-token'];
-        }
+  public static setTokenHeader(token: string | null) {
+    if (token) {
+      axios.defaults.headers.common["x-auth-token"] = token;
+    } else {
+      delete axios.defaults.headers.common["x-auth-token"];
     }
-
+  }
 }

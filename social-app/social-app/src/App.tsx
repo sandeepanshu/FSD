@@ -44,7 +44,10 @@ const App: React.FC = () => {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/developers" element={<DeveloperList />} />
-          <Route path="/developers/:developerId" element={<DeveloperDetails />} />
+          <Route
+            path="/developers/:developerId"
+            element={<DeveloperDetails />}
+          />
           <Route path="/users/register" element={<UserRegister />} />
           <Route path="/users/login" element={<UserLogin />} />
 
