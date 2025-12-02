@@ -28,7 +28,9 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const token = UserUtil.getToken();   // ✅ FIXED
+    // ✅ Correct function name: getToken()
+    const token = UserUtil.getToken();
+    console.log(token, "tokentokentokentoken")
     if (token) {
       dispatch(userActions.getUserInfo());
     }
@@ -54,6 +56,7 @@ const App: React.FC = () => {
           <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
           <Route path="/profiles/education" element={<AddEducation />} />
           <Route path="/profiles/experience" element={<AddExperience />} />
+
           <Route path="/posts/list" element={<PostList />} />
           <Route path="/posts/:postId" element={<PostDetails />} />
         </Route>

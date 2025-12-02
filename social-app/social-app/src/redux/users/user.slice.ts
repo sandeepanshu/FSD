@@ -8,6 +8,7 @@ const initialState: UserState = {
   isAuthenticated: false,
   token: null,
   error: null,
+  isRegistered: false,
 };
 
 const userSlice = createSlice({
@@ -20,10 +21,12 @@ const userSlice = createSlice({
 
     registerSuccess(state) {
       state.loading = false;
+      state.isRegistered = true;
     },
     registerFailure(state, action: PayloadAction<string>) {
       state.loading = false;
       state.error = action.payload;
+      state.isRegistered = false;
     },
 
     loginSuccess(state, action: PayloadAction<string>) {

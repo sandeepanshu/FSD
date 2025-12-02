@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Form, Input, Button, Card, Typography } from "antd";
 import {
   UserOutlined,
@@ -6,11 +6,12 @@ import {
   LockOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 
 import type { UserView } from "../../../modules/users/models/UserView";
 import { REGISTER_USER } from "../../../redux/users/user.types";
+import type { RootState } from "../../../redux/rootReducer";
 
 const { Title, Paragraph } = Typography;
 
@@ -18,14 +19,21 @@ const UserRegister: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const { isRegistered } = useSelector((state: RootState) => state.user);
+
+useEffect(() => {
+  if (isRegistered) {
+    navigate("/users/login");
+  }
+}, [isRegistered]);
+
+
   const onFinish = (values: UserView) => {
-    console.log("🔵 Register form submitted");
     dispatch({
       type: REGISTER_USER,
-      payload: { user: values, navigate },
+      payload: { user: values },  
     });
   };
-
   return (
     <div
       style={{
@@ -65,23 +73,24 @@ const UserRegister: React.FC = () => {
 
         <Form layout="vertical" onFinish={onFinish} style={{ marginTop: 20 }}>
           {/* Name */}
-            <Form.Item
+          <Form.Item
             label="Name"
             name="name"
             rules={[
               { required: true, message: "Name is required" },
               {
-              pattern: /^[a-zA-Z\s'-]{2,}$/,
-              message: "Name should contain only letters, spaces, hyphens, or apostrophes",
+                pattern: /^[a-zA-Z\s'-]{2,}$/,
+                message:
+                  "Name should contain only letters, spaces, hyphens, or apostrophes",
               },
             ]}
-            >
+          >
             <Input
               size="large"
               prefix={<UserOutlined />}
               placeholder="Enter name"
             />
-            </Form.Item>
+          </Form.Item>
 
           {/* Email */}
           <Form.Item
@@ -100,23 +109,23 @@ const UserRegister: React.FC = () => {
           </Form.Item>
 
           {/* Password */}
-            <Form.Item
+          <Form.Item
             label="Password"
             name="password"
             rules={[
               { required: true, message: "Password is required" },
               {
-              min: 8,
-              message: "Password must be at least 8 characters",
+                min: 8,
+                message: "Password must be at least 8 characters",
               },
             ]}
-            >
+          >
             <Input.Password
               size="large"
               prefix={<LockOutlined />}
               placeholder="Enter password"
             />
-            </Form.Item>
+          </Form.Item>
 
           <Form.Item style={{ marginTop: 30 }}>
             <Button

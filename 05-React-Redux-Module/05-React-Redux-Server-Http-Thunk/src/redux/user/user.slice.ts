@@ -14,6 +14,7 @@ export interface User {
 export interface UserState {
   users: User[];
   loading: boolean;
+  
   errorMessage: string | null;
 }
 

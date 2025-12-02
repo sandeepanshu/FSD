@@ -10,7 +10,7 @@ export class UserUtil {
   }
 
   public static isAuthenticated(): boolean {
-    return !!sessionStorage.getItem(UserUtil.TOKEN_KEY);
+    return !!UserUtil.getToken();
   }
 
   public static removeToken(): void {

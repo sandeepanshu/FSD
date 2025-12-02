@@ -1,10 +1,6 @@
 import React from "react";
 import { Form, Input, Button, Card, Typography } from "antd";
-import {
-  LoginOutlined,
-  MailOutlined,
-  LockOutlined,
-} from "@ant-design/icons";
+import { LoginOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
 
 import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
@@ -37,7 +33,7 @@ const UserLogin: React.FC = () => {
       }}
     >
       <Card
-        variant="borderless" 
+        variant="borderless"
         style={{
           width: 450,
           minHeight: 520,
@@ -87,7 +83,6 @@ const UserLogin: React.FC = () => {
             rules={[
               { required: true, message: "Password is required" },
               {
-                pattern: /^[A-Za-z0-9]\w{7,14}$/,
                 message: "Password must be 8–15 valid characters",
               },
             ]}
