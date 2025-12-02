@@ -28,43 +28,37 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const storageKey: string | null = UserUtil.getStorageKey();
-    if (storageKey) {
+    const token = UserUtil.getToken();   // ✅ FIXED
+    if (token) {
       dispatch(userActions.getUserInfo());
     }
   }, [dispatch]);
 
   return (
-    <React.Fragment>
-      <Router>
-        <Alert />
-        <NavBar />
+    <Router>
+      <Alert />
+      <NavBar />
 
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/developers" element={<DeveloperList />} />
-          <Route
-            path="/developers/:developerId"
-            element={<DeveloperDetails />}
-          />
-          <Route path="/users/register" element={<UserRegister />} />
-          <Route path="/users/login" element={<UserLogin />} />
+      <Routes>
+        {/* Public */}
+        <Route path="/" element={<Home />} />
+        <Route path="/developers" element={<DeveloperList />} />
+        <Route path="/developers/:developerId" element={<DeveloperDetails />} />
+        <Route path="/users/register" element={<UserRegister />} />
+        <Route path="/users/login" element={<UserLogin />} />
 
-          {/* Private Routes */}
-          <Route element={<PrivateRoute />}>
-            <Route path="/profiles/dashboard" element={<Dashboard />} />
-            <Route path="/profiles/create" element={<CreateProfile />} />
-            <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
-            <Route path="/profiles/education" element={<AddEducation />} />
-            <Route path="/profiles/experience" element={<AddExperience />} />
-
-            <Route path="/posts/list" element={<PostList />} />
-            <Route path="/posts/:postId" element={<PostDetails />} />
-          </Route>
-        </Routes>
-      </Router>
-    </React.Fragment>
+        {/* Private */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/profiles/dashboard" element={<Dashboard />} />
+          <Route path="/profiles/create" element={<CreateProfile />} />
+          <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
+          <Route path="/profiles/education" element={<AddEducation />} />
+          <Route path="/profiles/experience" element={<AddExperience />} />
+          <Route path="/posts/list" element={<PostList />} />
+          <Route path="/posts/:postId" element={<PostDetails />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 };
 

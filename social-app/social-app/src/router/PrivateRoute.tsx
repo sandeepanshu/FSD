@@ -4,7 +4,6 @@ import { UserUtil } from "../authUtil/UserUtil";
 
 const PrivateRoute: React.FC = () => {
   const isAuth = UserUtil.isAuthenticated();
-
   return isAuth ? <Outlet /> : <Navigate to="/users/login" replace />;
 };
 

@@ -21,7 +21,7 @@ const app: express.Application = express();
 // ---------------------------------------------------
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite frontend
+    origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "x-auth-token"],
     exposedHeaders: ["x-auth-token"],

@@ -1,4 +1,3 @@
-// src/redux/users/user.saga.ts
 import { takeLatest, put, call } from "redux-saga/effects";
 import {
   REGISTER_USER,
@@ -40,6 +39,8 @@ function* handleRegister(action: PayloadAction<RegisterPayload>) {
     yield put(registerSuccess());
     yield put(setAlert(response.data.msg, "success"));
 
+    // 🔥 Navigate after success
+    console.log("🟢 Saga register success — navigating...");
     action.payload.navigate("/users/login");
   } catch (error) {
     const err = error as ApiError;

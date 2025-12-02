@@ -1,20 +1,19 @@
 export class UserUtil {
-  private static storageKey: string =
-    import.meta.env.VITE_STORAGE_KEY ?? "token"; // fallback
+  private static readonly TOKEN_KEY = "token";
 
-  public static isAuthenticated(): boolean {
-    return !!sessionStorage.getItem(UserUtil.storageKey);
+  public static saveToken(token: string): void {
+    sessionStorage.setItem(UserUtil.TOKEN_KEY, token);
   }
 
-  public static getStorageKey(): string | null {
-    return sessionStorage.getItem(UserUtil.storageKey);
+  public static getToken(): string | null {
+    return sessionStorage.getItem(UserUtil.TOKEN_KEY);
+  }
+
+  public static isAuthenticated(): boolean {
+    return !!sessionStorage.getItem(UserUtil.TOKEN_KEY);
   }
 
   public static removeToken(): void {
-    sessionStorage.removeItem(UserUtil.storageKey);
-  }
-
-  public static saveToken(token: string): void {
-    sessionStorage.setItem(UserUtil.storageKey, token);
+    sessionStorage.removeItem(UserUtil.TOKEN_KEY);
   }
 }

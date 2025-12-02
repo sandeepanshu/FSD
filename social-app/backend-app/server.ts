@@ -6,6 +6,7 @@ dotenv.config({ path: "./.env" });
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -44,7 +45,7 @@ import profileRouter from "./router/ProfileRouter.ts";
 import postRouter from "./router/postRouter.ts";
 
 // 7. environment variables
-const PORT = Number(process.env.PORT) || 5000;
+const PORT = Number(process.env.PORT);
 const MONGO_URL = process.env.MONGO_DB_URL;
 
 if (!MONGO_URL) {

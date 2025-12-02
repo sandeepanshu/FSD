@@ -19,6 +19,7 @@ const UserRegister: React.FC = () => {
   const navigate = useNavigate();
 
   const onFinish = (values: UserView) => {
+    console.log("🔵 Register form submitted");
     dispatch({
       type: REGISTER_USER,
       payload: { user: values, navigate },
@@ -39,7 +40,7 @@ const UserRegister: React.FC = () => {
       <Card
         style={{
           width: 450,
-          minHeight: 560, // ⬅️ Increased height for premium look
+          minHeight: 560,
           borderRadius: 16,
           padding: "20px 10px",
           boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
@@ -64,23 +65,23 @@ const UserRegister: React.FC = () => {
 
         <Form layout="vertical" onFinish={onFinish} style={{ marginTop: 20 }}>
           {/* Name */}
-          <Form.Item
+            <Form.Item
             label="Name"
             name="name"
             rules={[
               { required: true, message: "Name is required" },
               {
-                pattern: /^[a-zA-Z0-9-_]{4,20}$/,
-                message: "4–20 chars (letters, numbers, _ or -)",
+              pattern: /^[a-zA-Z\s'-]{2,}$/,
+              message: "Name should contain only letters, spaces, hyphens, or apostrophes",
               },
             ]}
-          >
+            >
             <Input
               size="large"
               prefix={<UserOutlined />}
               placeholder="Enter name"
             />
-          </Form.Item>
+            </Form.Item>
 
           {/* Email */}
           <Form.Item
@@ -99,23 +100,23 @@ const UserRegister: React.FC = () => {
           </Form.Item>
 
           {/* Password */}
-          <Form.Item
+            <Form.Item
             label="Password"
             name="password"
             rules={[
               { required: true, message: "Password is required" },
               {
-                pattern: /^[A-Za-z0-9]\w{7,14}$/,
-                message: "8–15 characters required",
+              min: 8,
+              message: "Password must be at least 8 characters",
               },
             ]}
-          >
+            >
             <Input.Password
               size="large"
               prefix={<LockOutlined />}
               placeholder="Enter password"
             />
-          </Form.Item>
+            </Form.Item>
 
           <Form.Item style={{ marginTop: 30 }}>
             <Button
@@ -130,7 +131,7 @@ const UserRegister: React.FC = () => {
           </Form.Item>
 
           <div style={{ textAlign: "center", marginTop: 10 }}>
-            Already have an account?{" "}
+            Already have an account?
             <Link to="/users/login">
               <strong>Login</strong>
             </Link>
