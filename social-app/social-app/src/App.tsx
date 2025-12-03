@@ -46,7 +46,6 @@ import type { RootState } from "./redux/store";
    - If user not logged in → allow access
    ========================================================================== */
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const themeMode = useSelector((state: RootState) => state.theme.mode);
   const { isAuthenticated, loading } = useSelector(
     (state: RootState) => state.user
   );
