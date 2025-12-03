@@ -52,11 +52,6 @@ function* handleRegister(action: PayloadAction<RegisterPayload>) {
 
     yield put(registerSuccess());
     yield call(showAlertSaga, response.data.msg, "success");
-
-    if (action.payload.navigate) {
-      yield delay(1500);
-      action.payload.navigate("/users/login");
-    }
   } catch (error) {
     const err = error as ApiError;
     yield put(
@@ -78,7 +73,7 @@ function* handleRegister(action: PayloadAction<RegisterPayload>) {
   }
 }
 
-// LOGIN
+// LOGIN - ✅ Fixed: No navigation in saga
 function* handleLogin(action: PayloadAction<LoginPayload>) {
   try {
     yield put(setLoading());
@@ -86,16 +81,15 @@ function* handleLogin(action: PayloadAction<LoginPayload>) {
       userAPI.login(action.payload.user)
     );
 
+    // Save token
     UserUtil.saveToken(response.data.token);
     AuthUtil.setTokenHeader(response.data.token);
 
     yield put(loginSuccess(response.data.token));
     yield call(showAlertSaga, "Login Successful", "success");
 
+    // ✅ Get user info after successful login
     yield put({ type: GET_USER_INFO });
-
-    yield delay(500);
-    action.payload.navigate("/profiles/dashboard");
   } catch (error) {
     const err = error as ApiError;
     const errorMsg = err.response?.data?.message ?? "Login failed";
@@ -130,7 +124,7 @@ function* handleGetUserInfo() {
   }
 }
 
-// ✅ LOGOUT HANDLER
+// LOGOUT HANDLER
 function* handleLogout() {
   try {
     // Clear token from storage

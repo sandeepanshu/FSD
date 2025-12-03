@@ -1,34 +1,39 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Card, Typography } from "antd";
-import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Form, Input, Button, Card, Typography, Alert } from "antd";
+import { UserOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
+import { registerUser } from "../../../redux/users/user.actions";
 import type { RootState } from "../../../redux/store";
 import Spinner from "../../../layout/util/Spinner";
 import type { UserView } from "../models/UserView";
-import { registerUser } from "../../../redux/users/user.actions";
 
 const { Title } = Typography;
 
 const UserRegister: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [form] = Form.useForm();
-
-  const { loading, isRegistered, error } = useSelector(
+  
+  const { loading, isRegistered, error, isAuthenticated } = useSelector(
     (state: RootState) => state.user
   );
 
-  // ✅ Navigate after successful registration
+  // ✅ Navigate to login after successful registration
   useEffect(() => {
-    console.log(isRegistered, loading, "fdsfsdfdsf");
-    if (isRegistered && !loading) {
-      // Show success message and navigate
+    if (isRegistered) {
+      // Show success message for 2 seconds then navigate
       setTimeout(() => {
         navigate("/users/login");
-      }, 1500);
+      }, 2000);
     }
-  }, [isRegistered, loading, navigate]);
+  }, [isRegistered, navigate]);
+
+  // ✅ If user is already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/profiles/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = (values: any) => {
@@ -37,48 +42,79 @@ const UserRegister: React.FC = () => {
       email: values.email,
       password: values.password,
     };
-
-    dispatch(registerUser({ user: userData, navigate }));
+    
+    dispatch(registerUser({ user: userData }));
   };
 
   if (loading) {
-    return <Spinner tip="Creating your account..." />;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        <Spinner tip="Creating your account..." />
+      </div>
+    );
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "80vh",
-        padding: "20px",
-      }}
-    >
+    <div style={{ 
+      display: "flex", 
+      justifyContent: "center", 
+      alignItems: "center", 
+      minHeight: "100vh",
+      padding: "20px",
+      backgroundColor: "#f0f2f5"
+    }}>
       <Card style={{ width: 400, maxWidth: "90%" }}>
         <Title level={2} style={{ textAlign: "center", marginBottom: 30 }}>
           Create Account
         </Title>
+        
+        {/* Show success message after registration */}
+        {isRegistered && (
+          <Alert
+            message="Registration Successful!"
+            description="You will be redirected to login page shortly."
+            type="success"
+            showIcon
+            style={{ marginBottom: 24 }}
+          />
+        )}
 
+        {/* Show error message if any */}
+        {error && !isRegistered && (
+          <Alert
+            message="Registration Error"
+            description={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: 24 }}
+            closable
+          />
+        )}
+        
         <Form
-          form={form}
           name="register"
           onFinish={onFinish}
           layout="vertical"
-          disabled={loading}
+          disabled={loading || isRegistered}
         >
           <Form.Item
             name="name"
             label="Full Name"
             rules={[
               { required: true, message: "Please enter your full name" },
-              { min: 2, message: "Name must be at least 2 characters" },
+              { min: 2, message: "Name must be at least 2 characters" }
             ]}
           >
-            <Input
-              prefix={<UserOutlined />}
-              placeholder="Enter your full name"
+            <Input 
+              prefix={<UserOutlined />} 
+              placeholder="Enter your full name" 
               size="large"
+              disabled={loading}
             />
           </Form.Item>
 
@@ -87,13 +123,14 @@ const UserRegister: React.FC = () => {
             label="Email"
             rules={[
               { required: true, message: "Please enter your email" },
-              { type: "email", message: "Please enter a valid email" },
+              { type: "email", message: "Please enter a valid email" }
             ]}
           >
-            <Input
-              prefix={<MailOutlined />}
-              placeholder="Enter your email"
+            <Input 
+              prefix={<MailOutlined />} 
+              placeholder="Enter your email" 
               size="large"
+              disabled={loading}
             />
           </Form.Item>
 
@@ -102,13 +139,14 @@ const UserRegister: React.FC = () => {
             label="Password"
             rules={[
               { required: true, message: "Please enter your password" },
-              { min: 6, message: "Password must be at least 6 characters" },
+              { min: 6, message: "Password must be at least 6 characters" }
             ]}
           >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="Enter your password"
+            <Input.Password 
+              prefix={<LockOutlined />} 
+              placeholder="Enter your password" 
               size="large"
+              disabled={loading}
             />
           </Form.Item>
 
@@ -128,10 +166,11 @@ const UserRegister: React.FC = () => {
               }),
             ]}
           >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="Confirm your password"
+            <Input.Password 
+              prefix={<LockOutlined />} 
+              placeholder="Confirm your password" 
               size="large"
+              disabled={loading}
             />
           </Form.Item>
 
@@ -142,48 +181,19 @@ const UserRegister: React.FC = () => {
               size="large"
               block
               loading={loading}
+              disabled={isRegistered}
             >
-              Register
+              {loading ? "Registering..." : "Register"}
             </Button>
           </Form.Item>
 
           <div style={{ textAlign: "center" }}>
             Already have an account?{" "}
-            <Button type="link" onClick={() => navigate("/users/login")}>
+            <Button type="link" onClick={() => navigate("/users/login")} disabled={loading}>
               Login here
             </Button>
           </div>
         </Form>
-
-        {isRegistered && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: 12,
-              backgroundColor: "#f6ffed",
-              border: "1px solid #b7eb8f",
-              borderRadius: 4,
-              textAlign: "center",
-            }}
-          >
-            ✅ Registration successful! Redirecting to login...
-          </div>
-        )}
-
-        {error && !isRegistered && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: 12,
-              backgroundColor: "#fff2f0",
-              border: "1px solid #ffccc7",
-              borderRadius: 4,
-              textAlign: "center",
-            }}
-          >
-            ❌ {error}
-          </div>
-        )}
       </Card>
     </div>
   );

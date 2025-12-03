@@ -1,10 +1,12 @@
-import React from "react";
-import { Form, Input, Button, Card, Typography } from "antd";
+import React, { useEffect } from "react";
+import { Form, Input, Button, Card, Typography, Alert } from "antd";
 import { LoginOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import type { UserView } from "../../../modules/users/models/UserView";
 import { loginUser } from "../../../redux/users/user.actions";
+import type { RootState } from "../../../redux/store";
+import Spinner from "../../../layout/util/Spinner";
 
 const { Title, Paragraph } = Typography;
 
@@ -12,9 +14,36 @@ const UserLogin: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const { loading, isAuthenticated, error } = useSelector(
+    (state: RootState) => state.user
+  );
+
+  // ✅ Navigate when authentication becomes true
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/profiles/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
+
   const onFinish = (values: UserView) => {
-    dispatch(loginUser({ user: values, navigate }));
+    dispatch(loginUser({ user: values }));
   };
+
+  // Show loading spinner
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Spinner tip="Logging in..." />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -54,7 +83,24 @@ const UserLogin: React.FC = () => {
           Welcome back! Enter your login credentials to continue.
         </Paragraph>
 
-        <Form layout="vertical" onFinish={onFinish} style={{ marginTop: 20 }}>
+        {/* Show error message if any */}
+        {error && (
+          <Alert
+            message="Login Error"
+            description={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: 24 }}
+            closable
+          />
+        )}
+
+        <Form
+          layout="vertical"
+          onFinish={onFinish}
+          style={{ marginTop: 20 }}
+          disabled={loading}
+        >
           {/* Email */}
           <Form.Item
             label="Email"
@@ -68,6 +114,7 @@ const UserLogin: React.FC = () => {
               size="large"
               prefix={<MailOutlined />}
               placeholder="Enter your email"
+              disabled={loading}
             />
           </Form.Item>
 
@@ -84,6 +131,7 @@ const UserLogin: React.FC = () => {
               size="large"
               prefix={<LockOutlined />}
               placeholder="Enter your password"
+              disabled={loading}
             />
           </Form.Item>
 
@@ -94,8 +142,9 @@ const UserLogin: React.FC = () => {
               htmlType="submit"
               block
               icon={<LoginOutlined />}
+              loading={loading}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </Form.Item>
 

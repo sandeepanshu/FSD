@@ -1,31 +1,37 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import Spinner from "../layout/util/Spinner";
-import { getUserInfo } from "../redux/users/user.actions";
 
 const PrivateRoute: React.FC = () => {
-  const dispatch = useDispatch();
   const { isAuthenticated, loading } = useSelector(
     (state: RootState) => state.user
   );
 
-  useEffect(() => {
-    const storedToken = sessionStorage.getItem("token");
-    if (storedToken && !isAuthenticated && !loading) {
-      dispatch(getUserInfo());
-    }
-  }, [dispatch, isAuthenticated, loading]);
-
+  // Show spinner while checking authentication
   if (loading) {
-    return <Spinner tip="Checking authentication..." />;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          backgroundColor: "#f0f2f5",
+        }}
+      >
+        <Spinner tip="Checking authentication..." />
+      </div>
+    );
   }
 
+  // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/users/login" replace />;
   }
 
+  // Render child routes if authenticated
   return <Outlet />;
 };
 
