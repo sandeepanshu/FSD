@@ -1,3 +1,4 @@
+// src/components/home/Home.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -26,12 +27,19 @@ const Home: React.FC = () => {
   const mode = useSelector((s: RootState) => s.theme?.mode ?? "light");
   const screens = useBreakpoint();
 
+  /* ---------------------------------------------------------
+     Consistent THEME palette (exact same system as other pages)
+  ----------------------------------------------------------- */
   const COLORS = {
-    bg: mode === "dark" ? "#0d1117" : "#f4f7fb",
-    hero: mode === "dark" ? "#0b1220" : "#ffffff",
-    card: mode === "dark" ? "#0b1228" : "#ffffff",
+    pageBg: mode === "dark" ? "#0d1117" : "#f4f6f9",
+    cardBg: mode === "dark" ? "#1f2937" : "#ffffff",
+    heroBg:
+      mode === "dark"
+        ? "linear-gradient(135deg,#111827,#000000)"
+        : "linear-gradient(135deg,#ffffff,#f9fcff)",
     text: mode === "dark" ? "#e5e7eb" : "#111827",
     muted: mode === "dark" ? "#9ca3af" : "#4b5563",
+    border: mode === "dark" ? "#374151" : "#e5e7eb",
     primary: "#1890ff",
     accent: "#faad14",
   };
@@ -40,47 +48,75 @@ const Home: React.FC = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: COLORS.bg,
+        background: COLORS.pageBg,
         padding: "32px 12px",
+        transition: "0.3s",
       }}
     >
       <div style={{ maxWidth: 1250, margin: "0 auto" }}>
-        <Row gutter={[24, 24]} align="middle">
-          {/* HERO / LEFT */}
-          <Col xs={24} sm={24} md={13} lg={14}>
+        <Row gutter={[32, 32]} align="middle">
+          {/* ---------------------------------------------------------
+               LEFT SIDE — HERO AREA
+          ----------------------------------------------------------- */}
+          <Col xs={24} md={14}>
             <Card
               bordered={false}
               style={{
-                borderRadius: 12,
-                background: COLORS.hero,
-                padding: screens.xs ? 18 : 28,
+                borderRadius: 16,
+                background: COLORS.heroBg,
+                padding: screens.xs ? 20 : 40,
+                boxShadow:
+                  mode === "dark"
+                    ? "0 8px 26px rgba(0,0,0,0.55)"
+                    : "0 8px 26px rgba(0,0,0,0.08)",
+                border: `1px solid ${COLORS.border}`,
+                backdropFilter: "blur(6px)",
               }}
             >
               <Title
                 style={{
                   color: COLORS.text,
-                  marginBottom: 8,
-                  fontSize: screens.xs ? 28 : 40,
+                  marginBottom: 4,
+                  fontSize: screens.xs ? 28 : 42,
+                  fontWeight: 800,
+                  lineHeight: 1.2,
                 }}
               >
                 Build. Share. Connect.
-                <br />
-                <Text style={{ color: COLORS.primary }}>React Social App</Text>
+              </Title>
+
+              <Title
+                level={2}
+                style={{
+                  color: COLORS.primary,
+                  margin: 0,
+                  fontSize: screens.xs ? 22 : 32,
+                  fontWeight: 700,
+                }}
+              >
+                React Developer Community
               </Title>
 
               <Paragraph
-                style={{ color: COLORS.muted, fontSize: screens.xs ? 14 : 16 }}
+                style={{
+                  color: COLORS.muted,
+                  marginTop: 16,
+                  fontSize: screens.xs ? 14 : 18,
+                }}
               >
-                Connect with developers, create your profile, share ideas and
-                collaborate — built with MERN, Redux Toolkit, and Ant Design.
+                Create your profile, explore developers, share posts, and
+                collaborate — powered by MERN + Redux Toolkit + Ant Design.
               </Paragraph>
 
+              {/* ---------------------------------------------------------
+                   AUTH BUTTONS (Login, Register, OAuth)
+              ----------------------------------------------------------- */}
               <div
                 style={{
                   display: "flex",
                   gap: 12,
                   flexWrap: "wrap",
-                  marginTop: 16,
+                  marginTop: 20,
                 }}
               >
                 {!isAuthenticated ? (
@@ -148,59 +184,97 @@ const Home: React.FC = () => {
             </Card>
           </Col>
 
-          {/* FEATURES / RIGHT */}
-          <Col xs={24} sm={24} md={11} lg={10}>
-            <Row gutter={[16, 16]}>
+          {/* ---------------------------------------------------------
+               RIGHT SIDE — FEATURES GRID
+          ----------------------------------------------------------- */}
+          <Col xs={24} md={10}>
+            <Row gutter={[20, 20]}>
+              {/* Feature 1 */}
               <Col xs={24} sm={12}>
                 <Card
                   bordered={false}
-                  style={{ borderRadius: 10, padding: 16, minHeight: 140 }}
+                  style={{
+                    borderRadius: 14,
+                    padding: 20,
+                    background: COLORS.cardBg,
+                    border: `1px solid ${COLORS.border}`,
+                    boxShadow:
+                      mode === "dark"
+                        ? "0 6px 16px rgba(0,0,0,0.45)"
+                        : "0 6px 16px rgba(0,0,0,0.08)",
+                  }}
                 >
                   <TeamOutlined
-                    style={{ fontSize: 28, color: COLORS.primary }}
+                    style={{
+                      fontSize: 32,
+                      color: COLORS.primary,
+                    }}
                   />
                   <Title
                     level={4}
-                    style={{ marginTop: 10, color: COLORS.text }}
+                    style={{ marginTop: 12, color: COLORS.text }}
                   >
                     Meet Developers
                   </Title>
                   <Paragraph style={{ color: COLORS.muted, marginBottom: 0 }}>
-                    Explore profiles & collaborate.
+                    Discover community members & collaborate.
                   </Paragraph>
                 </Card>
               </Col>
 
+              {/* Feature 2 */}
               <Col xs={24} sm={12}>
                 <Card
                   bordered={false}
-                  style={{ borderRadius: 10, padding: 16, minHeight: 140 }}
+                  style={{
+                    borderRadius: 14,
+                    padding: 20,
+                    background: COLORS.cardBg,
+                    border: `1px solid ${COLORS.border}`,
+                    boxShadow:
+                      mode === "dark"
+                        ? "0 6px 16px rgba(0,0,0,0.45)"
+                        : "0 6px 16px rgba(0,0,0,0.08)",
+                  }}
                 >
                   <ThunderboltOutlined
-                    style={{ fontSize: 28, color: COLORS.accent }}
+                    style={{
+                      fontSize: 32,
+                      color: COLORS.accent,
+                    }}
                   />
                   <Title
                     level={4}
-                    style={{ marginTop: 10, color: COLORS.text }}
+                    style={{ marginTop: 12, color: COLORS.text }}
                   >
                     Share Posts
                   </Title>
                   <Paragraph style={{ color: COLORS.muted, marginBottom: 0 }}>
-                    Post ideas, questions & updates.
+                    Ask questions, share knowledge & updates.
                   </Paragraph>
                 </Card>
               </Col>
 
+              {/* Feature 3 */}
               <Col xs={24}>
                 <Card
                   bordered={false}
-                  style={{ borderRadius: 10, padding: 14 }}
+                  style={{
+                    borderRadius: 14,
+                    padding: 20,
+                    background: COLORS.cardBg,
+                    border: `1px solid ${COLORS.border}`,
+                    boxShadow:
+                      mode === "dark"
+                        ? "0 6px 16px rgba(0,0,0,0.45)"
+                        : "0 6px 16px rgba(0,0,0,0.08)",
+                  }}
                 >
                   <div
-                    style={{ display: "flex", gap: 12, alignItems: "center" }}
+                    style={{ display: "flex", gap: 16, alignItems: "center" }}
                   >
                     <GithubOutlined
-                      style={{ fontSize: 26, color: COLORS.text }}
+                      style={{ fontSize: 32, color: COLORS.text }}
                     />
                     <div>
                       <Title
@@ -210,7 +284,7 @@ const Home: React.FC = () => {
                         Showcase Projects
                       </Title>
                       <Text style={{ color: COLORS.muted }}>
-                        Highlight open-source contributions.
+                        Highlight your open-source work.
                       </Text>
                     </div>
                   </div>

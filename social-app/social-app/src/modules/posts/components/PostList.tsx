@@ -16,6 +16,7 @@ import {
   Empty,
   Popconfirm,
   message,
+  Grid,
 } from "antd";
 import {
   LikeOutlined,
@@ -40,30 +41,40 @@ import type { PostView } from "../models/PostView";
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
+const { useBreakpoint } = Grid;
 
 const PostList: React.FC = () => {
   const dispatch = useDispatch();
+  const screens = useBreakpoint();
   const [form] = Form.useForm();
-
   const [buttonLoading, setButtonLoading] = useState(false);
 
-  // Load all posts
-  useEffect(() => {
-    dispatch({ type: GET_ALL_POSTS });
-  }, [dispatch]);
-
-  // Redux State (FIXED)
+  // Redux
   const { user } = useSelector((state: RootState) => state.user);
   const { loading: postsLoading, posts } = useSelector(
     (state: RootState) => state.post
   );
+  const mode = useSelector((state: RootState) => state.theme.mode);
 
-  // Create Post Handler
+  // Load posts
+  useEffect(() => {
+    dispatch({ type: GET_ALL_POSTS });
+  }, [dispatch]);
+
+  // Theme Colors
+  const COLORS = {
+    card: mode === "dark" ? "#0b1220" : "#ffffff",
+    text: mode === "dark" ? "#e5e7eb" : "#111827",
+    muted: mode === "dark" ? "#9ca3af" : "#4b5563",
+    bg: mode === "dark" ? "#0d1117" : "#f4f7fb",
+  };
+
+  // Create Post
   const onCreatePost = (values: { text: string; image: string }) => {
     setButtonLoading(true);
     dispatch({ type: CREATE_POST, payload: values });
     form.resetFields();
-    setTimeout(() => setButtonLoading(false), 500);
+    setTimeout(() => setButtonLoading(false), 400);
   };
 
   const hasLiked = (post: PostView) =>
@@ -72,26 +83,39 @@ const PostList: React.FC = () => {
   return (
     <div
       style={{
-        padding: "24px",
-        background: "var(--background, #f0f2f5)",
+        padding: screens.xs ? "16px" : "32px",
         minHeight: "100vh",
+        background: COLORS.bg,
       }}
     >
       <Row justify="center">
         <Col xs={24} lg={18} xl={16}>
-          {/* Header */}
-          <Card style={{ marginBottom: 24 }}>
-            <Title level={3}>
+          <Card
+            style={{
+              marginBottom: 24,
+              borderRadius: 12,
+              background: COLORS.card,
+            }}
+          >
+            <Title style={{ color: COLORS.text }} level={3}>
               <GlobalOutlined style={{ marginRight: 8 }} />
               React Social Community
             </Title>
-            <Text type="secondary">
+            <Text style={{ color: COLORS.muted }}>
               Share posts & interact with developers worldwide.
             </Text>
           </Card>
 
           {/* Create Post */}
-          <Card style={{ marginBottom: 24 }} title="Create a Post">
+          <Card
+            title="Create a Post"
+            style={{
+              marginBottom: 24,
+              borderRadius: 12,
+              background: COLORS.card,
+            }}
+            headStyle={{ background: "transparent", color: COLORS.text }}
+          >
             <Form form={form} onFinish={onCreatePost} layout="vertical">
               <Row gutter={16} align="middle">
                 <Col xs={24} md={3}>
@@ -105,10 +129,8 @@ const PostList: React.FC = () => {
                 <Col xs={24} md={21}>
                   <Form.Item
                     name="text"
-                    rules={[
-                      { required: true, message: "Enter post content" },
-                      { min: 1, message: "Post cannot be empty" },
-                    ]}
+                    rules={[{ required: true }]}
+                    style={{ marginBottom: 16 }}
                   >
                     <TextArea
                       rows={3}
@@ -120,7 +142,8 @@ const PostList: React.FC = () => {
 
                   <Form.Item
                     name="image"
-                    rules={[{ type: "url", message: "Enter valid image URL" }]}
+                    rules={[{ type: "url", message: "Enter a valid URL" }]}
+                    style={{ marginBottom: 16 }}
                   >
                     <Input
                       placeholder="Image URL (optional)"
@@ -130,8 +153,8 @@ const PostList: React.FC = () => {
 
                   <Button
                     type="primary"
-                    htmlType="submit"
                     icon={<SendOutlined />}
+                    htmlType="submit"
                     loading={buttonLoading}
                   >
                     Post
@@ -141,8 +164,15 @@ const PostList: React.FC = () => {
             </Form>
           </Card>
 
-          {/* Posts List */}
-          <Card title="All Posts">
+          {/* Posts */}
+          <Card
+            title="All Posts"
+            style={{
+              borderRadius: 12,
+              background: COLORS.card,
+            }}
+            headStyle={{ background: "transparent", color: COLORS.text }}
+          >
             {postsLoading ? (
               <div style={{ textAlign: "center", padding: 40 }}>
                 <Spinner tip="Loading posts..." />
@@ -151,7 +181,14 @@ const PostList: React.FC = () => {
               <Empty description="No posts yet" />
             ) : (
               posts.map((post) => (
-                <Card key={post._id} style={{ marginBottom: 16 }}>
+                <Card
+                  key={post._id}
+                  style={{
+                    marginBottom: 16,
+                    borderRadius: 10,
+                    background: COLORS.card,
+                  }}
+                >
                   <Row gutter={16}>
                     <Col xs={24} sm={4} style={{ textAlign: "center" }}>
                       <Avatar
@@ -160,21 +197,29 @@ const PostList: React.FC = () => {
                         icon={!post.avatar && <UserOutlined />}
                       />
                       <div style={{ marginTop: 8 }}>
-                        <Text strong>{post.name}</Text>
+                        <Text style={{ color: COLORS.text }} strong>
+                          {post.name}
+                        </Text>
                       </div>
                     </Col>
 
                     <Col xs={24} sm={20}>
-                      <Paragraph>{post.text}</Paragraph>
+                      <Paragraph style={{ color: COLORS.text }}>
+                        {post.text}
+                      </Paragraph>
 
                       {post.image && (
                         <Image
                           src={post.image}
-                          style={{ borderRadius: 6, marginBottom: 8 }}
+                          style={{
+                            borderRadius: 8,
+                            marginBottom: 10,
+                            maxHeight: 450,
+                          }}
                         />
                       )}
 
-                      <Text type="secondary" style={{ fontSize: 12 }}>
+                      <Text style={{ color: COLORS.muted, fontSize: 12 }}>
                         {new Date(post.createdAt!).toLocaleString()}
                       </Text>
                     </Col>
@@ -187,10 +232,9 @@ const PostList: React.FC = () => {
                       type={hasLiked(post) ? "primary" : "default"}
                       icon={<LikeOutlined />}
                       onClick={() =>
-                        post._id &&
                         dispatch({
                           type: LIKE_POST,
-                          payload: { postId: post._id },
+                          payload: { postId: post._id! },
                         })
                       }
                     >
@@ -200,10 +244,9 @@ const PostList: React.FC = () => {
                     <Button
                       icon={<DislikeOutlined />}
                       onClick={() =>
-                        post._id &&
                         dispatch({
                           type: DISLIKE_POST,
-                          payload: { postId: post._id },
+                          payload: { postId: post._id! },
                         })
                       }
                     >
@@ -218,7 +261,7 @@ const PostList: React.FC = () => {
 
                     {user?._id === post.user && (
                       <Popconfirm
-                        title="Delete this post?"
+                        title="Delete post?"
                         onConfirm={() => {
                           dispatch({
                             type: DELETE_POST,
