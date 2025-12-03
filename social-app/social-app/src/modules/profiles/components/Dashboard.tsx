@@ -1,27 +1,28 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { 
-  Card, 
-  Table, 
-  Button, 
-  Typography, 
-  Space, 
-  Tag, 
-  Row, 
+import {
+  Card,
+  Table,
+  Button,
+  Typography,
+  Space,
+  Tag,
+  Row,
   Col,
   Divider,
   Empty,
-  Statistic
+  Statistic,
+  Grid,
 } from "antd";
-import { 
-  UserOutlined, 
-  EditOutlined, 
-  PlusOutlined, 
+import {
+  UserOutlined,
+  EditOutlined,
+  PlusOutlined,
   ReadOutlined,
   ShopOutlined,
   DeleteOutlined,
   DashboardOutlined,
-  RocketOutlined 
+  RocketOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import Spinner from "../../../layout/util/Spinner";
@@ -34,11 +35,12 @@ import {
 } from "../../../redux/profiles/profile.types";
 
 const { Title, Text, Paragraph } = Typography;
+const { useBreakpoint } = Grid;
 
- 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const screens = useBreakpoint();
 
   const { loading, user, isAuthenticated } = useSelector(
     (state: RootState) => state.user
@@ -46,76 +48,71 @@ const Dashboard: React.FC = () => {
   const { profile, loading: profileLoading } = useSelector(
     (state: RootState) => state.profile
   );
+  const mode = useSelector((state: RootState) => state.theme.mode);
 
-  // ✅ Redirect if not authenticated
+  // THEME COLORS
+  const COLORS = {
+    bg: mode === "dark" ? "#0d1117" : "#f4f7fb",
+    card: mode === "dark" ? "#0b1220" : "#ffffff",
+    text: mode === "dark" ? "#e5e7eb" : "#111827",
+    muted: mode === "dark" ? "#9ca3af" : "#4b5563",
+  };
+
+  // Redirect on logout
   useEffect(() => {
     if (!isAuthenticated && !loading) {
       navigate("/users/login");
     }
   }, [isAuthenticated, loading, navigate]);
 
+  // Fetch profile
   useEffect(() => {
     if (isAuthenticated) {
       dispatch({ type: FETCH_MY_PROFILE });
     }
   }, [dispatch, isAuthenticated]);
 
-  const handleDeleteExperience = (expId?: string) => {
-    if (expId) {
-      if (window.confirm("Are you sure you want to delete this experience?")) {
-        dispatch({ type: DELETE_EXPERIENCE, payload: { id: expId } });
-      }
+  const handleDeleteExperience = (id?: string) => {
+    if (id && window.confirm("Delete this experience?")) {
+      dispatch({ type: DELETE_EXPERIENCE, payload: { id } });
     }
   };
 
-  const handleDeleteEducation = (eduId?: string) => {
-    if (eduId) {
-      if (window.confirm("Are you sure you want to delete this education?")) {
-        dispatch({ type: DELETE_EDUCATION, payload: { id: eduId } });
-      }
+  const handleDeleteEducation = (id?: string) => {
+    if (id && window.confirm("Delete this education?")) {
+      dispatch({ type: DELETE_EDUCATION, payload: { id } });
     }
   };
 
-  // Experience table columns
+  // Experience table
   const experienceColumns = [
+    { title: "Title", dataIndex: "title" },
+    { title: "Company", dataIndex: "company" },
     {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
+      title: "Location",
+      dataIndex: "location",
+      render: (v: string) => v || "-",
     },
     {
-      title: 'Company',
-      dataIndex: 'company',
-      key: 'company',
+      title: "From",
+      dataIndex: "from",
+      render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'Location',
-      dataIndex: 'location',
-      key: 'location',
-      render: (location: string) => location || '-'
+      title: "To",
+      dataIndex: "to",
+      render: (date: string) =>
+        date ? new Date(date).toLocaleDateString() : "Present",
     },
     {
-      title: 'From',
-      dataIndex: 'from',
-      key: 'from',
-      render: (date: string) => new Date(date).toLocaleDateString()
-    },
-    {
-      title: 'To',
-      dataIndex: 'to',
-      key: 'to',
-      render: (date: string) => date ? new Date(date).toLocaleDateString() : 'Present'
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_: unknown, record: BaseExperience) => (
+      title: "Action",
+      render: (_: unknown, r: BaseExperience) => (
         <Button
-          type="primary"
           danger
+          type="primary"
           icon={<DeleteOutlined />}
           size="small"
-          onClick={() => handleDeleteExperience(record._id)}
+          onClick={() => handleDeleteExperience(r._id)}
         >
           Delete
         </Button>
@@ -123,46 +120,35 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  // Education table columns
+  // Education table
   const educationColumns = [
+    { title: "School", dataIndex: "school" },
+    { title: "Degree", dataIndex: "degree" },
     {
-      title: 'School',
-      dataIndex: 'school',
-      key: 'school',
+      title: "Field",
+      dataIndex: "fieldOfStudy",
+      render: (v: string) => v || "-",
     },
     {
-      title: 'Degree',
-      dataIndex: 'degree',
-      key: 'degree',
+      title: "From",
+      dataIndex: "from",
+      render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'Field of Study',
-      dataIndex: 'fieldOfStudy',
-      key: 'fieldOfStudy',
-      render: (field: string) => field || '-'
+      title: "To",
+      dataIndex: "to",
+      render: (date: string) =>
+        date ? new Date(date).toLocaleDateString() : "Present",
     },
     {
-      title: 'From',
-      dataIndex: 'from',
-      key: 'from',
-      render: (date: string) => new Date(date).toLocaleDateString()
-    },
-    {
-      title: 'To',
-      dataIndex: 'to',
-      key: 'to',
-      render: (date: string) => date ? new Date(date).toLocaleDateString() : 'Present'
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_: unknown, record: BaseEducation) => (
+      title: "Action",
+      render: (_: unknown, r: BaseEducation) => (
         <Button
-          type="primary"
           danger
+          type="primary"
           icon={<DeleteOutlined />}
           size="small"
-          onClick={() => handleDeleteEducation(record._id)}
+          onClick={() => handleDeleteEducation(r._id)}
         >
           Delete
         </Button>
@@ -170,117 +156,152 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  // Prepare data for tables
-  const experienceData = (profile?.experience || []).map((exp: BaseExperience, index: number) => ({
-    ...exp,
-    key: exp._id || `exp-${index}`
-  }));
-
-  const educationData = (profile?.education || []).map((edu: BaseEducation, index: number) => ({
-    ...edu,
-    key: edu._id || `edu-${index}`
-  }));
-
-  if (loading || profileLoading) {
-    return <Spinner tip="Loading dashboard..." />;
-  }
-
-  // ✅ Show loading while checking authentication
-  if (!isAuthenticated && loading) {
-    return <Spinner tip="Checking authentication..." />;
-  }
+  if (loading || profileLoading) return <Spinner tip="Loading dashboard..." />;
 
   return (
-    <div style={{ padding: '24px', backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+    <div
+      style={{
+        padding: screens.xs ? "16px" : "32px",
+        minHeight: "100vh",
+        background: COLORS.bg,
+        transition: "0.3s",
+      }}
+    >
       <Row gutter={[24, 24]}>
-        {/* Left Side - Welcome Card */}
+        {/* LEFT CARD */}
         <Col xs={24} md={8}>
-          <Card 
-            style={{ height: '100%' }}
+          <Card
+            style={{
+              height: "100%",
+              borderRadius: 14,
+              background: COLORS.card,
+              color: COLORS.text,
+            }}
+            bodyStyle={{ padding: 0 }}
             cover={
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ 
-                  width: 100, 
-                  height: 100, 
-                  borderRadius: '50%', 
-                  backgroundColor: '#1890ff',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 16
-                }}>
-                  <UserOutlined style={{ fontSize: 48, color: '#fff' }} />
+              <div
+                style={{
+                  background:
+                    mode === "dark"
+                      ? "linear-gradient(135deg,#1d2736,#0f1625)"
+                      : "linear-gradient(135deg,#e6f0ff,#ffffff)",
+                  textAlign: "center",
+                  padding: "28px 0",
+                  borderTopLeftRadius: 14,
+                  borderTopRightRadius: 14,
+                }}
+              >
+                <div
+                  style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: "50%",
+                    background: "#1890ff",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    margin: "auto",
+                  }}
+                >
+                  <UserOutlined style={{ fontSize: 50, color: "#fff" }} />
                 </div>
-                <Title level={3}>{user?.name}</Title>
-                <Text type="secondary">{user?.email}</Text>
+
+                <Title level={3} style={{ marginTop: 16, color: COLORS.text }}>
+                  {user?.name}
+                </Title>
+                <Text style={{ color: COLORS.muted }}>{user?.email}</Text>
               </div>
             }
           >
-            <div style={{ textAlign: 'center' }}>
-              <Statistic 
-                title="Experience" 
-                value={profile?.experience?.length || 0} 
+            <div style={{ padding: 20, textAlign: "center" }}>
+              <Statistic
+                title={<Text style={{ color: COLORS.muted }}>Experience</Text>}
+                value={profile?.experience?.length || 0}
                 prefix={<ShopOutlined />}
               />
-              <Divider style={{ margin: '12px 0' }} />
-              <Statistic 
-                title="Education" 
-                value={profile?.education?.length || 0} 
+              <Divider />
+              <Statistic
+                title={<Text style={{ color: COLORS.muted }}>Education</Text>}
+                value={profile?.education?.length || 0}
                 prefix={<ReadOutlined />}
               />
             </div>
           </Card>
         </Col>
 
-        {/* Right Side - Main Content */}
+        {/* RIGHT SIDE */}
         <Col xs={24} md={16}>
-          {/* Dashboard Header */}
-          <Card style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* HEADER */}
+          <Card
+            style={{
+              marginBottom: 24,
+              borderRadius: 14,
+              background: COLORS.card,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+              }}
+            >
               <div>
-                <Title level={2} style={{ margin: 0 }}>
+                <Title level={2} style={{ margin: 0, color: COLORS.text }}>
                   <DashboardOutlined /> Dashboard
                 </Title>
-                <Text type="secondary">Welcome back, {user?.name}!</Text>
+                <Text style={{ color: COLORS.muted }}>
+                  Welcome back, {user?.name}
+                </Text>
               </div>
-              <div>
-                <Space>
-                  {profile ? (
-                    <>
-                      <Link to={`/profiles/edit/${profile._id}`}>
-                        <Button type="primary" icon={<EditOutlined />}>
-                          Edit Profile
-                        </Button>
-                      </Link>
-                      <Link to="/profiles/experience">
-                        <Button icon={<PlusOutlined />}>
-                          Add Experience
-                        </Button>
-                      </Link>
-                      <Link to="/profiles/education">
-                        <Button icon={<ReadOutlined />}>
-                          Add Education
-                        </Button>
-                      </Link>
-                    </>
-                  ) : (
-                    <Link to="/profiles/create">
-                      <Button type="primary" icon={<RocketOutlined />}>
-                        Create Profile
+
+              <Space wrap>
+                {profile ? (
+                  <>
+                    <Link to={`/profiles/edit/${profile._id}`}>
+                      <Button type="primary" icon={<EditOutlined />}>
+                        Edit Profile
                       </Button>
                     </Link>
-                  )}
-                </Space>
-              </div>
+                    <Link to="/profiles/experience">
+                      <Button icon={<PlusOutlined />}>Add Experience</Button>
+                    </Link>
+                    <Link to="/profiles/education">
+                      <Button icon={<ReadOutlined />}>Add Education</Button>
+                    </Link>
+                  </>
+                ) : (
+                  <Link to="/profiles/create">
+                    <Button type="primary" icon={<RocketOutlined />}>
+                      Create Profile
+                    </Button>
+                  </Link>
+                )}
+              </Space>
             </div>
           </Card>
 
-          {/* Skills Section */}
-          {profile?.skills && profile.skills.length > 0 && (
-            <Card title="Skills" style={{ marginBottom: 24 }}>
+          {/* SKILLS */}
+          {profile?.skills?.length > 0 && (
+            <Card
+              title="Skills"
+              style={{
+                marginBottom: 24,
+                borderRadius: 14,
+                background: COLORS.card,
+              }}
+            >
               <Space wrap>
-                {profile.skills.map((skill: string, index: number) => (
-                  <Tag color="blue" key={index} style={{ padding: '4px 12px', fontSize: '14px' }}>
+                {profile?.skills?.map((skill: string, i: number) => (
+                  <Tag
+                    key={i}
+                    color="blue"
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 20,
+                      fontWeight: 500,
+                    }}
+                  >
                     {skill}
                   </Tag>
                 ))}
@@ -288,104 +309,127 @@ const Dashboard: React.FC = () => {
             </Card>
           )}
 
-          {/* Bio Section */}
+          {/* BIO */}
           {profile?.bio && (
-            <Card title="About" style={{ marginBottom: 24 }}>
-              <Paragraph>{profile.bio}</Paragraph>
+            <Card
+              title="About"
+              style={{
+                marginBottom: 24,
+                borderRadius: 14,
+                background: COLORS.card,
+              }}
+            >
+              <Paragraph style={{ color: COLORS.text }}>
+                {profile.bio}
+              </Paragraph>
             </Card>
           )}
 
-          {/* Experience Section */}
-          <Card 
+          {/* EXPERIENCE */}
+          <Card
             title={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <ShopOutlined style={{ marginRight: 8 }} />
-                Experience Details
-              </div>
+              <Space>
+                <ShopOutlined /> Experience
+              </Space>
             }
-            style={{ marginBottom: 24 }}
+            style={{
+              marginBottom: 24,
+              borderRadius: 14,
+              background: COLORS.card,
+            }}
           >
-            {profile?.experience && profile.experience.length > 0 ? (
-              <Table 
-                dataSource={experienceData}
+            {profile?.experience?.length ? (
+              <Table
                 columns={experienceColumns}
-                rowKey="_id"
+                dataSource={profile.experience}
                 pagination={false}
-                size="middle"
+                rowKey="_id"
               />
             ) : (
-              <Empty 
-                description="No experience added yet" 
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              >
+              <Empty description="No experience added yet">
                 <Link to="/profiles/experience">
                   <Button type="primary" icon={<PlusOutlined />}>
-                    Add First Experience
+                    Add Experience
                   </Button>
                 </Link>
               </Empty>
             )}
           </Card>
 
-          {/* Education Section */}
-          <Card 
+          {/* EDUCATION */}
+          <Card
             title={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <ReadOutlined style={{ marginRight: 8 }} />
-                Education Details
-              </div>
+              <Space>
+                <ReadOutlined /> Education
+              </Space>
             }
+            style={{ borderRadius: 14, background: COLORS.card }}
           >
-            {profile?.education && profile.education.length > 0 ? (
-              <Table 
-                dataSource={educationData}
+            {profile?.education?.length ? (
+              <Table
                 columns={educationColumns}
-                rowKey="_id"
+                dataSource={profile.education}
                 pagination={false}
-                size="middle"
+                rowKey="_id"
               />
             ) : (
-              <Empty 
-                description="No education added yet" 
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              >
+              <Empty description="No education added yet">
                 <Link to="/profiles/education">
                   <Button type="primary" icon={<PlusOutlined />}>
-                    Add First Education
+                    Add Education
                   </Button>
                 </Link>
               </Empty>
             )}
           </Card>
 
-          {/* Additional Info */}
+          {/* EXTRA INFO */}
           <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
             {profile?.company && (
               <Col xs={24} sm={12} md={8}>
-                <Card size="small">
-                  <Text strong>Company</Text>
+                <Card
+                  size="small"
+                  style={{ borderRadius: 10, background: COLORS.card }}
+                >
+                  <Text strong style={{ color: COLORS.text }}>
+                    Company
+                  </Text>
                   <br />
-                  <Text>{profile.company}</Text>
+                  <Text style={{ color: COLORS.muted }}>{profile.company}</Text>
                 </Card>
               </Col>
             )}
+
             {profile?.website && (
               <Col xs={24} sm={12} md={8}>
-                <Card size="small">
-                  <Text strong>Website</Text>
+                <Card
+                  size="small"
+                  style={{ borderRadius: 10, background: COLORS.card }}
+                >
+                  <Text strong style={{ color: COLORS.text }}>
+                    Website
+                  </Text>
                   <br />
-                  <a href={profile.website} target="_blank" rel="noopener noreferrer">
+                  <a href={profile.website} target="_blank" rel="noreferrer">
                     {profile.website}
                   </a>
                 </Card>
               </Col>
             )}
+
             {profile?.location && (
               <Col xs={24} sm={12} md={8}>
-                <Card size="small">
-                  <Text strong>Location</Text>
+                <Card
+                  size="small"
+                  style={{ borderRadius: 10, background: COLORS.card }}
+                >
+                  <Text strong style={{ color: COLORS.text }}>
+                    Location
+                  </Text>
                   <br />
-                  <Text>{profile.location}</Text>
+                  <Text style={{ color: COLORS.muted }}>
+                    {profile.location}
+                  </Text>
                 </Card>
               </Col>
             )}

@@ -203,13 +203,11 @@ profileRouter.put(
 
       res.status(200).json({ msg: "Profile Updated Successfully", profile });
     } catch (error) {
-      console.error("Profile creation error details:", error);
       console.error(
         "Error stack:",
         error instanceof Error ? error.stack : "N/A"
       );
       console.error("Request body:", req.body);
-      console.error("Request user:", (req as any).user);
 
       // Send a more detailed error message for debugging
       res.status(500).json({
