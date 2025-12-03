@@ -1,10 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
+import {
+  Card,
+  Input,
+  Button,
+  Typography,
+  Row,
+  Col,
+  Avatar,
+  Space,
+  Divider,
+  Image,
+  Form,
+  Empty,
+  Popconfirm,
+  message,
+} from "antd";
+import {
+  LikeOutlined,
+  DislikeOutlined,
+  MessageOutlined,
+  DeleteOutlined,
+  SendOutlined,
+  GlobalOutlined,
+  PictureOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import type { RootState } from "../../../redux/store";
-
-// Saga trigger actions
 import {
   CREATE_POST,
   GET_ALL_POSTS,
@@ -12,222 +35,272 @@ import {
   DISLIKE_POST,
   DELETE_POST,
 } from "../../../redux/posts/post.types";
-
 import Spinner from "../../../layout/util/Spinner";
+import type { PostView } from "../../../modules/posts/models/PostView";
+
+const { Title, Text, Paragraph } = Typography;
+const { TextArea } = Input;
 
 const PostList: React.FC = () => {
   const dispatch = useDispatch();
+  const [form] = Form.useForm();
 
-  const [post, setPost] = useState({
-    text: "",
-    image: "",
-  });
+  const [loading, setLoading] = useState(false);
 
-  // -----------------------------
   // Load all posts on mount
-  // -----------------------------
   useEffect(() => {
     dispatch({ type: GET_ALL_POSTS });
   }, [dispatch]);
 
-  // -----------------------------
   // Redux State
-  // -----------------------------
   const { user } = useSelector((state: RootState) => state.user);
-  const { loading, posts } = useSelector((state: RootState) => state.post);
+  const { loading: postsLoading, posts } = useSelector(
+    (state: RootState) => state.post
+  );
 
-  // -----------------------------
-  // Handlers
-  // -----------------------------
-  const updateInput = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    setPost({
-      ...post,
-      [event.target.name]: event.target.value,
-    });
-  };
-
-  const submitCreatePost = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  // Create Post Handler
+  const onCreatePost = (values: { text: string; image: string }) => {
+    setLoading(true);
     dispatch({
       type: CREATE_POST,
-      payload: post,
+      payload: values,
     });
-
-    setPost({ text: "", image: "" });
+    form.resetFields();
+    setLoading(false);
   };
 
-  const clickLikePost = (postId: string) => {
+  // Like Post Handler
+  const handleLikePost = (postId: string) => {
     dispatch({
       type: LIKE_POST,
       payload: { postId },
     });
   };
 
-  const clickUnLikePost = (postId: string) => {
+  // Dislike Post Handler
+  const handleDislikePost = (postId: string) => {
     dispatch({
       type: DISLIKE_POST,
       payload: { postId },
     });
   };
 
-  const clickDeletePost = (postId: string) => {
+  // Delete Post Handler
+  const handleDeletePost = (postId: string) => {
     dispatch({
       type: DELETE_POST,
       payload: { postId },
     });
+    message.success("Post deleted successfully");
   };
 
-  // -----------------------------
-  // JSX
-  // -----------------------------
+  // Check if user liked the post
+  const hasLiked = (post: PostView) => {
+    return post.likes?.some((like) => like.user === user?._id) || false;
+  };
+
   return (
-    <>
-      <section className="mt-3">
-        <div className="container">
-          <p className="h3 text-teal">Welcome to React Social Community</p>
-          <p>
-            Share posts, engage, and interact with developers around the world.
-          </p>
-        </div>
-      </section>
+    <div
+      style={{
+        padding: "24px",
+        backgroundColor: "#f0f2f5",
+        minHeight: "100vh",
+      }}
+    >
+      <Row justify="center">
+        <Col xs={24} lg={18} xl={16}>
+          {/* Header */}
+          <Card style={{ marginBottom: 24 }}>
+            <Title level={3}>
+              <GlobalOutlined style={{ marginRight: 8 }} />
+              Welcome to React Social Community
+            </Title>
+            <Text type="secondary">
+              Share posts, engage, and interact with developers around the
+              world.
+            </Text>
+          </Card>
 
-      {/* -------- Create Post ---------- */}
-      <section>
-        <div className="container">
-          <div className="card">
-            <div className="card-body bg-light-grey">
-              <div className="row align-items-center">
-                {user && (
-                  <div className="col-md-3">
-                    <img
-                      src={user.avatar}
-                      alt="avatar"
-                      className="img-fluid img-thumbnail"
-                    />
-                  </div>
-                )}
-
-                <div className="col-md-8">
-                  <form onSubmit={submitCreatePost}>
-                    <textarea
-                      required
-                      name="text"
-                      value={post.text}
-                      onChange={updateInput}
+          {/* Create Post Card */}
+          <Card style={{ marginBottom: 24 }} title="Create a Post">
+            <Form form={form} onFinish={onCreatePost} layout="vertical">
+              <Row gutter={16} align="middle">
+                <Col xs={24} md={3}>
+                  <Avatar
+                    size={64}
+                    src={user?.avatar}
+                    icon={!user?.avatar && <UserOutlined />}
+                  />
+                </Col>
+                <Col xs={24} md={21}>
+                  <Form.Item
+                    name="text"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter your post content",
+                      },
+                      { min: 1, message: "Post content cannot be empty" },
+                    ]}
+                  >
+                    <TextArea
                       rows={3}
-                      className="form-control mb-2"
-                      placeholder="Your Post Content..."
+                      placeholder="What's on your mind?"
+                      maxLength={500}
+                      showCount
                     />
+                  </Form.Item>
 
-                    <input
-                      required
-                      name="image"
-                      value={post.image}
-                      onChange={updateInput}
-                      type="text"
-                      className="form-control mb-2"
-                      placeholder="Image URL"
+                  <Form.Item
+                    name="image"
+                    rules={[
+                      { required: false },
+                      { type: "url", message: "Please enter a valid URL" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Image URL (optional)"
+                      prefix={<PictureOutlined />}
+                      allowClear
                     />
+                  </Form.Item>
 
-                    <button className="btn btn-teal btn-sm" type="submit">
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      icon={<SendOutlined />}
+                      loading={loading}
+                    >
                       Post
-                    </button>
-                  </form>
-                </div>
+                    </Button>
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </Card>
+
+          {/* Posts List */}
+          <Card title="All Posts">
+            {postsLoading ? (
+              <div style={{ textAlign: "center", padding: "40px" }}>
+                <Spinner tip="Loading posts..." />
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            ) : posts.length === 0 ? (
+              <Empty
+                description="No posts yet. Be the first to share something!"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
+            ) : (
+              posts.map((post) => (
+                <Card
+                  key={post._id}
+                  style={{ marginBottom: 16 }}
+                  bodyStyle={{ padding: 0 }}
+                >
+                  <div style={{ padding: 24 }}>
+                    <Row gutter={16}>
+                      {/* User Info */}
+                      <Col xs={24} sm={4} style={{ textAlign: "center" }}>
+                        <Avatar
+                          size={64}
+                          src={post.avatar}
+                          icon={!post.avatar && <UserOutlined />}
+                        />
+                        <div style={{ marginTop: 8 }}>
+                          <Text strong>{post.name}</Text>
+                        </div>
+                      </Col>
 
-      {/* -------- Posts List ---------- */}
-      {loading ? (
-        <Spinner />
-      ) : (
-        <section className="mt-3">
-          <div className="container">
-            <p className="h3 text-teal">All Posts</p>
-            <hr />
+                      {/* Post Content */}
+                      <Col xs={24} sm={20}>
+                        <Paragraph style={{ marginBottom: 16 }}>
+                          {post.text}
+                        </Paragraph>
 
-            {posts.map((post) => (
-              <div className="card mt-3" key={post._id}>
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-md-2 text-center">
-                      <img
-                        src={post.avatar}
-                        alt="avatar"
-                        className="img-thumbnail img-fluid"
-                      />
-                      <p className="h5 text-teal font-weight-bold">
-                        {post.name}
-                      </p>
-                    </div>
+                        {post.image && (
+                          <div style={{ marginBottom: 16 }}>
+                            <Image
+                              src={post.image}
+                              alt="Post image"
+                              style={{ maxWidth: "100%", borderRadius: 8 }}
+                            />
+                          </div>
+                        )}
 
-                    <div className="col-md-10">
-                      <img
-                        src={post.image}
-                        alt="post-img"
-                        className="img-fluid"
-                      />
-                      <p>{post.text}</p>
-                      <small>
-                        {post.createdAt && new Date(post.createdAt).toLocaleDateString()}
-                        {post.createdAt && new Date(post.createdAt).toLocaleTimeString()}
-                      </small>
-                    </div>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          Posted on{" "}
+                          {new Date(post.createdAt || "").toLocaleDateString()}{" "}
+                          at{" "}
+                          {new Date(post.createdAt || "").toLocaleTimeString(
+                            [],
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </Text>
+                      </Col>
+                    </Row>
                   </div>
 
-                  {/* Buttons */}
-                  <div className="row mt-3">
-                    <div className="col-md-2"></div>
-                    <div className="col-md-10">
-                      {typeof post._id === "string" && post._id && (
-                        <button
-                          className="btn rgba-green-light btn-sm"
-                          onClick={() => clickLikePost(post._id!)}
-                        >
-                          <i className="fa fa-thumbs-up" /> {post.likes.length}
-                        </button>
-                      )}
+                  <Divider style={{ margin: 0 }} />
 
-                      {typeof post._id === "string" && (
-                        <button
-                          className="btn rgba-red-light btn-sm ml-2"
-                          onClick={() => clickUnLikePost(post._id as string)}
+                  {/* Post Actions */}
+                  <Row style={{ padding: "12px 24px" }}>
+                    <Col span={24}>
+                      <Space wrap>
+                        <Button
+                          type={hasLiked(post) ? "primary" : "default"}
+                          icon={<LikeOutlined />}
+                          onClick={() => post._id && handleLikePost(post._id)}
                         >
-                          <i className="fa fa-thumbs-down" />
-                        </button>
-                      )}
+                          Like ({post.likes?.length || 0})
+                        </Button>
 
-                      <Link
-                        to={`/posts/${post._id}`}
-                        className="btn rgba-blue-light btn-sm ml-2"
-                      >
-                        <i className="fab fa-facebook-messenger" /> Discussions{" "}
-                        {post.comments.length}
-                      </Link>
-
-                      {user?._id === post.user.toString() && typeof post._id === "string" && post._id && (
-                        <button
-                          className="btn btn-danger btn-sm ml-2"
-                          onClick={() => clickDeletePost(post._id as string)}
+                        <Button
+                          type="default"
+                          icon={<DislikeOutlined />}
+                          onClick={() =>
+                            post._id && handleDislikePost(post._id)
+                          }
                         >
-                          <i className="fa fa-times-circle" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-    </>
+                          Dislike
+                        </Button>
+
+                        <Link to={`/posts/${post._id}`}>
+                          <Button type="default" icon={<MessageOutlined />}>
+                            Comments ({post.comments?.length || 0})
+                          </Button>
+                        </Link>
+
+                        {/* Delete button (only for post owner) */}
+                        {user?._id === post.user && post._id && (
+                          <Popconfirm
+                            title="Are you sure you want to delete this post?"
+                            onConfirm={() => handleDeletePost(post._id!)}
+                            okText="Yes"
+                            cancelText="No"
+                          >
+                            <Button
+                              type="primary"
+                              danger
+                              icon={<DeleteOutlined />}
+                            >
+                              Delete
+                            </Button>
+                          </Popconfirm>
+                        )}
+                      </Space>
+                    </Col>
+                  </Row>
+                </Card>
+              ))
+            )}
+          </Card>
+        </Col>
+      </Row>
+    </div>
   );
 };
 
