@@ -26,6 +26,7 @@ import type { ProfileView } from "../../modules/profiles/models/ProfileView";
 // ----------------------------------
 // GET MY PROFILE
 // ----------------------------------
+// In your handleGetMyProfile function:
 function* handleGetMyProfile() {
   try {
     yield put(setLoading());
@@ -34,13 +35,24 @@ function* handleGetMyProfile() {
       profileAPI.getMyProfile
     );
 
-    yield put(setProfile(response.data.profile));
+    // ✅ Make sure response.data.profile exists
+    if (response.data.profile) {
+      yield put(setProfile(response.data.profile));
+    } else {
+      yield put(setError("No profile found"));
+    }
   } catch (error) {
     const err = error as ApiError;
-    yield put(setError(err.response?.data?.message ?? "Failed to load profile"));
+    const errorMsg = err.response?.data?.message ?? "Failed to load profile";
+    yield put(setError(errorMsg));
+
+    // If it's a 404 (no profile), we don't want to show an error
+    if (err.response?.status === 404) {
+      // Clear error and set profile to null
+      yield put(setProfile(null));
+    }
   }
 }
-
 // ----------------------------------
 // DELETE EXPERIENCE
 // ----------------------------------

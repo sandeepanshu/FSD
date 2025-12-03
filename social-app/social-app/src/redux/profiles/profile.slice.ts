@@ -1,4 +1,4 @@
-// src/redux/profiles/profile.slice.ts
+
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { ProfileState } from "./profile.types";
 import type { ProfileView } from "../../modules/profiles/models/ProfileView";
@@ -15,9 +15,10 @@ const profileSlice = createSlice({
   reducers: {
     setLoading(state) {
       state.loading = true;
+      state.error = null;
     },
 
-    setProfile(state, action: PayloadAction<ProfileView>) {
+    setProfile(state, action: PayloadAction<ProfileView | null>) {
       state.loading = false;
       state.profile = action.payload;
       state.error = null;
@@ -30,6 +31,10 @@ const profileSlice = createSlice({
 
     clearProfile(state) {
       state.profile = null;
+      state.error = null;
+    },
+    clearLoading(state) {
+      state.loading = false;
     },
   },
 });
