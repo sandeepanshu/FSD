@@ -138,15 +138,20 @@ function* handleUpdateProfile(action: PayloadAction<SubmitProfilePayload>) {
 // ----------------------------------
 function* handleAddEducation(action: PayloadAction<AddEducationPayload>) {
   try {
-    const { education } = action.payload;
+    const { education, navigate } = action.payload;
 
     yield put(setLoading());
+
     const response: AxiosResponse<{ profile: ProfileView; msg: string }> =
       yield call(profileAPI.addEducation, education);
 
     yield put(setProfile(response.data.profile));
     yield put(addAlertWithTimeout(response.data.msg, "success"));
-  } catch {
+
+    // 🚀 Navigate after success
+    navigate("/profiles/dashboard");
+  } catch (error) {
+    console.error(error);
     yield put(setError("Failed to add education"));
   }
 }

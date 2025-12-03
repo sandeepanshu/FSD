@@ -416,31 +416,48 @@ profileRouter.delete(
 );
 
 /* =====================================================
+   GET ALL DEVELOPERS
+   GET /api/profiles/all
+   PUBLIC
+===================================================== */
+profileRouter.get(
+  "/all",
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const profiles = await ProfileTable.find().populate("user", [
+        "name",
+        "avatar",
+      ]);
+
+      res.status(200).json({ profiles });
+    } catch (error) {
+      res.status(500).json({ errors: [{ msg: "Server error" }] });
+    }
+  }
+);
+
+/* =====================================================
    GET PROFILE BY PROFILE ID  (WILDCARD)
    GET /api/profiles/:profileId
    PUBLIC
    ⚠ MUST BE LAST ROUTE
 ===================================================== */
-profileRouter.get(
-  "/:profileId",
-  async (req: express.Request, res: express.Response) => {
-    try {
-      const mongoId = new mongoose.Types.ObjectId(req.params.profileId);
-      const profile = await ProfileTable.findById(mongoId).populate("user", [
-        "name",
-        "avatar",
-      ]);
+profileRouter.get("/:profileId", async (req, res) => {
+  try {
+    const id = new mongoose.Types.ObjectId(req.params.profileId);
 
-      if (!profile)
-        return res
-          .status(404)
-          .json({ errors: [{ msg: "No Profile Found for this ID" }] });
+    const profile = await ProfileTable.findById(id).populate("user", [
+      "name",
+      "avatar",
+    ]);
 
-      res.status(200).json({ profile });
-    } catch (error) {
-      res.status(500).json({ errors: [{ msg: error }] });
-    }
+    if (!profile)
+      return res.status(404).json({ errors: [{ msg: "Profile not found" }] });
+
+    res.status(200).json({ profile });
+  } catch {
+    res.status(500).json({ errors: [{ msg: "Server error" }] });
   }
-);
+});
 
 export default profileRouter;

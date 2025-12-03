@@ -1,7 +1,7 @@
 import axios, { type AxiosResponse } from "axios";
 import type { IDeveloper } from "../../modules/developers/models/IDeveloper";
 
-const BASE_URL = import.meta.env.VITE_EXPRESS_URL;
+const BASE_URL = import.meta.env.VITE_EXPRESS_URL || "";
 
 export interface GetAllDevelopersResponse {
   profiles: IDeveloper[];

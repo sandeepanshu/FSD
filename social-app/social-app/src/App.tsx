@@ -38,10 +38,6 @@ import { AuthUtil } from "./authUtil/AuthUtil";
 import { UserUtil } from "./authUtil/UserUtil";
 import type { RootState } from "./redux/store";
 
-/**
- * PublicRoute Component
- * Prevents authenticated users from accessing public-only routes (login/register)
- */
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useSelector(
     (state: RootState) => state.user
