@@ -29,7 +29,6 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // ✅ Initialize token header on app load
     const token = UserUtil.getToken();
     if (token) {
       AuthUtil.setTokenHeader(token);
@@ -42,8 +41,14 @@ const App: React.FC = () => {
       <Alert />
       <NavBar />
 
-      <div>
-        {/* Add margin for fixed navbar */}
+      {/* Main content area with padding for fixed navbar */}
+      <div
+        style={{
+          paddingTop: 64,
+          minHeight: "calc(100vh - 64px)",
+          backgroundColor: "#f0f2f5",
+        }}
+      >
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />

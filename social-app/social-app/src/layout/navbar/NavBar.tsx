@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom"; // Add useNavigate
 import { useDispatch, useSelector } from "react-redux";
 
 import { Menu, Layout, Button, Avatar } from "antd";
@@ -20,6 +20,7 @@ const { Header } = Layout;
 const NavBar: React.FC = () => {
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate(); // Add this
 
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
@@ -27,12 +28,18 @@ const NavBar: React.FC = () => {
 
   const handleLogout = () => {
     dispatch(userActions.logOutUser());
+    navigate("/"); // ✅ Redirect to home page after logout
   };
 
   // -------------------------------
   // MENU ITEMS (AntD v5 style)
   // -------------------------------
   const menuItems = [
+    {
+      key: "/",
+      icon: <CodeOutlined />,
+      label: <NavLink to="/">Home</NavLink>,
+    },
     {
       key: "developers",
       icon: <TeamOutlined />,
@@ -55,7 +62,7 @@ const NavBar: React.FC = () => {
   ];
 
   // Derive current selected key from URL
-  const selectedKey = location.pathname.split("/")[1] || "home";
+  const selectedKey = location.pathname.split("/")[1] || "/";
 
   return (
     <Layout>
@@ -66,6 +73,10 @@ const NavBar: React.FC = () => {
           padding: "0 24px",
           background: "#001529",
           height: 64,
+          position: "fixed",
+          top: 0,
+          zIndex: 1000,
+          width: "100%",
         }}
       >
         {/* Logo */}
@@ -112,6 +123,7 @@ const NavBar: React.FC = () => {
               <Avatar
                 src={user?.avatar}
                 icon={!user?.avatar ? <UserOutlined /> : undefined}
+                style={{ backgroundColor: "#1890ff" }}
               />
               <span style={{ color: "#fff" }}>{user?.name}</span>
             </div>
@@ -128,6 +140,9 @@ const NavBar: React.FC = () => {
           </div>
         )}
       </Header>
+
+      {/* Add padding to prevent content from being hidden under fixed header */}
+      <div style={{ marginTop: 64 }}></div>
     </Layout>
   );
 };

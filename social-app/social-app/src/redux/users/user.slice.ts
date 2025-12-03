@@ -84,10 +84,6 @@ const userSlice = createSlice({
     clearError(state) {
       state.error = null;
     },
-    
-    setAuthenticated(state, action: PayloadAction<boolean>) {
-      state.isAuthenticated = action.payload;
-    },
   },
 });
 
@@ -103,7 +99,6 @@ export const {
   logout,
   resetRegisterState,
   clearError,
-  setAuthenticated,
 } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -3,6 +3,7 @@ import {
   REGISTER_USER,
   LOGIN_USER,
   GET_USER_INFO,
+  LOGOUT_USER,
   type RegisterPayload,
   type LoginPayload,
 } from "./user.types";
@@ -28,10 +29,13 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
 
 // Helper function to show alert in saga
-function* showAlertSaga(message: string, color: "success" | "danger" | "warning" | "info") {
+function* showAlertSaga(
+  message: string,
+  color: "success" | "danger" | "warning" | "info"
+) {
   const id = uuid();
   yield put(addAlert({ id, message, color }));
-  
+
   // Auto remove after 3 seconds
   yield delay(3000);
   yield put(removeAlert(id));
@@ -48,13 +52,11 @@ function* handleRegister(action: PayloadAction<RegisterPayload>) {
 
     yield put(registerSuccess());
     yield call(showAlertSaga, response.data.msg, "success");
-    
-    // ✅ Navigate to login if navigate function provided
+
     if (action.payload.navigate) {
-      yield delay(1500); // Small delay to show success message
+      yield delay(1500);
       action.payload.navigate("/users/login");
     }
-    
   } catch (error) {
     const err = error as ApiError;
     yield put(
@@ -67,15 +69,16 @@ function* handleRegister(action: PayloadAction<RegisterPayload>) {
         yield call(showAlertSaga, e.msg, "danger");
       }
     } else {
-      yield call(showAlertSaga, 
-        err.response?.data?.message ?? "Registration failed", 
+      yield call(
+        showAlertSaga,
+        err.response?.data?.message ?? "Registration failed",
         "danger"
       );
     }
   }
 }
 
-// LOGIN - ✅ Fixed to navigate to dashboard
+// LOGIN
 function* handleLogin(action: PayloadAction<LoginPayload>) {
   try {
     yield put(setLoading());
@@ -83,20 +86,16 @@ function* handleLogin(action: PayloadAction<LoginPayload>) {
       userAPI.login(action.payload.user)
     );
 
-    // Save token
     UserUtil.saveToken(response.data.token);
     AuthUtil.setTokenHeader(response.data.token);
 
     yield put(loginSuccess(response.data.token));
     yield call(showAlertSaga, "Login Successful", "success");
-    
-    // ✅ Get user info after successful login
+
     yield put({ type: GET_USER_INFO });
-    
-    // ✅ Navigate to dashboard after successful login
-    yield delay(500); // Small delay to ensure state is updated
+
+    yield delay(500);
     action.payload.navigate("/profiles/dashboard");
-    
   } catch (error) {
     const err = error as ApiError;
     const errorMsg = err.response?.data?.message ?? "Login failed";
@@ -117,12 +116,37 @@ function* handleGetUserInfo() {
     const err = error as ApiError;
     const errorMsg = err.response?.data?.message ?? "Failed to fetch user info";
     yield put(getUserInfoFailure(errorMsg));
-    
+
     // Clear invalid token
     UserUtil.removeToken();
     AuthUtil.setTokenHeader(null);
     yield put(logout());
-    yield call(showAlertSaga, "Session expired. Please login again.", "warning");
+
+    yield call(
+      showAlertSaga,
+      "Session expired. Please login again.",
+      "warning"
+    );
+  }
+}
+
+// ✅ LOGOUT HANDLER
+function* handleLogout() {
+  try {
+    // Clear token from storage
+    UserUtil.removeToken();
+
+    // Clear token from axios headers
+    AuthUtil.setTokenHeader(null);
+
+    // Dispatch logout action to update state
+    yield put(logout());
+
+    // Show success message
+    yield call(showAlertSaga, "Logged out successfully", "success");
+  } catch (error) {
+    console.error("Logout error:", error);
+    yield call(showAlertSaga, "Error during logout", "danger");
   }
 }
 
@@ -130,4 +154,5 @@ export function* userSaga() {
   yield takeLatest(REGISTER_USER, handleRegister);
   yield takeLatest(LOGIN_USER, handleLogin);
   yield takeLatest(GET_USER_INFO, handleGetUserInfo);
+  yield takeLatest(LOGOUT_USER, handleLogout);
 }
