@@ -1,4 +1,3 @@
-// src/components/developers/DeveloperList.tsx
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, Row, Col, Tag, Avatar, Typography, Button, Spin } from "antd";

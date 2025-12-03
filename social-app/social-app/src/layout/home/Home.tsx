@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Row, Col, Button, Typography, Card } from "antd";
-
+import { Row, Col, Button, Typography, Card, Grid } from "antd";
 import {
   UserAddOutlined,
   LoginOutlined,
@@ -18,235 +16,177 @@ import {
 import type { RootState } from "../../redux/store";
 
 const { Title, Paragraph, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const OAUTH_GITHUB = "/auth/github";
 const OAUTH_LINKEDIN = "/auth/linkedin";
 
 const Home: React.FC = () => {
   const { isAuthenticated } = useSelector((s: RootState) => s.user);
-  const mode = useSelector((s: RootState) => s.theme.mode);
+  const mode = useSelector((s: RootState) => s.theme?.mode ?? "light");
+  const screens = useBreakpoint();
 
-  /** ----------------------------------
-   * BRAND NEW COLOR SYSTEM (Perfected)
-   * ---------------------------------- */
   const COLORS = {
     bg: mode === "dark" ? "#0d1117" : "#f4f7fb",
-    hero: mode === "dark" ? "#111827" : "#ffffff",
-    card: mode === "dark" ? "#1f2937" : "#ffffff",
+    hero: mode === "dark" ? "#0b1220" : "#ffffff",
+    card: mode === "dark" ? "#0b1228" : "#ffffff",
     text: mode === "dark" ? "#e5e7eb" : "#111827",
     muted: mode === "dark" ? "#9ca3af" : "#4b5563",
     primary: "#1890ff",
     accent: "#faad14",
   };
 
-  /** ----------------------------------
-   * PAGE OUTER WRAPPER
-   * ---------------------------------- */
   return (
     <div
       style={{
         minHeight: "100vh",
         background: COLORS.bg,
-        padding: "80px 24px",
-        transition: "0.3s ease",
+        padding: "32px 12px",
       }}
     >
-      <style>
-        {`
-          .fade {
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeUp 0.7s ease forwards;
-          }
-          .delay1 { animation-delay: .15s; }
-          .delay2 { animation-delay: .30s; }
-          .delay3 { animation-delay: .45s; }
-
-          @keyframes fadeUp {
-            to { opacity: 1; transform: translateY(0); }
-          }
-
-          .feature-card { 
-            transition: .25s ease;
-          }
-          .feature-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-          }
-        `}
-      </style>
-
       <div style={{ maxWidth: 1250, margin: "0 auto" }}>
-        <Row gutter={[40, 40]} align="middle">
-          {/* LEFT HERO SECTION */}
-          <Col xs={24} md={12}>
-            <div className="fade delay1">
-              <Card
-                bordered={false}
+        <Row gutter={[24, 24]} align="middle">
+          {/* HERO / LEFT */}
+          <Col xs={24} sm={24} md={13} lg={14}>
+            <Card
+              bordered={false}
+              style={{
+                borderRadius: 12,
+                background: COLORS.hero,
+                padding: screens.xs ? 18 : 28,
+              }}
+            >
+              <Title
                 style={{
-                  background: COLORS.hero,
-                  padding: "40px 36px",
-                  borderRadius: 20,
-                  boxShadow:
-                    mode === "dark"
-                      ? "0 10px 30px rgba(0,0,0,0.5)"
-                      : "0 12px 32px rgba(0,0,0,0.06)",
+                  color: COLORS.text,
+                  marginBottom: 8,
+                  fontSize: screens.xs ? 28 : 40,
                 }}
               >
-                <Title
-                  level={1}
-                  style={{
-                    fontWeight: 900,
-                    fontSize: 46,
-                    color: COLORS.text,
-                    marginBottom: 16,
-                    lineHeight: 1.15,
-                  }}
-                >
-                  A Social Network
-                  <br />
-                  <Text style={{ color: COLORS.primary }}>Built for Devs</Text>
-                </Title>
+                Build. Share. Connect.
+                <br />
+                <Text style={{ color: COLORS.primary }}>React Social App</Text>
+              </Title>
 
-                <Paragraph style={{ fontSize: 16, color: COLORS.muted }}>
-                  Connect with developers, showcase skills, share posts, and
-                  collaborate on real-world projects. A clean and powerful MERN
-                  + Redux Toolkit + Ant Design application.
-                </Paragraph>
+              <Paragraph
+                style={{ color: COLORS.muted, fontSize: screens.xs ? 14 : 16 }}
+              >
+                Connect with developers, create your profile, share ideas and
+                collaborate — built with MERN, Redux Toolkit, and Ant Design.
+              </Paragraph>
 
-                {/* AUTH / CTA BUTTONS */}
-                <div
-                  className="fade delay2"
-                  style={{
-                    display: "flex",
-                    gap: 16,
-                    flexWrap: "wrap",
-                    marginTop: 20,
-                  }}
-                >
-                  {!isAuthenticated ? (
-                    <>
-                      <Link to="/users/register">
-                        <Button
-                          type="primary"
-                          size="large"
-                          icon={<UserAddOutlined />}
-                          style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                          Register
-                        </Button>
-                      </Link>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  flexWrap: "wrap",
+                  marginTop: 16,
+                }}
+              >
+                {!isAuthenticated ? (
+                  <>
+                    <Link to="/users/register">
+                      <Button
+                        type="primary"
+                        size={screens.xs ? "middle" : "large"}
+                        icon={<UserAddOutlined />}
+                      >
+                        Register
+                      </Button>
+                    </Link>
 
-                      <Link to="/users/login">
-                        <Button
-                          size="large"
-                          icon={<LoginOutlined />}
-                          style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                          Login
-                        </Button>
-                      </Link>
+                    <Link to="/users/login">
+                      <Button
+                        size={screens.xs ? "middle" : "large"}
+                        icon={<LoginOutlined />}
+                      >
+                        Login
+                      </Button>
+                    </Link>
 
-                      <a href={OAUTH_GITHUB}>
-                        <Button
-                          size="large"
-                          icon={<GithubOutlined />}
-                          style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                          GitHub
-                        </Button>
-                      </a>
+                    <a href={OAUTH_GITHUB}>
+                      <Button
+                        size={screens.xs ? "middle" : "large"}
+                        icon={<GithubOutlined />}
+                      >
+                        GitHub
+                      </Button>
+                    </a>
 
-                      <a href={OAUTH_LINKEDIN}>
-                        <Button
-                          size="large"
-                          icon={<LinkedinOutlined />}
-                          style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                          LinkedIn
-                        </Button>
-                      </a>
-                    </>
-                  ) : (
-                    <>
-                      <Link to="/profiles/dashboard">
-                        <Button
-                          type="primary"
-                          size="large"
-                          icon={<DashboardOutlined />}
-                          style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                          Dashboard
-                        </Button>
-                      </Link>
+                    <a href={OAUTH_LINKEDIN}>
+                      <Button
+                        size={screens.xs ? "middle" : "large"}
+                        icon={<LinkedinOutlined />}
+                      >
+                        LinkedIn
+                      </Button>
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/profiles/dashboard">
+                      <Button
+                        type="primary"
+                        size={screens.xs ? "middle" : "large"}
+                        icon={<DashboardOutlined />}
+                      >
+                        Dashboard
+                      </Button>
+                    </Link>
 
-                      <Link to="/profiles/dashboard">
-                        <Button
-                          size="large"
-                          icon={<UserOutlined />}
-                          style={{ borderRadius: 8, fontWeight: 600 }}
-                        >
-                          View Profile
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </Card>
-            </div>
+                    <Link to="/profiles/dashboard">
+                      <Button
+                        size={screens.xs ? "middle" : "large"}
+                        icon={<UserOutlined />}
+                      >
+                        View Profile
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </Card>
           </Col>
 
-          {/* RIGHT FEATURES */}
-          <Col xs={24} md={12}>
-            <Row gutter={[20, 20]}>
-              <Col xs={12}>
+          {/* FEATURES / RIGHT */}
+          <Col xs={24} sm={24} md={11} lg={10}>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12}>
                 <Card
                   bordered={false}
-                  className="feature-card fade delay1"
-                  style={{
-                    borderRadius: 16,
-                    padding: 22,
-                    background: COLORS.card,
-                    minHeight: 160,
-                  }}
+                  style={{ borderRadius: 10, padding: 16, minHeight: 140 }}
                 >
                   <TeamOutlined
-                    style={{ fontSize: 40, color: COLORS.primary }}
+                    style={{ fontSize: 28, color: COLORS.primary }}
                   />
                   <Title
                     level={4}
-                    style={{ marginTop: 12, color: COLORS.text }}
+                    style={{ marginTop: 10, color: COLORS.text }}
                   >
                     Meet Developers
                   </Title>
-                  <Paragraph style={{ color: COLORS.muted }}>
-                    Explore dev profiles & collaborate.
+                  <Paragraph style={{ color: COLORS.muted, marginBottom: 0 }}>
+                    Explore profiles & collaborate.
                   </Paragraph>
                 </Card>
               </Col>
 
-              <Col xs={12}>
+              <Col xs={24} sm={12}>
                 <Card
                   bordered={false}
-                  className="feature-card fade delay2"
-                  style={{
-                    borderRadius: 16,
-                    padding: 22,
-                    background: COLORS.card,
-                    minHeight: 160,
-                  }}
+                  style={{ borderRadius: 10, padding: 16, minHeight: 140 }}
                 >
                   <ThunderboltOutlined
-                    style={{ fontSize: 40, color: COLORS.accent }}
+                    style={{ fontSize: 28, color: COLORS.accent }}
                   />
                   <Title
                     level={4}
-                    style={{ marginTop: 12, color: COLORS.text }}
+                    style={{ marginTop: 10, color: COLORS.text }}
                   >
                     Share Posts
                   </Title>
-                  <Paragraph style={{ color: COLORS.muted }}>
-                    Ask questions & share ideas.
+                  <Paragraph style={{ color: COLORS.muted, marginBottom: 0 }}>
+                    Post ideas, questions & updates.
                   </Paragraph>
                 </Card>
               </Col>
@@ -254,31 +194,26 @@ const Home: React.FC = () => {
               <Col xs={24}>
                 <Card
                   bordered={false}
-                  className="feature-card fade delay3"
-                  style={{
-                    borderRadius: 16,
-                    padding: 24,
-                    background: COLORS.card,
-                  }}
+                  style={{ borderRadius: 10, padding: 14 }}
                 >
-                  <Row gutter={16} align="middle">
-                    <Col span={6}>
-                      <GithubOutlined
-                        style={{ fontSize: 32, color: COLORS.text }}
-                      />
-                    </Col>
-                    <Col span={18}>
+                  <div
+                    style={{ display: "flex", gap: 12, alignItems: "center" }}
+                  >
+                    <GithubOutlined
+                      style={{ fontSize: 26, color: COLORS.text }}
+                    />
+                    <div>
                       <Title
                         level={5}
-                        style={{ marginBottom: 2, color: COLORS.text }}
+                        style={{ margin: 0, color: COLORS.text }}
                       >
                         Showcase Projects
                       </Title>
                       <Text style={{ color: COLORS.muted }}>
-                        Highlight your open-source work.
+                        Highlight open-source contributions.
                       </Text>
-                    </Col>
-                  </Row>
+                    </div>
+                  </div>
                 </Card>
               </Col>
             </Row>

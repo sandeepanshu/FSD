@@ -6,15 +6,19 @@ import type { RootState } from "../../redux/store";
 import { removeAlert } from "../../redux/alerts/alert.slice";
 
 const Alert: React.FC = () => {
-  const alerts = useSelector((state: RootState) => state.alerts.alerts);
+  // NOTE: your alerts reducer path is `state.alerts.alerts`
+  const alerts = useSelector((state: RootState) => state.alerts?.alerts ?? []);
   const dispatch = useDispatch();
   const [visibleAlerts, setVisibleAlerts] = useState<string[]>([]);
 
   useEffect(() => {
-    alerts.forEach((alert: { id: string; }) => {
+    if (!alerts || alerts.length === 0) return;
+
+    alerts.forEach((alert: any) => {
       if (!visibleAlerts.includes(alert.id)) {
         setVisibleAlerts((prev) => [...prev, alert.id]);
 
+        // Remove after 3s (also keep local visible list in sync)
         setTimeout(() => {
           dispatch(removeAlert(alert.id));
           setVisibleAlerts((prev) => prev.filter((id) => id !== alert.id));
@@ -36,18 +40,20 @@ const Alert: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        pointerEvents: "none", // let clicks pass through margins
       }}
     >
       {alerts.map((alert: any) => (
-        <AntAlert
-          key={alert.id}
-          message={alert.message}   // ✅ Correct prop
-          type={alert.color === "danger" ? "error" : alert.color}
-          showIcon
-          closable
-          onClose={() => dispatch(removeAlert(alert.id))}   // ✅ Correct closable syntax
-          style={{ marginBottom: 8, maxWidth: 500 }}
-        />
+        <div key={alert.id} style={{ pointerEvents: "auto", width: "100%", display: "flex", justifyContent: "center" }}>
+          <AntAlert
+            message={alert.message}
+            type={alert.color === "danger" ? "error" : (alert.color as any) || "info"}
+            showIcon
+            closable
+            onClose={() => dispatch(removeAlert(alert.id))}
+            style={{ marginBottom: 8, maxWidth: 640, width: "calc(100% - 24px)" }}
+          />
+        </div>
       ))}
     </div>
   );

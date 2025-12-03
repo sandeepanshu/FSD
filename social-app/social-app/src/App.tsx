@@ -81,7 +81,9 @@ const App: React.FC = () => {
   const { loading: userLoading } = useSelector(
     (state: RootState) => state.user
   );
-  const themeMode = useSelector((state: RootState) => state.theme.mode);
+  const themeMode = useSelector(
+    (state: RootState) => state.theme?.mode ?? "light"
+  );
 
   /* --------------------------------------------
      Load logged-in user on app start
@@ -129,16 +131,15 @@ const App: React.FC = () => {
         <Alert />
         <NavBar />
 
-        <div
-          style={{
-            minHeight: "calc(100vh - 64px)",
-          }}
-        >
+        <div style={{ minHeight: "calc(100vh - 64px)" }}>
           <Routes>
             {/* PUBLIC ROUTES */}
             <Route path="/" element={<Home />} />
             <Route path="/developers" element={<DeveloperList />} />
-            <Route path="/developers/:developerId" element={<DeveloperDetails />} />
+            <Route
+              path="/developers/:developerId"
+              element={<DeveloperDetails />}
+            />
 
             {/* ONLY PUBLIC IF LOGGED OUT */}
             <Route
@@ -162,7 +163,10 @@ const App: React.FC = () => {
             <Route element={<PrivateRoute />}>
               <Route path="/profiles/dashboard" element={<Dashboard />} />
               <Route path="/profiles/create" element={<CreateProfile />} />
-              <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
+              <Route
+                path="/profiles/edit/:profileId"
+                element={<EditProfile />}
+              />
               <Route path="/profiles/education" element={<AddEducation />} />
               <Route path="/profiles/experience" element={<AddExperience />} />
 
