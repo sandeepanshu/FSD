@@ -18,7 +18,7 @@ export interface CreateProfileRequest {
   website: string;
   location: string;
   designation: string;
-  skills: string;
+  skills: string[];
   bio: string;
   githubUsername: string;
 

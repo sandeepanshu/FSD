@@ -174,6 +174,7 @@ profileRouter.put(
         twitter,
         linkedin,
         instagram,
+        social,
       } = req.body;
 
       const profileObj: any = {
@@ -184,11 +185,14 @@ profileRouter.put(
         designation,
         githubUsername,
         bio,
-        skills: skills
-          .toString()
-          .split(",")
-          .map((s: string) => s.trim()),
-        social: { youtube, facebook, twitter, linkedin, instagram },
+        skills: skills.map((s: string) => s.trim()),
+        social: {
+          youtube: social?.youtube || "",
+          facebook: social?.facebook || "",
+          twitter: social?.twitter || "",
+          instagram: social?.instagram || "",
+          linkedin: social?.linkedin || "",
+        },
       };
 
       const profile = await ProfileTable.findOneAndUpdate(

@@ -59,20 +59,24 @@ const EditProfile: React.FC = () => {
 
   // When profile loads, fill form values
   useEffect(() => {
+    // console.log("Loaded profile:", profile);
+console.log("Loaded social:", profile.social);
+
     if (profile) {
       form.setFieldsValue({
-        company: profile.company,
-        website: profile.website,
-        location: profile.location,
-        designation: profile.designation,
-        skills: profile.skills?.join(", "),
-        bio: profile.bio,
-        githubUsername: profile.githubUsername,
-        youtube: profile.social?.youtube,
-        facebook: profile.social?.facebook,
-        twitter: profile.social?.twitter,
-        instagram: profile.social?.instagram,
-        linkedin: profile.social?.linkedin,
+        company: profile.company || "",
+        website: profile.website || "",
+        location: profile.location || "",
+        designation: profile.designation || "",
+        skills: profile.skills?.join(", ") || "",
+        bio: profile.bio || "",
+        githubUsername: profile.githubUsername || "",
+
+        youtube: profile.social?.youtube || "",
+        facebook: profile.social?.facebook || "",
+        twitter: profile.social?.twitter || "",
+        instagram: profile.social?.instagram || "",
+        linkedin: profile.social?.linkedin || "",
       });
     }
   }, [profile, form]);

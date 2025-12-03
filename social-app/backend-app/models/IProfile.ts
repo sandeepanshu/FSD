@@ -1,4 +1,4 @@
-import mongoose, { Document, Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface IExperience {
   _id?: Types.ObjectId;
@@ -31,8 +31,8 @@ export interface ISocial {
 }
 
 export interface IProfile extends Document {
-  _id: Types.ObjectId; // <-- FIXED
-  user: Types.ObjectId; // <-- FIXED
+  _id: Types.ObjectId;
+  user: Types.ObjectId;
   company: string;
   website: string;
   location: string;
