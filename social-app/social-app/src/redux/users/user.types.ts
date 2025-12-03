@@ -14,6 +14,7 @@ export const REGISTER_USER = "user/REGISTER_USER";
 export const LOGIN_USER = "user/LOGIN_USER";
 export const GET_USER_INFO = "user/GET_USER_INFO";
 export const LOGOUT_USER = "user/LOGOUT_USER";
+export const RESET_REGISTER_STATE = "user/RESET_REGISTER_STATE";
 
 // Payloads
 export interface RegisterPayload {

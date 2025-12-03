@@ -3,6 +3,7 @@ import {
   LOGIN_USER,
   GET_USER_INFO,
   LOGOUT_USER,
+  RESET_REGISTER_STATE,
   type RegisterPayload,
   type LoginPayload,
 } from "./user.types";
@@ -23,4 +24,9 @@ export const getUserInfo = () => ({
 
 export const logOutUser = () => ({
   type: LOGOUT_USER,
+});
+
+// ✅ Add reset action
+export const resetRegisterState = () => ({
+  type: RESET_REGISTER_STATE,
 });

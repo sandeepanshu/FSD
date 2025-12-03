@@ -17,12 +17,21 @@ const userSlice = createSlice({
   reducers: {
     setLoading(state) {
       state.loading = true;
+      state.error = null;
+    },
+
+    registerStart(state) {
+      state.loading = true;
+      state.error = null;
+      state.isRegistered = false;
     },
 
     registerSuccess(state) {
       state.loading = false;
       state.isRegistered = true;
+      state.error = null;
     },
+
     registerFailure(state, action: PayloadAction<string>) {
       state.loading = false;
       state.error = action.payload;
@@ -33,18 +42,21 @@ const userSlice = createSlice({
       state.loading = false;
       state.isAuthenticated = true;
       state.token = action.payload;
-      sessionStorage.setItem("token", action.payload);
+      state.error = null;
     },
+
     loginFailure(state, action: PayloadAction<string>) {
       state.loading = false;
       state.error = action.payload;
       state.isAuthenticated = false;
+      state.token = null;
     },
 
     getUserInfoSuccess(state, action: PayloadAction<UserView>) {
       state.loading = false;
       state.user = action.payload;
       state.isAuthenticated = true;
+      state.error = null;
     },
 
     getUserInfoFailure(state, action: PayloadAction<string>) {
@@ -52,19 +64,33 @@ const userSlice = createSlice({
       state.error = action.payload;
       state.isAuthenticated = false;
       state.user = null;
+      state.token = null;
     },
 
     logout(state) {
-      sessionStorage.removeItem("token");
+      state.loading = false;
       state.isAuthenticated = false;
       state.token = null;
       state.user = null;
+      state.error = null;
+      state.isRegistered = false;
+    },
+
+    // ✅ Add reset action
+    resetRegisterState(state) {
+      state.isRegistered = false;
+      state.error = null;
+    },
+
+    clearError(state) {
+      state.error = null;
     },
   },
 });
 
 export const {
   setLoading,
+  registerStart,
   registerSuccess,
   registerFailure,
   loginSuccess,
@@ -72,6 +98,8 @@ export const {
   getUserInfoSuccess,
   getUserInfoFailure,
   logout,
+  resetRegisterState,
+  clearError,
 } = userSlice.actions;
 
 export default userSlice.reducer;

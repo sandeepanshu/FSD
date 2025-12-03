@@ -22,16 +22,17 @@ import Alert from "./layout/util/Alert";
 import PrivateRoute from "./router/PrivateRoute";
 
 import * as userActions from "./redux/users/user.actions";
+import { AuthUtil } from "./authUtil/AuthUtil";
 import { UserUtil } from "./authUtil/UserUtil";
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // ✅ Correct function name: getToken()
+    // ✅ Initialize token header on app load
     const token = UserUtil.getToken();
-    console.log(token, "tokentokentokentoken")
     if (token) {
+      AuthUtil.setTokenHeader(token);
       dispatch(userActions.getUserInfo());
     }
   }, [dispatch]);
@@ -41,26 +42,32 @@ const App: React.FC = () => {
       <Alert />
       <NavBar />
 
-      <Routes>
-        {/* Public */}
-        <Route path="/" element={<Home />} />
-        <Route path="/developers" element={<DeveloperList />} />
-        <Route path="/developers/:developerId" element={<DeveloperDetails />} />
-        <Route path="/users/register" element={<UserRegister />} />
-        <Route path="/users/login" element={<UserLogin />} />
+      <div>
+        {/* Add margin for fixed navbar */}
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<Home />} />
+          <Route path="/developers" element={<DeveloperList />} />
+          <Route
+            path="/developers/:developerId"
+            element={<DeveloperDetails />}
+          />
+          <Route path="/users/register" element={<UserRegister />} />
+          <Route path="/users/login" element={<UserLogin />} />
 
-        {/* Private */}
-        <Route element={<PrivateRoute />}>
-          <Route path="/profiles/dashboard" element={<Dashboard />} />
-          <Route path="/profiles/create" element={<CreateProfile />} />
-          <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
-          <Route path="/profiles/education" element={<AddEducation />} />
-          <Route path="/profiles/experience" element={<AddExperience />} />
+          {/* Private */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/profiles/dashboard" element={<Dashboard />} />
+            <Route path="/profiles/create" element={<CreateProfile />} />
+            <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
+            <Route path="/profiles/education" element={<AddEducation />} />
+            <Route path="/profiles/experience" element={<AddExperience />} />
 
-          <Route path="/posts/list" element={<PostList />} />
-          <Route path="/posts/:postId" element={<PostDetails />} />
-        </Route>
-      </Routes>
+            <Route path="/posts/list" element={<PostList />} />
+            <Route path="/posts/:postId" element={<PostDetails />} />
+          </Route>
+        </Routes>
+      </div>
     </Router>
   );
 };

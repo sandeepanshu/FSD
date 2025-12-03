@@ -1,4 +1,4 @@
-import { takeLatest, put, call } from "redux-saga/effects";
+import { takeLatest, put, call, delay } from "redux-saga/effects";
 import {
   REGISTER_USER,
   LOGIN_USER,
@@ -19,11 +19,26 @@ import {
 } from "./user.slice";
 
 import { userAPI } from "./user.api";
-import { setAlert } from "../alerts/alert.actions";
+import { addAlert, removeAlert } from "../alerts/alert.slice";
 import { AuthUtil } from "../../../src/authUtil/AuthUtil";
+import { UserUtil } from "../../../src/authUtil/UserUtil";
 import type { ApiError } from "../../../src/types/ApiError";
 import type { UserView } from "../../modules/users/models/UserView";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { v4 as uuid } from "uuid";
+
+// Helper function to show alert in saga
+function* showAlertSaga(
+  message: string,
+  color: "success" | "danger" | "warning" | "info"
+) {
+  const id = uuid();
+  yield put(addAlert({ id, message, color }));
+
+  // Auto remove after 3 seconds
+  yield delay(3000);
+  yield put(removeAlert(id));
+}
 
 // REGISTER
 function* handleRegister(action: PayloadAction<RegisterPayload>) {
@@ -35,15 +50,25 @@ function* handleRegister(action: PayloadAction<RegisterPayload>) {
     );
 
     yield put(registerSuccess());
-    yield put(setAlert(response.data.msg, "success"));
+    yield call(showAlertSaga, response.data.msg, "success");
   } catch (error) {
     const err = error as ApiError;
     yield put(
       registerFailure(err.response?.data?.message ?? "Register failed")
     );
 
-    for (const e of err.response?.data?.errors ?? []) {
-      yield put(setAlert(e.msg, "danger"));
+    // Show individual error messages
+    const errors = err.response?.data?.errors || [];
+    if (errors.length > 0) {
+      for (const e of errors) {
+        yield call(showAlertSaga, e.msg, "danger");
+      }
+    } else {
+      yield call(
+        showAlertSaga,
+        err.response?.data?.message ?? "Registration failed",
+        "danger"
+      );
     }
   }
 }
@@ -56,15 +81,20 @@ function* handleLogin(action: PayloadAction<LoginPayload>) {
       userAPI.login(action.payload.user)
     );
 
-    sessionStorage.setItem("token", response.data.token);
+    // Save token
+    UserUtil.saveToken(response.data.token);
     AuthUtil.setTokenHeader(response.data.token);
 
     yield put(loginSuccess(response.data.token));
-    yield put(setAlert("Login Successful", "success"));
+    yield call(showAlertSaga, "Login Successful", "success");
+
+    // Get user info after successful login
     yield put({ type: GET_USER_INFO });
   } catch (error) {
     const err = error as ApiError;
-    yield put(loginFailure(err.response?.data?.message ?? "Login failed"));
+    const errorMsg = err.response?.data?.message ?? "Login failed";
+    yield put(loginFailure(errorMsg));
+    yield call(showAlertSaga, errorMsg, "danger");
   }
 }
 
@@ -76,9 +106,21 @@ function* handleGetUserInfo() {
       userAPI.getUserInfo()
     );
     yield put(getUserInfoSuccess(response.data.user));
-  } catch {
-    yield put(getUserInfoFailure("Failed to fetch user info"));
+  } catch (error) {
+    const err = error as ApiError;
+    const errorMsg = err.response?.data?.message ?? "Failed to fetch user info";
+    yield put(getUserInfoFailure(errorMsg));
+
+    // Clear invalid token
+    UserUtil.removeToken();
+    AuthUtil.setTokenHeader(null);
     yield put(logout());
+
+    yield call(
+      showAlertSaga,
+      "Session expired. Please login again.",
+      "warning"
+    );
   }
 }
 

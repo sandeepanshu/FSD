@@ -1,15 +1,30 @@
-import React from 'react';
-import spinnerImage from '../../assets/img/spinner.gif';
+import React from "react";
+import { Spin } from "antd";
 
-interface IProps{}
+interface SpinnerProps {
+  tip?: string;
+  size?: "small" | "default" | "large";
+}
 
-let Spinner:React.FC<IProps> = ({}) => {
-    return (
-        <React.Fragment>
-            <div>
-                <img src={spinnerImage} alt="" className="d-block m-auto"/>
-            </div>
-        </React.Fragment>
-    )
+const Spinner: React.FC<SpinnerProps> = ({
+  tip = "Loading...",
+  size = "large",
+}) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "200px",
+        width: "100%",
+      }}
+    >
+      <Spin tip={tip} size={size}>
+        <div style={{ width: 0, height: 0 }} />
+      </Spin>
+    </div>
+  );
 };
+
 export default Spinner;

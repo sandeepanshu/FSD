@@ -1,151 +1,183 @@
 import React, { useEffect } from "react";
-import { Form, Input, Button, Card, Typography } from "antd";
-import {
-  UserOutlined,
-  MailOutlined,
-  LockOutlined,
-  UserAddOutlined,
-} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Form, Input, Button, Card, Typography } from "antd";
+import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
+import type { RootState } from "../../../redux/store";
+import Spinner from "../../../layout/util/Spinner";
+import type { UserView } from "../models/UserView";
+import { registerUser } from "../../../redux/users/user.actions";
 
-import type { UserView } from "../../../modules/users/models/UserView";
-import { REGISTER_USER } from "../../../redux/users/user.types";
-import type { RootState } from "../../../redux/rootReducer";
-
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 
 const UserRegister: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [form] = Form.useForm();
+  
+  const { loading, isRegistered, error } = useSelector(
+    (state: RootState) => state.user
+  );
 
-  const { isRegistered } = useSelector((state: RootState) => state.user);
+  // ✅ Navigate after successful registration
+  useEffect(() => {
+    console.log(isRegistered, loading, "fdsfsdfdsf")
+    if (isRegistered && !loading) {
+      // Show success message and navigate
+      setTimeout(() => {
+        navigate("/users/login");
+      }, 1500);
+    }
+  }, [isRegistered, loading, navigate]);
 
-useEffect(() => {
-  if (isRegistered) {
-    navigate("/users/login");
-  }
-}, [isRegistered]);
-
-
-  const onFinish = (values: UserView) => {
-    dispatch({
-      type: REGISTER_USER,
-      payload: { user: values },  
-    });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onFinish = (values: any) => {
+    const userData: UserView = {
+      name: values.name,
+      email: values.email,
+      password: values.password,
+    };
+    
+    dispatch(registerUser({ user: userData }));
   };
+
+  if (loading) {
+    return <Spinner tip="Creating your account..." />;
+  }
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#f0f2f5",
-        padding: "20px",
-      }}
-    >
-      <Card
-        style={{
-          width: 450,
-          minHeight: 560,
-          borderRadius: 16,
-          padding: "20px 10px",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
-        }}
-        variant="borderless"
-        hoverable
-      >
-        <Title level={3} style={{ textAlign: "center", marginBottom: 10 }}>
-          <UserAddOutlined /> Create Your Account
+    <div style={{ 
+      display: "flex", 
+      justifyContent: "center", 
+      alignItems: "center", 
+      minHeight: "80vh",
+      padding: "20px" 
+    }}>
+      <Card style={{ width: 400, maxWidth: "90%" }}>
+        <Title level={2} style={{ textAlign: "center", marginBottom: 30 }}>
+          Create Account
         </Title>
-
-        <Paragraph
-          style={{
-            textAlign: "center",
-            marginBottom: 32,
-            color: "#555",
-            fontSize: 15,
-          }}
+        
+        <Form
+          form={form}
+          name="register"
+          onFinish={onFinish}
+          layout="vertical"
+          disabled={loading}
         >
-          Join the React Social community and connect with developers worldwide.
-        </Paragraph>
-
-        <Form layout="vertical" onFinish={onFinish} style={{ marginTop: 20 }}>
-          {/* Name */}
           <Form.Item
-            label="Name"
             name="name"
+            label="Full Name"
             rules={[
-              { required: true, message: "Name is required" },
-              {
-                pattern: /^[a-zA-Z\s'-]{2,}$/,
-                message:
-                  "Name should contain only letters, spaces, hyphens, or apostrophes",
-              },
+              { required: true, message: "Please enter your full name" },
+              { min: 2, message: "Name must be at least 2 characters" }
             ]}
           >
-            <Input
+            <Input 
+              prefix={<UserOutlined />} 
+              placeholder="Enter your full name" 
               size="large"
-              prefix={<UserOutlined />}
-              placeholder="Enter name"
             />
           </Form.Item>
 
-          {/* Email */}
           <Form.Item
-            label="Email"
             name="email"
+            label="Email"
             rules={[
-              { required: true, message: "Email is required" },
-              { type: "email", message: "Enter a valid email" },
+              { required: true, message: "Please enter your email" },
+              { type: "email", message: "Please enter a valid email" }
             ]}
           >
-            <Input
+            <Input 
+              prefix={<MailOutlined />} 
+              placeholder="Enter your email" 
               size="large"
-              prefix={<MailOutlined />}
-              placeholder="Enter email"
             />
           </Form.Item>
 
-          {/* Password */}
           <Form.Item
-            label="Password"
             name="password"
+            label="Password"
             rules={[
-              { required: true, message: "Password is required" },
-              {
-                min: 8,
-                message: "Password must be at least 8 characters",
-              },
+              { required: true, message: "Please enter your password" },
+              { min: 6, message: "Password must be at least 6 characters" }
             ]}
           >
-            <Input.Password
+            <Input.Password 
+              prefix={<LockOutlined />} 
+              placeholder="Enter your password" 
               size="large"
-              prefix={<LockOutlined />}
-              placeholder="Enter password"
             />
           </Form.Item>
 
-          <Form.Item style={{ marginTop: 30 }}>
+          <Form.Item
+            name="confirmPassword"
+            label="Confirm Password"
+            dependencies={["password"]}
+            rules={[
+              { required: true, message: "Please confirm your password" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Passwords do not match"));
+                },
+              }),
+            ]}
+          >
+            <Input.Password 
+              prefix={<LockOutlined />} 
+              placeholder="Confirm your password" 
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item>
             <Button
               type="primary"
-              size="large"
               htmlType="submit"
+              size="large"
               block
-              icon={<UserAddOutlined />}
+              loading={loading}
             >
               Register
             </Button>
           </Form.Item>
 
-          <div style={{ textAlign: "center", marginTop: 10 }}>
-            Already have an account?
-            <Link to="/users/login">
-              <strong>Login</strong>
-            </Link>
+          <div style={{ textAlign: "center" }}>
+            Already have an account?{" "}
+            <Button type="link" onClick={() => navigate("/users/login")}>
+              Login here
+            </Button>
           </div>
         </Form>
+
+        {isRegistered && (
+          <div style={{ 
+            marginTop: 16, 
+            padding: 12, 
+            backgroundColor: "#f6ffed",
+            border: "1px solid #b7eb8f",
+            borderRadius: 4,
+            textAlign: "center"
+          }}>
+            ✅ Registration successful! Redirecting to login...
+          </div>
+        )}
+
+        {error && !isRegistered && (
+          <div style={{ 
+            marginTop: 16, 
+            padding: 12, 
+            backgroundColor: "#fff2f0",
+            border: "1px solid #ffccc7",
+            borderRadius: 4,
+            textAlign: "center"
+          }}>
+            ❌ {error}
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -15,8 +15,11 @@ const alertSlice = createSlice({
     removeAlert(state, action: PayloadAction<string>) {
       state.alerts = state.alerts.filter((alert) => alert.id !== action.payload);
     },
+    clearAlerts(state) {
+      state.alerts = [];
+    },
   },
 });
 
-export const { addAlert, removeAlert } = alertSlice.actions;
+export const { addAlert, removeAlert, clearAlerts } = alertSlice.actions;
 export default alertSlice.reducer;
