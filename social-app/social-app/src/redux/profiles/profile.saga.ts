@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/redux/profiles/profile.saga.ts
 import { takeLatest, put, call } from "redux-saga/effects";
 import type { PayloadAction } from "@reduxjs/toolkit";
@@ -19,23 +20,20 @@ import {
 
 import { setLoading, setProfile, setError } from "./profile.slice";
 import { profileAPI } from "./profile.api";
-import { setAlert } from "../alerts/alert.actions";
+import { addAlertWithTimeout, setAlert } from "../alerts/alert.actions";
 import type { ApiError } from "../../types/ApiError";
 import type { ProfileView } from "../../modules/profiles/models/ProfileView";
 
 // ----------------------------------
 // GET MY PROFILE
 // ----------------------------------
-// In your handleGetMyProfile function:
 function* handleGetMyProfile() {
   try {
     yield put(setLoading());
-
     const response: AxiosResponse<{ profile: ProfileView }> = yield call(
       profileAPI.getMyProfile
     );
 
-    // ✅ Make sure response.data.profile exists
     if (response.data.profile) {
       yield put(setProfile(response.data.profile));
     } else {
@@ -46,25 +44,23 @@ function* handleGetMyProfile() {
     const errorMsg = err.response?.data?.message ?? "Failed to load profile";
     yield put(setError(errorMsg));
 
-    // If it's a 404 (no profile), we don't want to show an error
     if (err.response?.status === 404) {
-      // Clear error and set profile to null
       yield put(setProfile(null));
     }
   }
 }
+
 // ----------------------------------
 // DELETE EXPERIENCE
 // ----------------------------------
 function* handleDeleteExperience(action: PayloadAction<DeletePayload>) {
   try {
     yield put(setLoading());
-
     const response: AxiosResponse<{ profile: ProfileView; msg: string }> =
       yield call(profileAPI.deleteExperience, action.payload.id);
 
     yield put(setProfile(response.data.profile));
-    yield put(setAlert(response.data.msg, "success"));
+    yield put(addAlertWithTimeout(response.data.msg, "success"));
   } catch {
     yield put(setError("Failed to delete experience"));
   }
@@ -76,33 +72,37 @@ function* handleDeleteExperience(action: PayloadAction<DeletePayload>) {
 function* handleDeleteEducation(action: PayloadAction<DeletePayload>) {
   try {
     yield put(setLoading());
-
     const response: AxiosResponse<{ profile: ProfileView; msg: string }> =
       yield call(profileAPI.deleteEducation, action.payload.id);
 
     yield put(setProfile(response.data.profile));
-    yield put(setAlert(response.data.msg, "success"));
+    yield put(addAlertWithTimeout(response.data.msg, "success"));
   } catch {
     yield put(setError("Failed to delete education"));
   }
 }
 
 // ----------------------------------
-// CREATE PROFILE
+// CREATE PROFILE (FIXED — NO NAVIGATE)
 // ----------------------------------
 function* handleCreateProfile(action: PayloadAction<SubmitProfilePayload>) {
   try {
-    const { profile, navigate } = action.payload;
-    yield put(setLoading());
+    const { profile } = action.payload;
 
+    yield put(setLoading());
     const response: AxiosResponse<{ profile: ProfileView; msg: string }> =
       yield call(profileAPI.createProfile, profile);
 
     yield put(setProfile(response.data.profile));
-    yield put(setAlert(response.data.msg, "success"));
-    navigate("/profiles/dashboard");
-  } catch {
-    yield put(setError("Failed to create profile"));
+    yield put(addAlertWithTimeout(response.data.msg, "success"));
+  } catch (error: any) {
+    const errorMsg =
+      error.response?.data?.errors?.[0]?.msg ??
+      error.response?.data?.message ??
+      "Failed to create profile";
+
+    yield put(setError(errorMsg));
+    yield put(setAlert(errorMsg, "danger"));
   }
 }
 
@@ -112,16 +112,24 @@ function* handleCreateProfile(action: PayloadAction<SubmitProfilePayload>) {
 function* handleUpdateProfile(action: PayloadAction<SubmitProfilePayload>) {
   try {
     const { profile, navigate } = action.payload;
+
     yield put(setLoading());
 
     const response: AxiosResponse<{ profile: ProfileView; msg: string }> =
       yield call(profileAPI.updateProfile, profile);
 
     yield put(setProfile(response.data.profile));
-    yield put(setAlert(response.data.msg, "success"));
+    yield put(addAlertWithTimeout(response.data.msg, "success"));
+
     navigate("/profiles/dashboard");
-  } catch {
-    yield put(setError("Failed to update profile"));
+  } catch (error: any) {
+    const msg =
+      error.response?.data?.errors?.[0]?.msg ??
+      error.response?.data?.message ??
+      "Failed to update profile";
+
+    yield put(setError(msg));
+    yield put(addAlertWithTimeout(msg, "danger"));
   }
 }
 
@@ -130,15 +138,14 @@ function* handleUpdateProfile(action: PayloadAction<SubmitProfilePayload>) {
 // ----------------------------------
 function* handleAddEducation(action: PayloadAction<AddEducationPayload>) {
   try {
-    const { education, navigate } = action.payload;
-    yield put(setLoading());
+    const { education } = action.payload;
 
+    yield put(setLoading());
     const response: AxiosResponse<{ profile: ProfileView; msg: string }> =
       yield call(profileAPI.addEducation, education);
 
     yield put(setProfile(response.data.profile));
-    yield put(setAlert(response.data.msg, "success"));
-    navigate("/profiles/dashboard");
+    yield put(addAlertWithTimeout(response.data.msg, "success"));
   } catch {
     yield put(setError("Failed to add education"));
   }
@@ -149,22 +156,21 @@ function* handleAddEducation(action: PayloadAction<AddEducationPayload>) {
 // ----------------------------------
 function* handleAddExperience(action: PayloadAction<AddExperiencePayload>) {
   try {
-    const { experience, navigate } = action.payload;
-    yield put(setLoading());
+    const { experience } = action.payload;
 
+    yield put(setLoading());
     const response: AxiosResponse<{ profile: ProfileView; msg: string }> =
       yield call(profileAPI.addExperience, experience);
 
     yield put(setProfile(response.data.profile));
-    yield put(setAlert(response.data.msg, "success"));
-    navigate("/profiles/dashboard");
+    yield put(addAlertWithTimeout(response.data.msg, "success"));
   } catch {
     yield put(setError("Failed to add experience"));
   }
 }
 
 // ----------------------------------
-// EXPORT ROOT SAGA
+// ROOT SAGA
 // ----------------------------------
 export function* profileSaga() {
   yield takeLatest(FETCH_MY_PROFILE, handleGetMyProfile);

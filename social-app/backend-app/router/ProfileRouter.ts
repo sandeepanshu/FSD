@@ -4,7 +4,7 @@ import verifyToken from "../middlewares/TokenVerifier.ts";
 import { body, validationResult } from "express-validator";
 import mongoose from "mongoose";
 import UserTable from "../models/UserTable.ts";
-import type { IProfile, IExperience,  IEducation } from "../models/IProfile.ts";
+import type { IProfile, IExperience, IEducation } from "../models/IProfile.ts";
 
 const profileRouter: express.Router = express.Router();
 
@@ -50,6 +50,16 @@ profileRouter.post(
         instagram,
       } = req.body;
 
+      // Check if profile already exists for this user
+      const existingProfile = await ProfileTable.findOne({
+        user: requestedUser.id,
+      });
+      if (existingProfile) {
+        return res.status(400).json({
+          errors: [{ msg: "Profile already exists. Use update instead." }],
+        });
+      }
+
       const profileObj: any = {
         user: requestedUser.id,
         company,
@@ -65,24 +75,40 @@ profileRouter.post(
         experience: [],
         education: [],
         social: {
-          youtube,
-          facebook,
-          twitter,
-          linkedin,
-          instagram,
+          youtube: youtube || "",
+          facebook: facebook || "",
+          twitter: twitter || "",
+          linkedin: linkedin || "",
+          instagram: instagram || "",
         },
       };
 
-      let profile = new ProfileTable(profileObj);
-      profile = await profile.save();
+      const profile = new ProfileTable(profileObj);
+      await profile.save();
 
-      res.status(200).json({ msg: "Profile Created Successfully", profile });
+      // Populate user info in response
+      const populatedProfile = await ProfileTable.findById(
+        profile._id
+      ).populate("user", ["name", "avatar"]);
+
+      res.status(201).json({
+        msg: "Profile Created Successfully",
+        profile: populatedProfile,
+      });
     } catch (error) {
-      res.status(500).json({ errors: [{ msg: error }] });
+      console.error("Profile creation error details:", error);
+
+      let errorMessage = "Server error";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      res.status(500).json({
+        errors: [{ msg: errorMessage }],
+      });
     }
   }
 );
-
 /* =====================================================
    GET MY PROFILE
    GET /api/profiles/me
@@ -173,7 +199,22 @@ profileRouter.put(
 
       res.status(200).json({ msg: "Profile Updated Successfully", profile });
     } catch (error) {
-      res.status(500).json({ errors: [{ msg: error }] });
+      console.error("Profile creation error details:", error);
+      console.error(
+        "Error stack:",
+        error instanceof Error ? error.stack : "N/A"
+      );
+      console.error("Request body:", req.body);
+      console.error("Request user:", (req as any).user);
+
+      // Send a more detailed error message for debugging
+      res.status(500).json({
+        errors: [
+          {
+            msg: error instanceof Error ? error.message : "Server error",
+          },
+        ],
+      });
     }
   }
 );

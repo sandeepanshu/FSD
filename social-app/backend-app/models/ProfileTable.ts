@@ -34,11 +34,11 @@ const profileSchema: Schema = new mongoose.Schema(
       },
     ],
     social: {
-      youtube: { type: String, required: true },
-      twitter: { type: String, required: true },
-      facebook: { type: String, required: true },
-      instagram: { type: String, required: true },
-      linkedin: { type: String, required: true },
+      youtube: { type: String, default: "" },
+      facebook: { type: String, default: "" },
+      twitter: { type: String, default: "" },
+      linkedin: { type: String, default: "" },
+      instagram: { type: String, default: "" },
     },
   },
   { timestamps: true }

@@ -1,7 +1,8 @@
-// src/redux/profiles/profile.types.ts
-import type { NavigateFunction } from "react-router-dom";
 import type { ProfileView } from "../../modules/profiles/models/ProfileView";
-import type { IEducation, IExperience } from "../../modules/developers/models/IDeveloper";
+import type {
+  IEducation,
+  IExperience,
+} from "../../modules/developers/models/IDeveloper";
 
 // ------------------------
 // State
@@ -12,9 +13,26 @@ export interface ProfileState {
   error: string | null;
 }
 
+export interface CreateProfileRequest {
+  company: string;
+  website: string;
+  location: string;
+  designation: string;
+  skills: string;
+  bio: string;
+  githubUsername: string;
+
+  social: {
+    youtube?: string;
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+  };
+}
+
 // ------------------------
 // Saga Trigger Action Types
-// (same pattern as USER_...)
 // ------------------------
 export const FETCH_MY_PROFILE = "profile/FETCH_MY_PROFILE" as const;
 export const DELETE_EXPERIENCE = "profile/DELETE_EXPERIENCE" as const;
@@ -32,16 +50,14 @@ export interface DeletePayload {
 }
 
 export interface SubmitProfilePayload {
-  profile: ProfileView;
-  navigate: NavigateFunction;
+  profile: CreateProfileRequest;
+  navigate: (path: string) => void;
 }
 
 export interface AddEducationPayload {
   education: IEducation;
-  navigate: NavigateFunction;
 }
 
 export interface AddExperiencePayload {
   experience: IExperience;
-  navigate: NavigateFunction;
 }
