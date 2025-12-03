@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Alert as AntAlert } from "antd";
@@ -5,13 +6,12 @@ import type { RootState } from "../../redux/store";
 import { removeAlert } from "../../redux/alerts/alert.slice";
 
 const Alert: React.FC = () => {
-  const alerts = useSelector((state: RootState) => state.alert.alerts);
+  const alerts = useSelector((state: RootState) => state.alerts.alerts);
   const dispatch = useDispatch();
   const [visibleAlerts, setVisibleAlerts] = useState<string[]>([]);
 
-  // Auto removal of alerts
   useEffect(() => {
-    alerts.forEach((alert) => {
+    alerts.forEach((alert: { id: string; }) => {
       if (!visibleAlerts.includes(alert.id)) {
         setVisibleAlerts((prev) => [...prev, alert.id]);
 
@@ -23,7 +23,7 @@ const Alert: React.FC = () => {
     });
   }, [alerts, dispatch, visibleAlerts]);
 
-  if (alerts.length === 0) return null;
+  if (!alerts || alerts.length === 0) return null;
 
   return (
     <div
@@ -38,15 +38,14 @@ const Alert: React.FC = () => {
         alignItems: "center",
       }}
     >
-      {alerts.map((alert) => (
+      {alerts.map((alert: any) => (
         <AntAlert
           key={alert.id}
-          title={alert.message}
+          message={alert.message}   // ✅ Correct prop
           type={alert.color === "danger" ? "error" : alert.color}
           showIcon
-          closable={{
-            onClose: () => dispatch(removeAlert(alert.id)),
-          }}
+          closable
+          onClose={() => dispatch(removeAlert(alert.id))}   // ✅ Correct closable syntax
           style={{ marginBottom: 8, maxWidth: 500 }}
         />
       ))}

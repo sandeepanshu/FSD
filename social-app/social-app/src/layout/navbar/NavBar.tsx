@@ -1,8 +1,8 @@
 import React from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom"; // Add useNavigate
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Menu, Layout, Button, Avatar } from "antd";
+import { Menu, Layout, Button, Avatar, Switch, Tooltip } from "antd";
 import {
   TeamOutlined,
   CodeOutlined,
@@ -10,30 +10,33 @@ import {
   LogoutOutlined,
   ProfileOutlined,
   ReadOutlined,
+  SunOutlined,
+  MoonOutlined,
 } from "@ant-design/icons";
 
 import type { RootState } from "../../redux/store";
 import * as userActions from "../../redux/users/user.actions";
+import { toggleTheme } from "../../redux/theme/theme.slice";
 
 const { Header } = Layout;
 
 const NavBar: React.FC = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigate = useNavigate(); // Add this
+  const navigate = useNavigate();
 
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
 
+  /* ---------------- LOGOUT ---------------- */
   const handleLogout = () => {
     dispatch(userActions.logOutUser());
-    navigate("/"); // ✅ Redirect to home page after logout
+    navigate("/");
   };
 
-  // -------------------------------
-  // MENU ITEMS (AntD v5 style)
-  // -------------------------------
+  /* ---------------- MENU ITEMS ---------------- */
   const menuItems = [
     {
       key: "/",
@@ -61,9 +64,9 @@ const NavBar: React.FC = () => {
       : []),
   ];
 
-  // Derive current selected key from URL
   const selectedKey = location.pathname.split("/")[1] || "/";
 
+  /* ---------------- NAVBAR ---------------- */
   return (
     <Layout>
       <Header
@@ -71,7 +74,7 @@ const NavBar: React.FC = () => {
           display: "flex",
           alignItems: "center",
           padding: "0 24px",
-          background: "#001529",
+          background: themeMode === "dark" ? "#000c17" : "#001529",
           height: 64,
           position: "fixed",
           top: 0,
@@ -79,7 +82,7 @@ const NavBar: React.FC = () => {
           width: "100%",
         }}
       >
-        {/* Logo */}
+        {/* LOGO */}
         <NavLink
           to="/"
           style={{
@@ -90,13 +93,14 @@ const NavBar: React.FC = () => {
             display: "flex",
             alignItems: "center",
             gap: 8,
+            whiteSpace: "nowrap",
           }}
         >
           <CodeOutlined />
           React Social
         </NavLink>
 
-        {/* NAV MENU */}
+        {/* MENU */}
         <Menu
           theme="dark"
           mode="horizontal"
@@ -105,27 +109,45 @@ const NavBar: React.FC = () => {
           style={{ flex: 1, minWidth: 0 }}
         />
 
-        {/* RIGHT SIDE AUTH BUTTONS */}
+        {/* THEME TOGGLE */}
+        <Tooltip
+          title={
+            themeMode === "light"
+              ? "Switch to Dark Mode"
+              : "Switch to Light Mode"
+          }
+        >
+          <Switch
+            checkedChildren={<SunOutlined />}
+            unCheckedChildren={<MoonOutlined />}
+            checked={themeMode === "light"}
+            onChange={() => dispatch(toggleTheme())}
+            style={{ marginRight: 20 }}
+          />
+        </Tooltip>
+
+        {/* AUTH BUTTONS */}
         {!isAuthenticated ? (
           <div style={{ display: "flex", gap: 12 }}>
             <NavLink to="/users/register">
               <Button type="default">Register</Button>
             </NavLink>
-
             <NavLink to="/users/login">
               <Button type="primary">Login</Button>
             </NavLink>
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {/* Avatar + Name */}
+            {/* Avatar & Name */}
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={user?.avatar}
                 icon={!user?.avatar ? <UserOutlined /> : undefined}
                 style={{ backgroundColor: "#1890ff" }}
               />
-              <span style={{ color: "#fff" }}>{user?.name}</span>
+              <span style={{ color: "#fff", fontWeight: 600 }}>
+                {user?.name}
+              </span>
             </div>
 
             {/* Logout */}
@@ -141,7 +163,7 @@ const NavBar: React.FC = () => {
         )}
       </Header>
 
-      {/* Add padding to prevent content from being hidden under fixed header */}
+      {/* FIXED HEADER SPACER */}
       <div style={{ marginTop: 64 }}></div>
     </Layout>
   );

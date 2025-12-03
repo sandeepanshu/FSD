@@ -8,6 +8,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
 
+import { ConfigProvider, theme as antdTheme } from "antd";
+
 // Layout Components
 import Home from "./layout/home/Home";
 import NavBar from "./layout/navbar/NavBar";
@@ -20,7 +22,7 @@ import DeveloperDetails from "./modules/developers/components/DeveloperDetails";
 import UserRegister from "./modules/users/components/UserRegister";
 import UserLogin from "./modules/users/components/UserLogin";
 
-// Private Components (Protected Routes)
+// Private Components
 import Dashboard from "./modules/profiles/components/Dashboard";
 import CreateProfile from "./modules/profiles/components/CreateProfile";
 import EditProfile from "./modules/profiles/components/EditProfile";
@@ -29,16 +31,22 @@ import AddExperience from "./modules/profiles/components/AddExperience";
 import PostList from "./modules/posts/components/PostList";
 import PostDetails from "./modules/posts/components/PostDetails";
 
-// Route Components
+// Route Component
 import PrivateRoute from "./router/PrivateRoute";
 
-// Redux Actions & Utilities
+// Redux utilities
 import * as userActions from "./redux/users/user.actions";
 import { AuthUtil } from "./authUtil/AuthUtil";
 import { UserUtil } from "./authUtil/UserUtil";
 import type { RootState } from "./redux/store";
 
+/* ==========================================================================
+   PUBLIC ROUTE WRAPPER
+   - If user is logged in → redirect to dashboard
+   - If user not logged in → allow access
+   ========================================================================== */
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
   const { isAuthenticated, loading } = useSelector(
     (state: RootState) => state.user
   );
@@ -58,7 +66,6 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     );
   }
 
-  // If user is authenticated, redirect to dashboard
   if (isAuthenticated) {
     return <Navigate to="/profiles/dashboard" replace />;
   }
@@ -66,13 +73,20 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
+/* ==========================================================================
+   MAIN APP COMPONENT
+   ========================================================================== */
 const App: React.FC = () => {
   const dispatch = useDispatch();
+
   const { loading: userLoading } = useSelector(
     (state: RootState) => state.user
   );
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
 
-  // Initialize token on app load
+  /* --------------------------------------------
+     Load logged-in user on app start
+  --------------------------------------------- */
   useEffect(() => {
     const token = UserUtil.getToken();
     if (token) {
@@ -81,7 +95,9 @@ const App: React.FC = () => {
     }
   }, [dispatch]);
 
-  // Show app loading spinner while checking authentication
+  /* --------------------------------------------
+     Show app loading screen during auth refresh
+  --------------------------------------------- */
   if (userLoading && UserUtil.getToken()) {
     return (
       <div
@@ -98,62 +114,69 @@ const App: React.FC = () => {
     );
   }
 
+  /* ==========================================================================
+     RENDER APP
+     ========================================================================== */
   return (
-    <Router>
-      <Alert />
-      <NavBar />
+    <ConfigProvider
+      theme={{
+        algorithm:
+          themeMode === "dark"
+            ? antdTheme.darkAlgorithm
+            : antdTheme.defaultAlgorithm,
+      }}
+    >
+      <Router>
+        <Alert />
+        <NavBar />
 
-      {/* Main content area with padding for fixed navbar */}
-      <div
-        style={{
-          minHeight: "calc(100vh - 64px)",
-          backgroundColor: "#f0f2f5",
-        }}
-      >
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/developers" element={<DeveloperList />} />
-          <Route
-            path="/developers/:developerId"
-            element={<DeveloperDetails />}
-          />
+        <div
+          style={{
+            minHeight: "calc(100vh - 64px)",
+          }}
+        >
+          <Routes>
+            {/* PUBLIC ROUTES */}
+            <Route path="/" element={<Home />} />
+            <Route path="/developers" element={<DeveloperList />} />
+            <Route path="/developers/:developerId" element={<DeveloperDetails />} />
 
-          {/* Public-only Routes (redirect if authenticated) */}
-          <Route
-            path="/users/register"
-            element={
-              <PublicRoute>
-                <UserRegister />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/users/login"
-            element={
-              <PublicRoute>
-                <UserLogin />
-              </PublicRoute>
-            }
-          />
+            {/* ONLY PUBLIC IF LOGGED OUT */}
+            <Route
+              path="/users/register"
+              element={
+                <PublicRoute>
+                  <UserRegister />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/users/login"
+              element={
+                <PublicRoute>
+                  <UserLogin />
+                </PublicRoute>
+              }
+            />
 
-          {/* Protected Routes */}
-          <Route element={<PrivateRoute />}>
-            <Route path="/profiles/dashboard" element={<Dashboard />} />
-            <Route path="/profiles/create" element={<CreateProfile />} />
-            <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
-            <Route path="/profiles/education" element={<AddEducation />} />
-            <Route path="/profiles/experience" element={<AddExperience />} />
+            {/* PROTECTED ROUTES */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/profiles/dashboard" element={<Dashboard />} />
+              <Route path="/profiles/create" element={<CreateProfile />} />
+              <Route path="/profiles/edit/:profileId" element={<EditProfile />} />
+              <Route path="/profiles/education" element={<AddEducation />} />
+              <Route path="/profiles/experience" element={<AddExperience />} />
 
-            <Route path="/posts/list" element={<PostList />} />
-            <Route path="/posts/:postId" element={<PostDetails />} />
-          </Route>
+              <Route path="/posts/list" element={<PostList />} />
+              <Route path="/posts/:postId" element={<PostDetails />} />
+            </Route>
 
-          {/* Fallback Route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
-    </Router>
+            {/* FALLBACK */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </Router>
+    </ConfigProvider>
   );
 };
 

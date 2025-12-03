@@ -1,18 +1,18 @@
-import { combineReducers } from "redux";
-
+import { combineReducers } from "@reduxjs/toolkit";
 import userReducer from "./users/user.slice";
 import profileReducer from "./profiles/profile.slice";
-import postReducer from "./posts/post.slice";
 import developerReducer from "./developers/developer.slice";
 import alertReducer from "./alerts/alert.slice";
+import postsReducer from "./posts/post.slice";
+import themeReducer from "./theme/theme.slice";
 
 const rootReducer = combineReducers({
   user: userReducer,
   profile: profileReducer,
-  post: postReducer,
   developer: developerReducer,
-  alert: alertReducer,
+  alerts: alertReducer,
+  posts: postsReducer,
+  theme: themeReducer,
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
 export default rootReducer;
