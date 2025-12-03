@@ -15,7 +15,6 @@ import {
   Divider,
   Empty,
   Popconfirm,
-  message,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -38,43 +37,19 @@ const { TextArea } = Input;
 const PostDetails: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { postId } = useParams<{ postId: string }>();
+  const { postId } = useParams();
   const [form] = Form.useForm();
 
-  // Redux State
   const { loading, selectedPost } = useSelector(
     (state: RootState) => state.post
   );
   const { user } = useSelector((state: RootState) => state.user);
 
-  // Load post on mount
   useEffect(() => {
     if (postId) {
       dispatch({ type: GET_POST, payload: { postId } });
     }
   }, [postId, dispatch]);
-
-  // Create Comment Handler
-  const onCreateComment = (values: { text: string }) => {
-    if (!postId) return;
-
-    dispatch({
-      type: CREATE_COMMENT,
-      payload: { postId, comment: values.text },
-    });
-    form.resetFields();
-  };
-
-  // Delete Comment Handler
-  const handleDeleteComment = (commentId: string) => {
-    if (!postId) return;
-
-    dispatch({
-      type: DELETE_COMMENT,
-      payload: { postId, commentId },
-    });
-    message.success("Comment deleted");
-  };
 
   if (loading || !selectedPost) {
     return (
@@ -84,20 +59,20 @@ const PostDetails: React.FC = () => {
     );
   }
 
+  const addComment = (values: { text: string }) => {
+    dispatch({
+      type: CREATE_COMMENT,
+      payload: { postId: postId!, comment: values.text },
+    });
+    form.resetFields();
+  };
+
   return (
-    <div
-      style={{
-        padding: "24px",
-        backgroundColor: "#f0f2f5",
-        minHeight: "100vh",
-      }}
-    >
+    <div style={{ padding: 24, minHeight: "100vh" }}>
       <Row justify="center">
         <Col xs={24} lg={18} xl={16}>
-          {/* Back Button */}
           <Card style={{ marginBottom: 16 }}>
             <Button
-              type="default"
               icon={<ArrowLeftOutlined />}
               onClick={() => navigate("/posts/list")}
             >
@@ -105,154 +80,99 @@ const PostDetails: React.FC = () => {
             </Button>
           </Card>
 
-          {/* Post Details Card */}
+          {/* Post Content */}
           <Card style={{ marginBottom: 24 }}>
-            <Row gutter={24}>
-              {/* User Info */}
+            <Row gutter={16}>
               <Col xs={24} sm={4} style={{ textAlign: "center" }}>
                 <Avatar
-                  size={80}
+                  size={72}
                   src={selectedPost.avatar}
                   icon={!selectedPost.avatar && <UserOutlined />}
                 />
-                <div style={{ marginTop: 12 }}>
-                  <Title level={5} style={{ margin: 0 }}>
-                    {selectedPost.name}
-                  </Title>
-                </div>
+                <Title level={5} style={{ marginTop: 8 }}>
+                  {selectedPost.name}
+                </Title>
               </Col>
 
-              {/* Post Content */}
               <Col xs={24} sm={20}>
-                <Paragraph style={{ fontSize: 16, marginBottom: 16 }}>
-                  {selectedPost.text}
-                </Paragraph>
+                <Paragraph>{selectedPost.text}</Paragraph>
 
                 {selectedPost.image && (
-                  <div style={{ marginBottom: 16 }}>
-                    <Image
-                      src={selectedPost.image}
-                      alt="Post image"
-                      style={{ maxWidth: "100%", borderRadius: 8 }}
-                    />
-                  </div>
+                  <Image
+                    src={selectedPost.image}
+                    style={{ borderRadius: 6, marginBottom: 10 }}
+                  />
                 )}
 
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Posted on{" "}
-                  {new Date(selectedPost.createdAt || "").toLocaleDateString()}{" "}
-                  at{" "}
-                  {new Date(selectedPost.createdAt || "").toLocaleTimeString(
-                    [],
-                    {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    }
-                  )}
+                <Text type="secondary">
+                  {new Date(selectedPost.createdAt!).toLocaleString()}
                 </Text>
               </Col>
             </Row>
           </Card>
 
-          {/* Comments Section */}
+          {/* Comments */}
           <Card
             title={
               <Space>
                 <MessageOutlined />
-                <span>Comments ({selectedPost.comments?.length || 0})</span>
+                Comments ({selectedPost.comments?.length || 0})
               </Space>
             }
           >
-            {/* Add Comment Form */}
             {user && (
-              <div style={{ marginBottom: 24 }}>
-                <Form form={form} onFinish={onCreateComment} layout="vertical">
-                  <Row gutter={16} align="middle">
-                    <Col xs={24} sm={2}>
-                      <Avatar
-                        size={48}
-                        src={user.avatar}
-                        icon={!user.avatar && <UserOutlined />}
-                      />
-                    </Col>
-                    <Col xs={24} sm={22}>
-                      <Form.Item
-                        name="text"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter your comment",
-                          },
-                          { min: 1, message: "Comment cannot be empty" },
-                        ]}
-                      >
-                        <TextArea
-                          rows={3}
-                          placeholder="Write a comment..."
-                          maxLength={500}
-                          showCount
-                        />
-                      </Form.Item>
-                      <Form.Item>
-                        <Button
-                          type="primary"
-                          htmlType="submit"
-                          icon={<SendOutlined />}
-                        >
-                          Add Comment
-                        </Button>
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Form>
-              </div>
+              <Form form={form} onFinish={addComment} layout="vertical">
+                <Row gutter={12} align="middle">
+                  <Col xs={4} sm={2}>
+                    <Avatar src={user.avatar} />
+                  </Col>
+                  <Col xs={20} sm={22}>
+                    <Form.Item name="text" rules={[{ required: true }]}>
+                      <TextArea rows={3} placeholder="Add a comment..." />
+                    </Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      icon={<SendOutlined />}
+                    >
+                      Comment
+                    </Button>
+                  </Col>
+                </Row>
+              </Form>
             )}
 
             <Divider />
 
-            {/* Comments List */}
             {selectedPost.comments && selectedPost.comments.length > 0 ? (
-              selectedPost.comments.map((comment) => (
-                <Card
-                  key={comment._id}
-                  style={{ marginBottom: 16 }}
-                  size="small"
-                >
-                  <Row gutter={16}>
-                    <Col xs={24} sm={2} style={{ textAlign: "center" }}>
+              selectedPost.comments.map((c) => (
+                <Card key={c._id} style={{ marginBottom: 12 }}>
+                  <Row>
+                    <Col xs={4} sm={2} style={{ textAlign: "center" }}>
                       <Avatar
-                        size={48}
-                        src={comment.avatar}
-                        icon={!comment.avatar && <UserOutlined />}
+                        src={c.avatar}
+                        icon={!c.avatar && <UserOutlined />}
                       />
                     </Col>
-                    <Col xs={24} sm={19}>
-                      <div>
-                        <Text strong>{comment.name}</Text>
-                        <div style={{ marginTop: 8 }}>
-                          <Paragraph style={{ marginBottom: 8 }}>
-                            {comment.text}
-                          </Paragraph>
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            {new Date(comment.date || "").toLocaleDateString()}
-                          </Text>
-                        </div>
-                      </div>
+                    <Col xs={18} sm={20}>
+                      <Text strong>{c.name}</Text>
+                      <Paragraph style={{ marginTop: 6 }}>{c.text}</Paragraph>
+                      <Text type="secondary">
+                        {new Date(c.date!).toLocaleDateString()}
+                      </Text>
                     </Col>
-                    <Col xs={24} sm={3} style={{ textAlign: "right" }}>
-                      {user && comment.user === user._id && comment._id && (
+                    <Col xs={2} style={{ textAlign: "right" }}>
+                      {user?._id === c.user && (
                         <Popconfirm
-                          title="Delete this comment?"
-                          onConfirm={() => handleDeleteComment(comment._id!)}
-                          okText="Yes"
-                          cancelText="No"
+                          title="Delete comment?"
+                          onConfirm={() =>
+                            dispatch({
+                              type: DELETE_COMMENT,
+                              payload: { postId: postId!, commentId: c._id! },
+                            })
+                          }
                         >
-                          <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            size="small"
-                          />
+                          <Button icon={<DeleteOutlined />} danger />
                         </Popconfirm>
                       )}
                     </Col>
@@ -260,10 +180,7 @@ const PostDetails: React.FC = () => {
                 </Card>
               ))
             ) : (
-              <Empty
-                description="No comments yet. Be the first to comment!"
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              />
+              <Empty description="No comments yet" />
             )}
           </Card>
         </Col>

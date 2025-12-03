@@ -11,7 +11,7 @@ const rootReducer = combineReducers({
   profile: profileReducer,
   developer: developerReducer,
   alerts: alertReducer,
-  posts: postsReducer,
+  post: postsReducer,
   theme: themeReducer,
 });
 
