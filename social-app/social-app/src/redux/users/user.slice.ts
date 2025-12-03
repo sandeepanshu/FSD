@@ -31,7 +31,7 @@ const userSlice = createSlice({
       state.isRegistered = true;
       state.error = null;
     },
-
+    
     registerFailure(state, action: PayloadAction<string>) {
       state.loading = false;
       state.error = action.payload;
@@ -44,7 +44,7 @@ const userSlice = createSlice({
       state.token = action.payload;
       state.error = null;
     },
-
+    
     loginFailure(state, action: PayloadAction<string>) {
       state.loading = false;
       state.error = action.payload;
@@ -76,7 +76,6 @@ const userSlice = createSlice({
       state.isRegistered = false;
     },
 
-    // ✅ Add reset action
     resetRegisterState(state) {
       state.isRegistered = false;
       state.error = null;
@@ -84,6 +83,10 @@ const userSlice = createSlice({
 
     clearError(state) {
       state.error = null;
+    },
+    
+    setAuthenticated(state, action: PayloadAction<boolean>) {
+      state.isAuthenticated = action.payload;
     },
   },
 });
@@ -100,6 +103,7 @@ export const {
   logout,
   resetRegisterState,
   clearError,
+  setAuthenticated,
 } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -26,7 +26,6 @@ export const logOutUser = () => ({
   type: LOGOUT_USER,
 });
 
-// ✅ Add reset action
 export const resetRegisterState = () => ({
   type: RESET_REGISTER_STATE,
 });

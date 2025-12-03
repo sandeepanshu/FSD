@@ -14,14 +14,14 @@ const UserRegister: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  
+
   const { loading, isRegistered, error } = useSelector(
     (state: RootState) => state.user
   );
 
   // ✅ Navigate after successful registration
   useEffect(() => {
-    console.log(isRegistered, loading, "fdsfsdfdsf")
+    console.log(isRegistered, loading, "fdsfsdfdsf");
     if (isRegistered && !loading) {
       // Show success message and navigate
       setTimeout(() => {
@@ -37,8 +37,8 @@ const UserRegister: React.FC = () => {
       email: values.email,
       password: values.password,
     };
-    
-    dispatch(registerUser({ user: userData }));
+
+    dispatch(registerUser({ user: userData, navigate }));
   };
 
   if (loading) {
@@ -46,18 +46,20 @@ const UserRegister: React.FC = () => {
   }
 
   return (
-    <div style={{ 
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
-      minHeight: "80vh",
-      padding: "20px" 
-    }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "80vh",
+        padding: "20px",
+      }}
+    >
       <Card style={{ width: 400, maxWidth: "90%" }}>
         <Title level={2} style={{ textAlign: "center", marginBottom: 30 }}>
           Create Account
         </Title>
-        
+
         <Form
           form={form}
           name="register"
@@ -70,12 +72,12 @@ const UserRegister: React.FC = () => {
             label="Full Name"
             rules={[
               { required: true, message: "Please enter your full name" },
-              { min: 2, message: "Name must be at least 2 characters" }
+              { min: 2, message: "Name must be at least 2 characters" },
             ]}
           >
-            <Input 
-              prefix={<UserOutlined />} 
-              placeholder="Enter your full name" 
+            <Input
+              prefix={<UserOutlined />}
+              placeholder="Enter your full name"
               size="large"
             />
           </Form.Item>
@@ -85,12 +87,12 @@ const UserRegister: React.FC = () => {
             label="Email"
             rules={[
               { required: true, message: "Please enter your email" },
-              { type: "email", message: "Please enter a valid email" }
+              { type: "email", message: "Please enter a valid email" },
             ]}
           >
-            <Input 
-              prefix={<MailOutlined />} 
-              placeholder="Enter your email" 
+            <Input
+              prefix={<MailOutlined />}
+              placeholder="Enter your email"
               size="large"
             />
           </Form.Item>
@@ -100,12 +102,12 @@ const UserRegister: React.FC = () => {
             label="Password"
             rules={[
               { required: true, message: "Please enter your password" },
-              { min: 6, message: "Password must be at least 6 characters" }
+              { min: 6, message: "Password must be at least 6 characters" },
             ]}
           >
-            <Input.Password 
-              prefix={<LockOutlined />} 
-              placeholder="Enter your password" 
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Enter your password"
               size="large"
             />
           </Form.Item>
@@ -126,9 +128,9 @@ const UserRegister: React.FC = () => {
               }),
             ]}
           >
-            <Input.Password 
-              prefix={<LockOutlined />} 
-              placeholder="Confirm your password" 
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Confirm your password"
               size="large"
             />
           </Form.Item>
@@ -154,27 +156,31 @@ const UserRegister: React.FC = () => {
         </Form>
 
         {isRegistered && (
-          <div style={{ 
-            marginTop: 16, 
-            padding: 12, 
-            backgroundColor: "#f6ffed",
-            border: "1px solid #b7eb8f",
-            borderRadius: 4,
-            textAlign: "center"
-          }}>
+          <div
+            style={{
+              marginTop: 16,
+              padding: 12,
+              backgroundColor: "#f6ffed",
+              border: "1px solid #b7eb8f",
+              borderRadius: 4,
+              textAlign: "center",
+            }}
+          >
             ✅ Registration successful! Redirecting to login...
           </div>
         )}
 
         {error && !isRegistered && (
-          <div style={{ 
-            marginTop: 16, 
-            padding: 12, 
-            backgroundColor: "#fff2f0",
-            border: "1px solid #ffccc7",
-            borderRadius: 4,
-            textAlign: "center"
-          }}>
+          <div
+            style={{
+              marginTop: 16,
+              padding: 12,
+              backgroundColor: "#fff2f0",
+              border: "1px solid #ffccc7",
+              borderRadius: 4,
+              textAlign: "center",
+            }}
+          >
             ❌ {error}
           </div>
         )}

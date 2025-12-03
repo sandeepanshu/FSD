@@ -1,12 +1,10 @@
 import React from "react";
 import { Form, Input, Button, Card, Typography } from "antd";
 import { LoginOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
-
 import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-
 import type { UserView } from "../../../modules/users/models/UserView";
-import { LOGIN_USER } from "../../../redux/users/user.types";
+import { loginUser } from "../../../redux/users/user.actions";
 
 const { Title, Paragraph } = Typography;
 
@@ -15,10 +13,7 @@ const UserLogin: React.FC = () => {
   const navigate = useNavigate();
 
   const onFinish = (values: UserView) => {
-    dispatch({
-      type: LOGIN_USER,
-      payload: { user: values, navigate },
-    });
+    dispatch(loginUser({ user: values, navigate }));
   };
 
   return (
@@ -82,9 +77,7 @@ const UserLogin: React.FC = () => {
             name="password"
             rules={[
               { required: true, message: "Password is required" },
-              {
-                message: "Password must be 8–15 valid characters",
-              },
+              { min: 6, message: "Password must be at least 6 characters" },
             ]}
           >
             <Input.Password
@@ -107,7 +100,7 @@ const UserLogin: React.FC = () => {
           </Form.Item>
 
           <div style={{ textAlign: "center", marginTop: 15 }}>
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link to="/users/register">
               <strong>Register</strong>
             </Link>

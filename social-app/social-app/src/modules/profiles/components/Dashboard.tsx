@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Spinner from "../../../layout/util/Spinner";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import type { RootState } from "../../../redux/store";
 import type {
@@ -17,13 +17,25 @@ import {
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Add this
 
-  const { loading, user } = useSelector((state: RootState) => state.user);
+  const { loading, user, isAuthenticated } = useSelector(
+    (state: RootState) => state.user
+  );
   const { profile } = useSelector((state: RootState) => state.profile);
 
+  // ✅ Redirect if not authenticated
   useEffect(() => {
-    dispatch({ type: FETCH_MY_PROFILE });
-  }, [dispatch]);
+    if (!isAuthenticated && !loading) {
+      navigate("/users/login");
+    }
+  }, [isAuthenticated, loading, navigate]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch({ type: FETCH_MY_PROFILE });
+    }
+  }, [dispatch, isAuthenticated]);
 
   const clickDeleteExperience = (expId?: string) => {
     if (expId) dispatch({ type: DELETE_EXPERIENCE, payload: { id: expId } });
@@ -34,6 +46,11 @@ const Dashboard: React.FC = () => {
   };
 
   if (loading) return <Spinner />;
+
+  // ✅ Show loading while checking authentication
+  if (!isAuthenticated && loading) {
+    return <Spinner tip="Checking authentication..." />;
+  }
 
   return (
     <section className="mt-3">

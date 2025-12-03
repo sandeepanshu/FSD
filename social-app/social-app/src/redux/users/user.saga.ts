@@ -28,13 +28,10 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
 
 // Helper function to show alert in saga
-function* showAlertSaga(
-  message: string,
-  color: "success" | "danger" | "warning" | "info"
-) {
+function* showAlertSaga(message: string, color: "success" | "danger" | "warning" | "info") {
   const id = uuid();
   yield put(addAlert({ id, message, color }));
-
+  
   // Auto remove after 3 seconds
   yield delay(3000);
   yield put(removeAlert(id));
@@ -51,29 +48,34 @@ function* handleRegister(action: PayloadAction<RegisterPayload>) {
 
     yield put(registerSuccess());
     yield call(showAlertSaga, response.data.msg, "success");
+    
+    // ✅ Navigate to login if navigate function provided
+    if (action.payload.navigate) {
+      yield delay(1500); // Small delay to show success message
+      action.payload.navigate("/users/login");
+    }
+    
   } catch (error) {
     const err = error as ApiError;
     yield put(
       registerFailure(err.response?.data?.message ?? "Register failed")
     );
 
-    // Show individual error messages
     const errors = err.response?.data?.errors || [];
     if (errors.length > 0) {
       for (const e of errors) {
         yield call(showAlertSaga, e.msg, "danger");
       }
     } else {
-      yield call(
-        showAlertSaga,
-        err.response?.data?.message ?? "Registration failed",
+      yield call(showAlertSaga, 
+        err.response?.data?.message ?? "Registration failed", 
         "danger"
       );
     }
   }
 }
 
-// LOGIN
+// LOGIN - ✅ Fixed to navigate to dashboard
 function* handleLogin(action: PayloadAction<LoginPayload>) {
   try {
     yield put(setLoading());
@@ -87,9 +89,14 @@ function* handleLogin(action: PayloadAction<LoginPayload>) {
 
     yield put(loginSuccess(response.data.token));
     yield call(showAlertSaga, "Login Successful", "success");
-
-    // Get user info after successful login
+    
+    // ✅ Get user info after successful login
     yield put({ type: GET_USER_INFO });
+    
+    // ✅ Navigate to dashboard after successful login
+    yield delay(500); // Small delay to ensure state is updated
+    action.payload.navigate("/profiles/dashboard");
+    
   } catch (error) {
     const err = error as ApiError;
     const errorMsg = err.response?.data?.message ?? "Login failed";
@@ -110,17 +117,12 @@ function* handleGetUserInfo() {
     const err = error as ApiError;
     const errorMsg = err.response?.data?.message ?? "Failed to fetch user info";
     yield put(getUserInfoFailure(errorMsg));
-
+    
     // Clear invalid token
     UserUtil.removeToken();
     AuthUtil.setTokenHeader(null);
     yield put(logout());
-
-    yield call(
-      showAlertSaga,
-      "Session expired. Please login again.",
-      "warning"
-    );
+    yield call(showAlertSaga, "Session expired. Please login again.", "warning");
   }
 }
 

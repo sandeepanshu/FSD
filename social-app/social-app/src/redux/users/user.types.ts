@@ -1,3 +1,4 @@
+import type { NavigateFunction } from "react-router-dom";
 import type { UserView } from "../../modules/users/models/UserView";
 
 export interface UserState {
@@ -19,8 +20,10 @@ export const RESET_REGISTER_STATE = "user/RESET_REGISTER_STATE";
 // Payloads
 export interface RegisterPayload {
   user: UserView;
+  navigate?: NavigateFunction;
 }
 
 export interface LoginPayload {
   user: UserView;
+  navigate: NavigateFunction;
 }
