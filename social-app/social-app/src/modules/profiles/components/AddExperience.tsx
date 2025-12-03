@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -52,7 +54,11 @@ const AddExperience: React.FC = () => {
         company: values.company,
         location: values.location,
         from: dayjs(values.from).format("YYYY-MM-DD"),
-        to: values.current ? undefined : (values.to ? dayjs(values.to).format("YYYY-MM-DD") : undefined),
+        to: values.current
+          ? undefined
+          : values.to
+            ? dayjs(values.to).format("YYYY-MM-DD")
+            : undefined,
         current: values.current || false,
         description: values.description,
       };
@@ -90,7 +96,13 @@ const AddExperience: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: "24px", backgroundColor: "#f0f2f5", minHeight: "100vh" }}>
+    <div
+      style={{
+        padding: "24px",
+        backgroundColor: "#f0f2f5",
+        minHeight: "100vh",
+      }}
+    >
       <Row justify="center">
         <Col xs={24} sm={22} md={20} lg={16} xl={14}>
           <Card
@@ -102,7 +114,8 @@ const AddExperience: React.FC = () => {
                   Add Experience
                 </Title>
                 <Text type="secondary">
-                  Add your professional experience including company, title, and work duration
+                  Add your professional experience including company, title, and
+                  work duration
                 </Text>
               </div>
             }
@@ -135,8 +148,14 @@ const AddExperience: React.FC = () => {
                     label="Job Title"
                     name="title"
                     rules={[
-                      { required: true, message: "Please enter your job title" },
-                      { min: 2, message: "Title must be at least 2 characters" },
+                      {
+                        required: true,
+                        message: "Please enter your job title",
+                      },
+                      {
+                        min: 2,
+                        message: "Title must be at least 2 characters",
+                      },
                     ]}
                   >
                     <Input
@@ -155,7 +174,10 @@ const AddExperience: React.FC = () => {
                     name="company"
                     rules={[
                       { required: true, message: "Please enter company name" },
-                      { min: 2, message: "Company name must be at least 2 characters" },
+                      {
+                        min: 2,
+                        message: "Company name must be at least 2 characters",
+                      },
                     ]}
                   >
                     <Input
@@ -197,7 +219,9 @@ const AddExperience: React.FC = () => {
                           if (!value || dayjs(value).isBefore(dayjs())) {
                             return Promise.resolve();
                           }
-                          return Promise.reject(new Error("Start date cannot be in the future"));
+                          return Promise.reject(
+                            new Error("Start date cannot be in the future")
+                          );
                         },
                       }),
                     ]}
@@ -208,14 +232,20 @@ const AddExperience: React.FC = () => {
                       placeholder="Select start date"
                       suffixIcon={<CalendarOutlined />}
                       format="YYYY-MM-DD"
-                      disabledDate={(current) => current && current > dayjs().endOf('day')}
+                      disabledDate={(current) =>
+                        current && current > dayjs().endOf("day")
+                      }
                     />
                   </Form.Item>
                 </Col>
 
                 {/* Current Checkbox and To Date */}
                 <Col xs={24} md={12}>
-                  <Form.Item label="Current Job" name="current" valuePropName="checked">
+                  <Form.Item
+                    label="Current Job"
+                    name="current"
+                    valuePropName="checked"
+                  >
                     <Checkbox onChange={handleCurrentChange}>
                       I currently work here
                     </Checkbox>
@@ -227,7 +257,8 @@ const AddExperience: React.FC = () => {
                     rules={[
                       {
                         required: !isCurrent,
-                        message: "Please select end date unless this is your current job",
+                        message:
+                          "Please select end date unless this is your current job",
                       },
                       { validator: validateDateRange },
                       () => ({
@@ -235,7 +266,9 @@ const AddExperience: React.FC = () => {
                           if (!value || dayjs(value).isBefore(dayjs())) {
                             return Promise.resolve();
                           }
-                          return Promise.reject(new Error("End date cannot be in the future"));
+                          return Promise.reject(
+                            new Error("End date cannot be in the future")
+                          );
                         },
                       }),
                     ]}
@@ -249,8 +282,11 @@ const AddExperience: React.FC = () => {
                       disabled={isCurrent}
                       disabledDate={(current) => {
                         const fromDate = form.getFieldValue("from");
-                        return current && (current > dayjs().endOf('day') || 
-                          (fromDate && current < dayjs(fromDate)));
+                        return (
+                          current &&
+                          (current > dayjs().endOf("day") ||
+                            (fromDate && current < dayjs(fromDate)))
+                        );
                       }}
                     />
                   </Form.Item>
@@ -262,9 +298,18 @@ const AddExperience: React.FC = () => {
                     label="Description"
                     name="description"
                     rules={[
-                      { required: true, message: "Please enter job description" },
-                      { min: 10, message: "Description must be at least 10 characters" },
-                      { max: 1000, message: "Description must not exceed 1000 characters" },
+                      {
+                        required: true,
+                        message: "Please enter job description",
+                      },
+                      {
+                        min: 10,
+                        message: "Description must be at least 10 characters",
+                      },
+                      {
+                        max: 1000,
+                        message: "Description must not exceed 1000 characters",
+                      },
                     ]}
                   >
                     <TextArea
@@ -312,8 +357,14 @@ const AddExperience: React.FC = () => {
                   <li>Be specific about your role and responsibilities</li>
                   <li>Include key achievements and projects</li>
                   <li>Mention technologies and tools you used</li>
-                  <li>Use bullet points in the description (you can use * for bullets)</li>
-                  <li>Quantify achievements when possible (e.g., "Improved performance by 40%")</li>
+                  <li>
+                    Use bullet points in the description (you can use * for
+                    bullets)
+                  </li>
+                  <li>
+                    Quantify achievements when possible (e.g., "Improved
+                    performance by 40%")
+                  </li>
                 </ul>
               </Text>
             </Card>

@@ -156,14 +156,18 @@ function* handleAddEducation(action: PayloadAction<AddEducationPayload>) {
 // ----------------------------------
 function* handleAddExperience(action: PayloadAction<AddExperiencePayload>) {
   try {
-    const { experience } = action.payload;
+    const { experience, navigate } = action.payload;
 
     yield put(setLoading());
+
     const response: AxiosResponse<{ profile: ProfileView; msg: string }> =
       yield call(profileAPI.addExperience, experience);
 
     yield put(setProfile(response.data.profile));
     yield put(addAlertWithTimeout(response.data.msg, "success"));
+
+    // 👉 Navigate after success
+    navigate("/profiles/dashboard");
   } catch {
     yield put(setError("Failed to add experience"));
   }

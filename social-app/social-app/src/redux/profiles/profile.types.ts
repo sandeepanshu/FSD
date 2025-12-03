@@ -56,8 +56,10 @@ export interface SubmitProfilePayload {
 
 export interface AddEducationPayload {
   education: IEducation;
+  navigate: (path: string) => void;
 }
 
 export interface AddExperiencePayload {
   experience: IExperience;
+  navigate: (path: string) => void;
 }

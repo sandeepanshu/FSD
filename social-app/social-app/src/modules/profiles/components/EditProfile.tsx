@@ -59,8 +59,6 @@ const EditProfile: React.FC = () => {
 
   // When profile loads, fill form values
   useEffect(() => {
-    // console.log("Loaded profile:", profile);
-console.log("Loaded social:", profile.social);
 
     if (profile) {
       form.setFieldsValue({
